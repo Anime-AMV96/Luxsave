@@ -1,0 +1,3484 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUXSAVE - Servizi Premium</title>
+    <link rel="icon" type="image/png" sizes="48x48" href="favicon_sito.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="logo_sito.png">
+    <meta property="og:image" content="logo_sito.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #141419;
+            --accent-cyan: #00fff7;
+            --accent-pink: #ff006e;
+            --accent-yellow: #ffbe0b;
+            --accent-green: #3bff85;
+            --text-primary: #ffffff;
+            --text-secondary: #a8a8b3;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 247, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 0, 110, 0.05) 0%, transparent 50%);
+        }
+
+        /* Animated Background */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Header */
+        header {
+            position: relative;
+            padding: 2rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo img {
+            width: 180px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        nav {
+            display: flex;
+            gap: 3rem;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--accent-cyan);
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        /* Auth Button - stile identico a discord-btn */
+        .auth-btn {
+            background: linear-gradient(135deg, #00fff7, #ff006e);
+            color: #000;
+            font-weight: 700;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 247, 0.4);
+        }
+
+        .discord-btn {
+            background: #5865F2;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .discord-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(88, 101, 242, 0.3);
+        }
+
+        /* Language Selector */
+        .lang-selector {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .lang-selector select {
+            background: transparent;
+            color: var(--accent-cyan);
+            border: none;
+            outline: none;
+            cursor: pointer;
+            font-family: 'DM Sans', sans-serif;
+            padding: 0.25rem;
+            font-weight: 700;
+        }
+
+        .lang-selector select option {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            padding: 8rem 4rem 4rem;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .hero h1 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 6rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent-cyan) 50%, var(--accent-pink) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero p {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink), var(--accent-yellow));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Services Grid */
+        .services-container {
+            position: relative;
+            padding: 4rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            z-index: 10;
+        }
+
+        .section-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            text-align: center;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .service-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            z-index: 10;
+        }
+
+        .card-badge.una-tantum {
+            background: linear-gradient(135deg, var(--accent-cyan), #00b4d8);
+            color: #000;
+        }
+
+        .card-badge.coming-soon {
+            background: linear-gradient(135deg, var(--accent-yellow), #f9a826);
+            color: #000;
+        }
+
+        .service-icon img {
+            width: 64px;
+            height: 64px;
+            object-fit: contain;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-pink) 100%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            z-index: 0;
+        }
+
+        .service-card:hover::before {
+            opacity: 0.05;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 20px 60px rgba(0, 255, 247, 0.2);
+        }
+
+        .service-card-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .service-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .service-card h3 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            letter-spacing: 0.05em;
+        }
+
+        .service-card p {
+            color: var(--text-secondary);
+            text-align: center;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(90deg);
+        }
+
+        .modal-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            letter-spacing: 0.05em;
+        }
+
+        .option-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .option-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .option-item:hover {
+            background: rgba(0, 255, 247, 0.05);
+            border-color: var(--accent-cyan);
+            transform: translateX(5px);
+        }
+
+        .option-item.selected {
+            background: rgba(0, 255, 247, 0.15);
+            border-color: var(--accent-cyan);
+            border-width: 2px;
+        }
+
+        .option-item.selected::before {
+            content: '✓';
+            position: absolute;
+            right: 1.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--accent-cyan);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .option-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+
+        .option-price {
+            color: var(--accent-green);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+
+        .duration-selector {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .duration-btn {
+            flex: 1;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'DM Sans', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .duration-btn:hover,
+        .duration-btn.active {
+            background: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+            color: var(--bg-primary);
+        }
+
+        .special-note {
+            background: rgba(255, 190, 11, 0.1);
+            border: 1px solid var(--accent-yellow);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            color: var(--accent-yellow);
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .family-note {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-style: italic;
+            margin-top: 0.25rem;
+        }
+
+        .order-btn {
+            width: 100%;
+            padding: 1.2rem;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink));
+            border: none;
+            border-radius: 12px;
+            color: var(--bg-primary);
+            font-weight: 700;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .order-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 255, 247, 0.3);
+        }
+
+        .order-form {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .success-message {
+            background: rgba(59, 255, 133, 0.1);
+            border: 1px solid var(--accent-green);
+            border-radius: 12px;
+            padding: 1.5rem;
+            color: var(--accent-green);
+            text-align: center;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        .discount-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(255, 190, 11, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+        }
+
+        .discount-input-wrapper {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .discount-input-wrapper input {
+            flex: 1;
+        }
+
+        .discount-btn {
+            padding: 1rem 2rem;
+            background: var(--accent-yellow);
+            color: var(--bg-primary);
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'DM Sans', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .discount-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255, 190, 11, 0.3);
+        }
+
+        .discount-applied {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(59, 255, 133, 0.1);
+            border: 1px solid var(--accent-green);
+            border-radius: 8px;
+            color: var(--accent-green);
+            font-weight: 600;
+        }
+
+        .order-form-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .order-form-section h3 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.5rem;
+            color: var(--accent-cyan);
+            margin-bottom: 1rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+        }
+
+        .input-group select option {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Support Notice */
+        .support-notice {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            z-index: 1000;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .support-notice a {
+            color: #5865F2;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .support-notice a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            header {
+                padding: 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            header .logo img {
+                width: 140px !important;
+            }
+
+            nav {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+
+            nav a, nav button {
+                font-size: 0.85rem;
+                padding: 0.5rem 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2.2rem;
+                line-height: 1.2;
+            }
+
+            .hero p {
+                font-size: 0.95rem;
+                padding: 0 1rem;
+            }
+
+            .services-container {
+                padding: 1.5rem 1rem;
+            }
+
+            .section-title {
+                font-size: 1.3rem;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .service-card {
+                padding: 1.2rem;
+            }
+
+            .service-card h3 {
+                font-size: 1.1rem;
+            }
+
+            .modal-content {
+                padding: 1.5rem;
+                width: 95%;
+                max-height: 90vh;
+                margin: 1rem;
+            }
+
+            .modal-title {
+                font-size: 1.3rem;
+            }
+
+            .option-item {
+                padding: 0.8rem;
+                flex-direction: column;
+                text-align: center;
+                gap: 0.5rem;
+            }
+
+            .option-details {
+                align-items: center;
+            }
+
+            .duration-toggle {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .duration-toggle button {
+                width: 100%;
+            }
+
+            .support-notice {
+                bottom: 1rem;
+                left: 1rem;
+                right: 1rem;
+                transform: none;
+                text-align: center;
+                font-size: 0.85rem;
+                padding: 0.8rem;
+            }
+
+            footer {
+                padding: 2rem 1rem;
+            }
+
+            footer p {
+                font-size: 0.85rem;
+            }
+
+            .discount-section {
+                padding: 1rem;
+            }
+
+            .discount-input-wrapper {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+
+            .discount-input-wrapper input {
+                width: 100%;
+            }
+
+            .discount-btn {
+                width: 100%;
+                padding: 0.8rem 1rem;
+                margin-left: 0 !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header .logo img {
+                width: 120px !important;
+            }
+
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .hero p {
+                font-size: 0.9rem;
+            }
+
+            nav a, nav button {
+                font-size: 0.8rem;
+                padding: 0.4rem 0.8rem;
+            }
+
+            .modal-content {
+                padding: 1rem;
+            }
+
+            .btn {
+                padding: 0.8rem 1.5rem;
+                font-size: 0.9rem;
+            }
+
+            .discount-btn {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-grid"></div>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <img src="logo_sito.png" alt="LUXSAVE" onerror="this.onerror=null; this.style.display='none'; this.parentElement.innerHTML='<span style=\'font-family: Oswald; font-size: 2rem; font-weight: 700; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;\'>LUXSAVE</span>';">
+        </div>
+        <nav>
+            <a href="#services" data-lang="nav_services">SERVIZI</a>
+            <a href="javascript:void(0)" onclick="openModal('cancel-subscription')" data-lang="nav_cancel">DISDICI</a>
+            <div class="lang-selector" style="background: rgba(0, 255, 247, 0.15); border: 2px solid var(--accent-cyan); padding: 0.6rem 1rem;">
+                <select id="languageSelect" onchange="changeLanguage()" style="font-weight: 700; font-size: 1rem; color: var(--accent-cyan);">
+                    <option value="it">🇮🇹 IT</option>
+                    <option value="en">🇬🇧 EN</option>
+                </select>
+            </div>
+            <button id="authBtn" class="auth-btn">
+                <span id="authText" data-lang="auth_login">🔐 Accedi con Discord</span>
+            </button>
+
+            <a href="https://discord.gg/aabPMyv2g6" target="_blank" class="discord-btn">
+                <span>💬</span>
+                <span data-lang="nav_support">SUPPORTO</span>
+            </a>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <h1>
+            <span data-lang="hero_title1">RISPARMIA PIÙ.</span><br>
+            <span class="hero-gradient" data-lang="hero_title2">SPENDI MENO.</span>
+        </h1>
+        <p data-lang="hero_subtitle">Ottieni tutto a prezzi imbattibili e risparmia molto di più con i nostri servizi premium.</p>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="services-container">
+        <h2 class="section-title" data-lang="section_streaming">🎬 STREAMING & ABBONAMENTI</h2>
+        <div class="services-grid">
+            <div class="service-card" onclick="openModal('spotify')">
+                <div class="service-card-content">
+                    <div class="service-icon">🎵</div>
+                    <h3>Spotify</h3>
+                    <p data-lang="spotify_desc">Abbonamenti Premium individuali e familiari</p>
+                </div>
+            </div>
+
+            <div class="service-card" onclick="openModal('netflix')">
+                <div class="service-card-content">
+                    <div class="service-icon">🎬</div>
+                    <h3>Netflix</h3>
+                    <p data-lang="netflix_desc">Tutti i piani disponibili con garanzia</p>
+                </div>
+            </div>
+
+            <div class="service-card" onclick="openModal('disney')">
+                <span class="card-badge coming-soon" data-lang="coming_soon">In arrivo</span>
+                <div class="service-card-content">
+                    <div class="service-icon">✨</div>
+                    <h3>Disney+</h3>
+                    <p data-lang="disney_desc">Accesso completo alla libreria Disney</p>
+                </div>
+            </div>
+
+            <div class="service-card" onclick="openModal('youtube')">
+                <div class="service-card-content">
+                    <div class="service-icon">▶️</div>
+                    <h3>YouTube Premium</h3>
+                    <p data-lang="youtube_desc">Nessuna pubblicità e download illimitati</p>
+                </div>
+            </div>
+
+            <div class="service-card" onclick="openModal('google-one')">
+                <div class="service-card-content">
+                    <div class="service-icon">☁️</div>
+                    <h3>Google One</h3>
+                    <p>Cloud storage e funzioni AI Premium</p>
+                </div>
+            </div>
+
+            <div class="service-card" onclick="openModal('crunchyroll')">
+                <div class="service-card-content">
+                    <div class="service-icon">🍥</div>
+                    <h3>Crunchyroll</h3>
+                    <p data-lang="crunchyroll_desc">Streaming anime senza limiti</p>
+                </div>
+            </div>
+
+            
+            <div class="service-card" onclick="openModal('iptv')">
+                <div class="service-card-content">
+                    <div class="service-icon">📺</div>
+                    <h3 data-lang="iptv_title">IPTV</h3>
+                    <p data-lang="iptv_desc">Film, serie TV e canali come Sky Cinema</p>
+                </div>
+            </div>
+
+            <div class="service-card" onclick="openModal('hbo')">
+                <div class="service-card-content">
+                    <div class="service-icon">🎭</div>
+                    <h3>HBO Max</h3>
+                    <p>Serie esclusive e film Warner Bros</p>
+                </div>
+            </div>
+
+            <div class="service-card" onclick="openModal('prime')">
+                <div class="service-card-content">
+                    <div class="service-icon">📦</div>
+                    <h3>Prime Video</h3>
+                    <p>Streaming Amazon Prime</p>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title" data-lang="section_discord">💬 DISCORD</h2>
+        <div class="services-grid">
+            <div class="service-card" onclick="openModal('discord-nitro')">
+                <div class="service-card-content">
+                    <div class="service-icon">👑</div>
+                    <h3>Discord Nitro</h3>
+                    <p data-lang="nitro_desc">Abbonamento Nitro Basic o Nitro completo</p>
+                </div>
+            </div>
+
+            <div class="service-card" onclick="openModal('discord-decorations')">
+                <span class="card-badge una-tantum">Una tantum</span>
+                <div class="service-card-content">
+                    <div class="service-icon">✨</div>
+                    <h3 data-lang="decorations_title">Decorazioni Profilo</h3>
+                    <p data-lang="decorations_desc">Avatar decorations, effetti profilo e banner</p>
+                </div>
+            </div>
+
+            <div class="service-card" onclick="openModal('discord-boosts')">
+                <div class="service-card-content">
+                    <div class="service-icon">🚀</div>
+                    <h3 data-lang="boosts_title">Potenziamenti Server</h3>
+                    <p data-lang="boosts_desc">Boosta il tuo server Discord</p>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title" data-lang="section_gaming">🎮 GAMING</h2>
+        <div class="services-grid">
+            <div class="service-card" onclick="openModal('xbox-gamepass')">
+                <div class="service-card-content">
+                    <div class="service-icon">🎮</div>
+                    <h3>Xbox Game Pass</h3>
+                    <p data-lang="xbox_desc">Game Pass Ultimate e Core</p>
+                </div>
+            </div>
+
+            <div class="service-card" onclick="openModal('fortnite-vbucks')">
+                <span class="card-badge una-tantum">Una tantum</span>
+                <div class="service-card-content">
+                    <div class="service-icon">💎</div>
+                    <h3>Fortnite V-Bucks</h3>
+                    <p>V-Bucks economici per Fortnite</p>
+                </div>
+            </div>
+
+            <div class="service-card" onclick="openModal('playstation-plus')">
+                <div class="service-card-content">
+                    <div class="service-icon">🎮</div>
+                    <h3>PlayStation Plus</h3>
+                    <p data-lang="ps_desc">PS Plus Essential, Extra e Premium</p>
+                </div>
+            </div>
+
+            <div class="service-card" onclick="openModal('fortnite-crew')">
+                <div class="service-card-content">
+                    <div class="service-icon">🎮</div>
+                    <h3>Fortnite Crew</h3>
+                    <p data-lang="fortnite_desc">Abbonamento Fortnite Crew mensile</p>
+                </div>
+            </div>
+
+            <div class="service-card" onclick="openModal('steam-region')">
+                <span class="card-badge una-tantum">Una tantum</span>
+                <div class="service-card-content">
+                    <div class="service-icon">🌍</div>
+                    <h3 data-lang="steam_region_title">Steam Region Change</h3>
+                    <p data-lang="steam_region_desc">Cambia regione del tuo account Steam</p>
+                </div>
+            </div>
+
+            <div class="service-card" onclick="openModal('epic-region')">
+                <span class="card-badge una-tantum">Una tantum</span>
+                <div class="service-card-content">
+                    <div class="service-icon">🎯</div>
+                    <h3 data-lang="epic_region_title">Epic Games Region</h3>
+                    <p data-lang="epic_region_desc">Cambia regione Epic Games</p>
+                </div>
+            </div>
+
+            <div class="service-card" onclick="openModal('riot-region')">
+                <span class="card-badge una-tantum">Una tantum</span>
+                <div class="service-card-content">
+                    <div class="service-icon">🔥</div>
+                    <h3 data-lang="riot_region_title">Riot Games Region</h3>
+                    <p data-lang="riot_region_desc">Valorant, LoL e altri giochi Riot</p>
+                </div>
+            </div>
+
+            <div class="service-card" onclick="openModal('playstore-turkey')">
+                <span class="card-badge una-tantum">Una tantum</span>
+                <div class="service-card-content">
+                    <div class="service-icon">🛒</div>
+                    <h3>Play Store Turkey</h3>
+                    <p>Cambio regione Play Store</p>
+                </div>
+            </div>
+        </div>
+
+        
+        <h2 class="section-title">🔐 SICUREZZA & UTILITY</h2>
+        <div class="services-grid">
+            <div class="service-card" onclick="openModal('avast')">
+                <div class="service-card-content">
+                    <div class="service-icon">🛡️</div>
+                    <h3>Avast Premium</h3>
+                    <p>Antivirus e sicurezza</p>
+                </div>
+            </div>
+            <div class="service-card" onclick="openModal('kaspersky')">
+                <div class="service-card-content">
+                    <div class="service-icon">🔒</div>
+                    <h3>Kaspersky</h3>
+                    <p>Protezione avanzata</p>
+                </div>
+            </div>
+            <div class="service-card" onclick="openModal('duolingo')">
+                <div class="service-card-content">
+                    <div class="service-icon">🦉</div>
+                    <h3>Duolingo</h3>
+                    <p>Impara le lingue</p>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title" data-lang="section_sms">📱 SMS VERIFICAZIONE</h2>
+        <div class="services-grid">
+            <div class="service-card" onclick="openModal('sms-verification')">
+                <span class="card-badge una-tantum">Una tantum</span>
+                <div class="service-card-content">
+                    <div class="service-icon">✉️</div>
+                    <h3 data-lang="sms_title">SMS Verificazione</h3>
+                    <p data-lang="sms_desc">SMS di conferma per varie regioni e siti</p>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title" data-lang="section_cancel">❌ DISDICI ABBONAMENTI</h2>
+        <div class="services-grid">
+            <div class="service-card" onclick="openModal('cancel-subscription')">
+                <div class="service-card-content">
+                    <div class="service-icon">🔓</div>
+                    <h3 data-lang="cancel_title">Disdici Abbonamento</h3>
+                    <p data-lang="cancel_desc">Ti aiutiamo a cancellare qualsiasi abbonamento</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modals -->
+    <div id="modal" class="modal" onclick="closeModalOnOutside(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <button class="modal-close" onclick="closeModal()">×</button>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- Support Notice -->
+    <div class="support-notice">
+        <span data-lang="support_notice">Per problemi o assistenza, contattaci su</span> 
+        <a href="https://discord.gg/aabPMyv2g6" target="_blank">Discord</a>
+    </div>
+
+    <script>
+        // Variabili per tracking selezione
+        let selectedPlanData = { name: null, basePrice: 0, currentPrice: 0 };
+        let vpnAddonData = { active: false, price: 0 };
+        let discountApplied = { code: null, percentage: 0 };
+
+        // Carica e unisci codici sconto predefiniti
+        (function() {
+            const defaultCodes = [
+                { code: 'BENVENUTO10', percentage: 10, expiry: '2025-12-31T23:59:59', maxUses: 0, currentUses: 0 },
+                { code: 'AMICO15', percentage: 15, expiry: '2025-12-31T23:59:59', maxUses: 0, currentUses: 0 },
+                { code: 'VIP20', percentage: 20, expiry: '2025-12-31T23:59:59', maxUses: 0, currentUses: 0 },
+                { code: 'NATALE25', percentage: 25, expiry: '2025-12-31T23:59:59', maxUses: 0, currentUses: 0 },
+                { code: 'EASTER25', percentage: 25, expiry: '2026-05-04T23:59:59', maxUses: 0, currentUses: 0 },
+                { code: 'NANETTA', percentage: 100, expiry: '2025-12-31T23:59:59', maxUses: 0, currentUses: 0 }
+            ];
+            
+            // Prendi codici esistenti
+            const existing = JSON.parse(localStorage.getItem('luxsave_discounts') || '[]');
+            
+            // Aggiungi solo i codici che non esistono già
+            defaultCodes.forEach(defCode => {
+                if (!existing.find(e => e.code === defCode.code)) {
+                    existing.push(defCode);
+                }
+            });
+            
+            // Salva tutto
+            localStorage.setItem('luxsave_discounts', JSON.stringify(existing));
+        })();
+
+        // Translations
+        const translations = {
+            it: {
+                nav_services: "SERVIZI",
+                nav_cancel: "DISDICI",
+                nav_support: "SUPPORTO",
+                auth_login: "🔐 Accedi con Discord",
+                auth_logged: "👋 ",
+                hero_title1: "RISPARMIA PIÙ.",
+                hero_title2: "SPENDI MENO.",
+                hero_subtitle: "Ottieni tutto a prezzi imbattibili e risparmia molto di più con i nostri servizi premium.",
+                section_streaming: "🎬 STREAMING & ABBONAMENTI",
+                section_discord: "💬 DISCORD",
+                section_gaming: "🎮 GAMING",
+                section_sms: "📱 SMS VERIFICAZIONE",
+                section_cancel: "❌ DISDICI ABBONAMENTI",
+                spotify_desc: "Abbonamenti Premium individuali e familiari",
+                netflix_desc: "Tutti i piani disponibili con garanzia",
+                disney_desc: "Accesso completo alla libreria Disney",
+                youtube_desc: "Nessuna pubblicità e download illimitati",
+                crunchyroll_desc: "Streaming anime senza limiti",
+                iptv_title: "IPTV",
+                iptv_desc: "Film, serie TV e canali come Sky Cinema",
+                nitro_desc: "Abbonamento Nitro Basic o Nitro completo",
+                decorations_title: "Decorazioni Profilo",
+                decorations_desc: "Avatar decorations, effetti profilo e banner",
+                boosts_title: "Potenziamenti Server",
+                boosts_desc: "Boosta il tuo server Discord",
+                steam_region_title: "Steam Region Change",
+                steam_region_desc: "Cambia regione del tuo account Steam",
+                epic_region_title: "Epic Games Region",
+                epic_region_desc: "Cambia regione Epic Games",
+                riot_region_title: "Riot Games Region",
+                riot_region_desc: "Valorant, LoL e altri giochi Riot",
+                cancel_title: "Gestisci Ordine / Disdici Abbonamento",
+                cancel_desc: "Ti aiutiamo a cancellare qualsiasi abbonamento",
+                support_notice: "Per problemi o assistenza, contattaci su",
+                monthly: "MENSILE",
+                yearly: "ANNUALE",
+                select_duration: "Seleziona durata:",
+                price_varies: "Il prezzo varia in base alla decorazione scelta",
+                boost_server_id: "ID Server Discord:",
+                boost_amount: "Numero di potenziamenti:",
+                boost_duration: "Durata:",
+                boost_1month: "1 mese",
+                boost_3months: "3 mesi",
+                boost_6months: "6 mesi",
+                boost_12months: "12 mesi",
+                contact_discord: "Contattaci su Discord per procedere",
+                family_note: "*Si deve essere nello stesso nucleo familiare",
+                region_info: "Acquisterò un gioco Steam a basso costo con la banca della regione desiderata per cambiare regione.",
+                select_region: "Seleziona regione:",
+                select_decoration: "Seleziona decorazione:",
+                coming_soon: "In arrivo",
+                sms_title: "SMS Verificazione",
+                sms_desc: "SMS di conferma per varie regioni e siti",
+                select_country: "Seleziona paese:",
+                select_service: "Seleziona servizio:",
+                price_on_discord: "Prezzo da concordare su Discord",
+                fortnite_desc: "Abbonamento Fortnite Crew mensile",
+                xbox_desc: "Game Pass Ultimate e Core",
+                ps_desc: "PS Plus Essential, Extra e Premium",
+                payment_warning: "⚠️ Gli abbonamenti mensili vanno pagati almeno 3 giorni prima della scadenza, altrimenti verranno annullati",
+                discount_code: "Codice sconto (opzionale):",
+                apply_discount: "Applica",
+                original_price: "Prezzo normale:",
+                you_save: "Risparmi:",
+                delivery_time: "⏱️ Tempo di consegna: 24-48 ore lavorative",
+                order_now: "🛒 Ordina Ora",
+                discord_id: "Il tuo Discord ID:",
+                order_success: "✅ Ordine inviato con successo! Ti contatteremo entro 24-48 ore.",
+                order_error: "❌ Errore nell'invio dell'ordine. Riprova.",
+                cancellation_time: "⏱️ Tempo di elaborazione disdetta: 24-48 ore lavorative"
+            },
+            en: {
+                nav_services: "SERVICES",
+                nav_cancel: "CANCEL",
+                nav_support: "SUPPORT",
+                auth_login: "🔐 Login with Discord",
+                auth_logged: "👋 ",
+                hero_title1: "SAVE MORE.",
+                hero_title2: "SPEND LESS.",
+                hero_subtitle: "Get everything at unbeatable prices and save a lot more with our premium services.",
+                section_streaming: "🎬 STREAMING & SUBSCRIPTIONS",
+                section_discord: "💬 DISCORD",
+                section_gaming: "🎮 GAMING",
+                section_cancel: "❌ CANCEL SUBSCRIPTIONS",
+                spotify_desc: "Individual and family Premium subscriptions",
+                netflix_desc: "All plans available with warranty",
+                disney_desc: "Complete access to Disney library",
+                youtube_desc: "No ads and unlimited downloads",
+                crunchyroll_desc: "Unlimited anime streaming",
+                iptv_title: "IPTV",
+                iptv_desc: "Movies, TV series and channels like Sky Cinema",
+                nitro_desc: "Nitro Basic or full Nitro subscription",
+                decorations_title: "Profile Decorations",
+                decorations_desc: "Avatar decorations, profile effects and banners",
+                boosts_title: "Server Boosts",
+                boosts_desc: "Boost your Discord server",
+                steam_region_title: "Steam Region Change",
+                steam_region_desc: "Change your Steam account region",
+                epic_region_title: "Epic Games Region",
+                epic_region_desc: "Change Epic Games region",
+                riot_region_title: "Riot Games Region",
+                riot_region_desc: "Valorant, LoL and other Riot games",
+                cancel_title: "Manage Order / Cancel Subscription",
+                cancel_desc: "We help you cancel any subscription",
+                support_notice: "For issues or assistance, contact us on",
+                monthly: "MONTHLY",
+                yearly: "YEARLY",
+                select_duration: "Select duration:",
+                price_varies: "Price varies based on selected decoration",
+                boost_server_id: "Discord Server ID:",
+                boost_amount: "Number of boosts:",
+                boost_duration: "Duration:",
+                boost_1month: "1 month",
+                boost_3months: "3 months",
+                boost_6months: "6 months",
+                boost_12months: "12 months",
+                contact_discord: "Contact us on Discord to proceed",
+                family_note: "*Must be in the same household",
+                region_info: "I will purchase a cheap cost Steam game with the desired region bank to change region.",
+                select_region: "Select region:",
+                select_decoration: "Select decoration:",
+                coming_soon: "Coming soon",
+                sms_title: "SMS Verification",
+                sms_desc: "Confirmation SMS for various regions and sites",
+                select_country: "Select country:",
+                select_service: "Select service:",
+                price_on_discord: "Price to be agreed on Discord",
+                fortnite_desc: "Monthly Fortnite Crew subscription",
+                xbox_desc: "Game Pass Ultimate and Core",
+                ps_desc: "PS Plus Essential, Extra and Premium",
+                payment_warning: "⚠️ Monthly subscriptions must be paid at least 3 days before expiration, otherwise they will be cancelled",
+                discount_code: "Discount code (optional):",
+                apply_discount: "Apply",
+                original_price: "Normal price:",
+                you_save: "You save:",
+                delivery_time: "⏱️ Delivery time: 24-48 working hours",
+                order_now: "🛒 Order Now",
+                discord_id: "Your Discord ID:",
+                order_success: "✅ Order sent successfully! We will contact you within 24-48 hours.",
+                order_error: "❌ Error sending order. Please try again.",
+                cancellation_time: "⏱️ Cancellation processing time: 24-48 working hours"
+            }
+        };
+
+        let currentLang = 'it';
+
+        function changeLanguage() {
+            currentLang = document.getElementById('languageSelect').value;
+            updateLanguage();
+        }
+
+        function updateLanguage() {
+            const elements = document.querySelectorAll('[data-lang]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-lang');
+                if (translations[currentLang][key]) {
+                    el.textContent = translations[currentLang][key];
+                }
+            });
+        }
+
+        function getOrderFormHTML(serviceType) {
+            return `
+                <div class="discount-section">
+                    <label style="font-weight: 600; color: var(--text-primary);">${translations[currentLang].discount_code}</label>
+                    <div class="discount-input-wrapper">
+                        <input type="text" id="discount-code-input" placeholder="Inserisci codice..." style="text-transform: uppercase;">
+                        <button class="discount-btn" onclick="applyDiscount()">${translations[currentLang].apply_discount}</button>
+                        <button class="discount-btn" onclick="removeDiscount()" style="background: var(--accent-pink); margin-left: 0.5rem;">❌ RIMUOVI</button>
+                    </div>
+                    <div id="discount-message"></div>
+                </div>
+                <div class="order-form-section">
+                    <h3>📝 Completa l'ordine</h3>
+                    <div class="input-group">
+                        <label>${translations[currentLang].discord_id} *</label>
+                        <input type="text" id="discord-id-input" placeholder="es: username#1234">
+                    </div>
+                    <div class="input-group">
+                        <label>Note aggiuntive (opzionale):</label>
+                        <textarea id="order-notes" placeholder="Specifiche, richieste particolari..."></textarea>
+                    </div>
+                    <button class="btn" onclick="submitOrder('${serviceType}')" style="width: 100%;">
+                        ${translations[currentLang].order_now}
+                    </button>
+                </div>
+                <div class="special-note" style="background: rgba(255, 190, 11, 0.1); border-color: var(--accent-yellow); color: var(--text-primary);">
+                    ${translations[currentLang].delivery_time}
+                </div>
+            `;
+        }
+
+        function openModal(service) {
+            const modal = document.getElementById('modal');
+            const modalBody = document.getElementById('modalBody');
+            
+            let content = '';
+            
+            switch(service) {
+                case 'fortnite-crew':
+                    content = `
+                        <h2 class="modal-title">Fortnite Crew</h2>
+                        <div class="option-list">
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Fortnite Crew Turkey</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €11.99 | ${translations[currentLang].you_save} €5.00 (42%)</div>
+                                </div>
+                                <span class="option-price">€6.99/mese</span>
+                            </div>
+                        </div>
+                        <div class="special-note" style="background: rgba(255, 190, 11, 0.1); border-color: var(--accent-yellow); color: var(--text-primary); text-align: left;">
+                            <strong style="color: var(--accent-yellow);">⚠️ REQUISITI IMPORTANTI:</strong><br><br>
+                            • Assicurati che la tua regione Epic Games sia Turkey prima di procedere<br>
+                            • Non avere nessun abbonamento Crew attivo prima di ordinare<br>
+                            • L'abbonamento sarà attivato sul tuo account principale<br>
+                            • Deve essere rinnovato da me ogni mese<br>
+                            • Verrà utilizzato il prezzo della Turchia<br><br>
+                            <strong style="color: var(--accent-pink);">${translations[currentLang].payment_warning}</strong>
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-fortnite-crew" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('fortnite-crew')}
+                    `;
+                    break;
+
+                case 'xbox-gamepass':
+                    content = `
+                        <h2 class="modal-title">Xbox Game Pass</h2>
+                        <div class="duration-selector">
+                            <button class="duration-btn active" data-duration="monthly" onclick="toggleDuration(this, 'xbox-gamepass')">${translations[currentLang].monthly}</button>
+                            <button class="duration-btn" data-duration="yearly" onclick="toggleDuration(this, 'xbox-gamepass')">${translations[currentLang].yearly}</button>
+                        </div>
+                        <div class="option-list" id="xbox-gamepass-prices">
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Xbox Game Pass Core</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €6.99 | ${translations[currentLang].you_save} €2.00 (29%)</div>
+                                </div>
+                                <span class="option-price">€4.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Xbox Game Pass Ultimate</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €17.99 | ${translations[currentLang].you_save} €6.00 (33%)</div>
+                                </div>
+                                <span class="option-price">€11.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Xbox Game Pass PC</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €11.99 | ${translations[currentLang].you_save} €4.00 (33%)</div>
+                                </div>
+                                <span class="option-price">€7.99</span>
+                            </div>
+                        </div>
+                        <div class="special-note" style="background: rgba(255, 0, 110, 0.1); border-color: var(--accent-pink); color: var(--text-primary);">
+                            ${translations[currentLang].payment_warning}
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-xbox-gamepass" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('xbox-gamepass')}
+                    `;
+                    break;
+
+                case 'playstation-plus':
+                    content = `
+                        <h2 class="modal-title">PlayStation Plus</h2>
+                        <div class="duration-selector">
+                            <button class="duration-btn active" data-duration="monthly" onclick="toggleDuration(this, 'playstation-plus')">${translations[currentLang].monthly}</button>
+                            <button class="duration-btn" data-duration="yearly" onclick="toggleDuration(this, 'playstation-plus')">${translations[currentLang].yearly}</button>
+                        </div>
+                        <div class="option-list" id="playstation-plus-prices">
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">PlayStation Plus Essential</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €8.99 | ${translations[currentLang].you_save} €2.00 (22%)</div>
+                                </div>
+                                <span class="option-price">€6.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">PlayStation Plus Extra</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €13.99 | ${translations[currentLang].you_save} €4.00 (29%)</div>
+                                </div>
+                                <span class="option-price">€9.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">PlayStation Plus Premium</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €16.99 | ${translations[currentLang].you_save} €5.00 (29%)</div>
+                                </div>
+                                <span class="option-price">€11.99</span>
+                            </div>
+                        </div>
+                        <div class="special-note" style="background: rgba(255, 0, 110, 0.1); border-color: var(--accent-pink); color: var(--text-primary);">
+                            ${translations[currentLang].payment_warning}
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-playstation-plus" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('playstation-plus')}
+                    `;
+                    break;
+
+                case 'spotify':
+                    content = `
+                        <h2 class="modal-title">Spotify Premium</h2>
+                        <div class="duration-selector">
+                            <button class="duration-btn active" data-duration="monthly" onclick="toggleDuration(this, 'spotify')">${translations[currentLang].monthly}</button>
+                            <button class="duration-btn" data-duration="yearly" onclick="toggleDuration(this, 'spotify')">${translations[currentLang].yearly}</button>
+                        </div>
+                        <div class="option-list" id="spotify-prices">
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Spotify Premium Individual</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €10.99 | ${translations[currentLang].you_save} €5.00 (45%)</div>
+                                </div>
+                                <span class="option-price">€5.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Spotify Premium Duo</div>
+                                    <div class="family-note">${translations[currentLang].family_note}</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €14.99 | ${translations[currentLang].you_save} €7.00 (47%)</div>
+                                </div>
+                                <span class="option-price">€7.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Spotify Premium Family (6 accounts)</div>
+                                    <div class="family-note">${translations[currentLang].family_note}</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €19.99 | ${translations[currentLang].you_save} €9.00 (45%)</div>
+                                </div>
+                                <span class="option-price">€10.99</span>
+                            </div>
+                        </div>
+                        <div class="special-note" style="background: rgba(255, 0, 110, 0.1); border-color: var(--accent-pink); color: var(--text-primary);">
+                            ${translations[currentLang].payment_warning}
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-spotify" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('spotify')}
+                    `;
+                    break;
+                    
+                case 'netflix':
+                    content = `
+                        <h2 class="modal-title">Netflix</h2>
+                        <div class="duration-selector">
+                            <button class="duration-btn active" data-duration="monthly" onclick="toggleDuration(this, 'netflix')">${translations[currentLang].monthly}</button>
+                            <button class="duration-btn" data-duration="yearly" onclick="toggleDuration(this, 'netflix')">${translations[currentLang].yearly}</button>
+                        </div>
+                        <div class="option-list" id="netflix-prices">
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Netflix Standard con pubblicità</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €5.49 | ${translations[currentLang].you_save} €1.50 (27%)</div>
+                                </div>
+                                <span class="option-price">€3.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Netflix Standard</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €13.99 | ${translations[currentLang].you_save} €4.00 (29%)</div>
+                                </div>
+                                <span class="option-price">€9.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Netflix Premium 4K (Family)</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €19.99 | ${translations[currentLang].you_save} €6.00 (30%)</div>
+                                </div>
+                                <span class="option-price">€13.99</span>
+                            </div>
+                        </div>
+                        <div class="special-note" style="background: rgba(255, 0, 110, 0.1); border-color: var(--accent-pink); color: var(--text-primary);">
+                            ${translations[currentLang].payment_warning}
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-netflix" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('netflix')}
+                    `;
+                    break;
+
+                case 'disney':
+                    content = `
+                        <h2 class="modal-title">Disney+</h2>
+                        <div class="duration-selector">
+                            <button class="duration-btn active" data-duration="monthly" onclick="toggleDuration(this, 'disney')">${translations[currentLang].monthly}</button>
+                            <button class="duration-btn" data-duration="yearly" onclick="toggleDuration(this, 'disney')">${translations[currentLang].yearly}</button>
+                        </div>
+                        <div class="option-list" id="disney-prices">
+                            <div class="option-item">
+                                <span class="option-name">Disney+ Standard</span>
+                                <span class="option-price">${translations[currentLang].coming_soon}</span>
+                            </div>
+                            <div class="option-item">
+                                <span class="option-name">Disney+ Premium</span>
+                                <span class="option-price">${translations[currentLang].coming_soon}</span>
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'youtube':
+                    content = `
+                        <h2 class="modal-title">▶️ YouTube Premium</h2>
+                        <div class="duration-selector">
+                            <button class="duration-btn active" data-duration="monthly" onclick="toggleDuration(this, 'youtube')">${translations[currentLang].monthly}</button>
+                            <button class="duration-btn" data-duration="yearly" onclick="toggleDuration(this, 'youtube')">${translations[currentLang].yearly}</button>
+                        </div>
+                        <div class="option-list" id="youtube-prices">
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">YouTube Premium Individual</div>
+                                    <div class="family-note"></div>
+                                    <div class="family-note">${translations[currentLang].original_price} €11.99 | ${translations[currentLang].you_save} €6.00 (50%)</div>
+                                </div>
+                                <span class="option-price">€5.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">YouTube Premium Family (5 members)</div>
+                                    <div class="family-note">${translations[currentLang].family_note}</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €17.99 | ${translations[currentLang].you_save} €7.00 (39%)</div>
+                                </div>
+                                <span class="option-price">€10.99</span>
+                            </div>
+                        </div>
+                        
+                        <div class="special-note" style="background: rgba(255, 165, 0, 0.1); border-color: orange; color: var(--text-primary);">
+                            <strong style="color: orange;">⚠️ REQUISITI:</strong><br>
+                            • Devi avere Play Store impostato in TURKEY<br>
+                            • Se non lo hai, ordina prima "Play Store Turkey Region"<br>
+                            • Va rinnovato manualmente ogni mese/anno quando scade<br>
+                            • Abbonamento sul tuo account Google principale<br>
+                            • Nessun abbonamento YouTube attivo prima di ordinare<br>
+                            • Login Google richiesto ad ogni rinnovo
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-youtube" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('youtube')}
+                    `;
+                    break;
+
+                
+                case 'google-one':
+                    content = `
+                        <h2 class="modal-title">☁️ Google One</h2>
+                        <div class="duration-selector">
+                            <button class="duration-btn active" data-duration="monthly" onclick="toggleDuration(this, 'google-one')">${translations[currentLang].monthly}</button>
+                            <button class="duration-btn" data-duration="yearly" onclick="toggleDuration(this, 'google-one')">${translations[currentLang].yearly}</button>
+                        </div>
+                        <div class="option-list" id="google-one-prices">
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Google One 100GB</div>
+                                    <div class="family-note"></div>
+                                    <div class="family-note">${translations[currentLang].original_price} €1.99 | ${translations[currentLang].you_save} €0.50 (25%)</div>
+                                </div>
+                                <span class="option-price">€1.49</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Google One 200GB</div>
+                                    <div class="family-note"></div>
+                                    <div class="family-note">${translations[currentLang].original_price} €2.99 | ${translations[currentLang].you_save} €1.00 (33%)</div>
+                                </div>
+                                <span class="option-price">€1.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Google One 2TB</div>
+                                    <div class="family-note">Include funzioni AI Premium</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €9.99 | ${translations[currentLang].you_save} €3.00 (30%)</div>
+                                </div>
+                                <span class="option-price">€6.99</span>
+                            </div>
+                        </div>
+                        
+                        <div class="special-note" style="background: rgba(255, 165, 0, 0.1); border-color: orange; color: var(--text-primary);">
+                            <strong style="color: orange;">⚠️ REQUISITI:</strong><br>
+                            • Devi avere Play Store impostato in TURKEY<br>
+                            • Se non lo hai, ordina prima "Play Store Turkey Region"<br>
+                            • Va rinnovato manualmente ogni mese/anno quando scade<br>
+                            • Abbonamento sul tuo account Google principale<br>
+                            • Nessun abbonamento Google One attivo prima di ordinare<br>
+                            • Login Google richiesto ad ogni rinnovo
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-google-one" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('google-one')}
+                    `;
+                    break;
+
+                case 'crunchyroll':
+                    content = `
+                        <h2 class="modal-title">Crunchyroll</h2>
+                        <div class="duration-selector">
+                            <button class="duration-btn active" data-duration="monthly" onclick="toggleDuration(this, 'crunchyroll')">${translations[currentLang].monthly}</button>
+                            <button class="duration-btn" data-duration="yearly" onclick="toggleDuration(this, 'crunchyroll')">${translations[currentLang].yearly}</button>
+                        </div>
+                        <div class="option-list" id="crunchyroll-prices">
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Crunchyroll Fan</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €7.99 | ${translations[currentLang].you_save} €3.00 (38%)</div>
+                                </div>
+                                <span class="option-price">€4.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Crunchyroll Mega Fan</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €11.99 | ${translations[currentLang].you_save} €4.00 (33%)</div>
+                                </div>
+                                <span class="option-price">€7.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Crunchyroll Ultimate Fan</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €15.99 | ${translations[currentLang].you_save} €5.00 (31%)</div>
+                                </div>
+                                <span class="option-price">€10.99</span>
+                            </div>
+                        </div>
+                        <div class="special-note" style="background: rgba(255, 0, 110, 0.1); border-color: var(--accent-pink); color: var(--text-primary);">
+                            ${translations[currentLang].payment_warning}
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-crunchyroll" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('crunchyroll')}
+                    `;
+                    break;
+
+                case 'iptv':
+                    content = `
+                        <h2 class="modal-title">IPTV</h2>
+                        <div class="option-list">
+                            <div class="option-item">
+                                <span class="option-name">IPTV Complete - Film, Serie TV, Canali Live, Sport, Sky Cinema</span>
+                                <span class="option-price">€24.99/mese</span>
+                            </div>
+                        </div>
+                        <div class="special-note">
+                            ✨ Accesso completo a tutti i contenuti IPTV<br>
+                            💬 ${translations[currentLang].contact_discord}
+                        </div>
+                        <div class="special-note" style="background: rgba(255, 0, 110, 0.1); border-color: var(--accent-pink); color: var(--text-primary);">
+                            ${translations[currentLang].payment_warning}
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-iptv" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('iptv')}
+                    `;
+                    break;
+
+                case 'discord-nitro':
+                    content = `
+                        <h2 class="modal-title">Discord Nitro</h2>
+                        <div class="duration-selector">
+                            <button class="duration-btn active" data-duration="monthly" onclick="toggleDuration(this, 'discord-nitro')">${translations[currentLang].monthly}</button>
+                            <button class="duration-btn" data-duration="yearly" onclick="toggleDuration(this, 'discord-nitro')">${translations[currentLang].yearly}</button>
+                        </div>
+                        <div class="option-list" id="discord-nitro-prices">
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Discord Nitro Basic</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €3.99 | ${translations[currentLang].you_save} €0.50 (13%)</div>
+                                </div>
+                                <span class="option-price">€3.49</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Discord Nitro</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €10.99 | ${translations[currentLang].you_save} €2.00 (18%)</div>
+                                </div>
+                                <span class="option-price">€8.99</span>
+                            </div>
+                        </div>
+                        <div class="special-note" style="background: rgba(255, 0, 110, 0.1); border-color: var(--accent-pink); color: var(--text-primary);">
+                            ${translations[currentLang].payment_warning}
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-discord-nitro" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('discord-nitro')}
+                    `;
+                    break;
+
+                case 'discord-decorations':
+                    content = `
+                        <h2 class="modal-title">${translations[currentLang].decorations_title}</h2>
+                        <div class="input-group">
+                            <label>${translations[currentLang].select_decoration}</label>
+                            <select id="decoration-select" onchange="updateDecorationSummary()">
+                                <option value="" data-price="0">Seleziona una decorazione...</option>
+                                <option value="avatar" data-price="2.99" data-original="4.99" data-savings="40%">Avatar Decoration - €2.99 (Risparmi €2.00, 40%)</option>
+                                <option value="effect" data-price="3.99" data-original="6.99" data-savings="43%">Profile Effect - €3.99 (Risparmi €3.00, 43%)</option>
+                                <option value="banner" data-price="4.99" data-original="8.99" data-savings="44%">Profile Banner - €4.99 (Risparmi €4.00, 44%)</option>
+                                <option value="theme" data-price="5.99" data-original="9.99" data-savings="40%">Profile Theme - €5.99 (Risparmi €4.00, 40%)</option>
+                            </select>
+                        </div>
+                        <div class="special-note">
+                            ⚠️ ${translations[currentLang].price_varies}<br>
+                            💬 ${translations[currentLang].contact_discord}
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-discord-decorations" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('discord-decorations')}
+                    `;
+                    // Auto-update summary dopo render
+                    setTimeout(() => updateDecorationSummary(), 100);
+                    break;
+
+                case 'discord-boosts':
+                    content = `
+                        <h2 class="modal-title">${translations[currentLang].boosts_title}</h2>
+                        <div class="input-group">
+                            <label>${translations[currentLang].boost_server_id}</label>
+                            <input type="text" id="boost-server-id" placeholder="123456789012345678">
+                        </div>
+                        <div class="input-group">
+                            <label>${translations[currentLang].boost_amount}</label>
+                            <select id="boost-amount" onchange="updateBoostSummary()">
+                                <option value="1">1 Boost</option>
+                                <option value="2">2 Boosts</option>
+                                <option value="4">4 Boosts</option>
+                                <option value="8">8 Boosts</option>
+                                <option value="14">14 Boosts</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>${translations[currentLang].boost_duration}</label>
+                            <select id="boost-duration" onchange="updateBoostSummary()">
+                                <option value="1" data-price="4.99" data-original="5.99" data-savings="17%">${translations[currentLang].boost_1month} - €4.99/boost (${translations[currentLang].you_save} €1.00, 17%)</option>
+                                <option value="3" data-price="12.99" data-original="17.97" data-savings="28%">${translations[currentLang].boost_3months} - €12.99/boost (${translations[currentLang].you_save} €4.98, 28%)</option>
+                                <option value="6" data-price="24.99" data-original="35.94" data-savings="30%">${translations[currentLang].boost_6months} - €24.99/boost (${translations[currentLang].you_save} €10.95, 30%)</option>
+                                <option value="12" data-price="45.99" data-original="71.88" data-savings="36%">${translations[currentLang].boost_12months} - €45.99/boost (${translations[currentLang].you_save} €25.89, 36%)</option>
+                            </select>
+                        </div>
+                        <div class="special-note">
+                            💬 ${translations[currentLang].contact_discord}
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-discord-boosts" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('discord-boosts')}
+                    `;
+                    // Auto-update summary dopo render
+                    setTimeout(() => updateBoostSummary(), 100);
+                    break;
+
+                case 'steam-region':
+                    content = `
+                        <h2 class="modal-title">${translations[currentLang].steam_region_title}</h2>
+                        <div class="special-note" style="background: rgba(0, 255, 247, 0.1); border-color: var(--accent-cyan); color: var(--text-primary); margin-bottom: 2rem;">
+                            📝 ${translations[currentLang].region_info}
+                        </div>
+                        <div class="option-list">
+                            <div class="option-item">
+                                <span class="option-name">🇹🇷 Turkey Region Change</span>
+                                <span class="option-price">${translations[currentLang].price_on_discord}</span>
+                            </div>
+                        </div>
+                        <div class="special-note">
+                            💬 ${translations[currentLang].contact_discord}
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-steam-region" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('steam-region')}
+                    `;
+                    break;
+
+                case 'epic-region':
+                    content = `
+                        <h2 class="modal-title">${translations[currentLang].epic_region_title}</h2>
+                        <div class="special-note" style="background: rgba(0, 255, 247, 0.1); border-color: var(--accent-cyan); color: var(--text-primary); margin-bottom: 2rem;">
+                            📝 ${translations[currentLang].region_info}
+                        </div>
+                        <div class="option-list">
+                            <div class="option-item">
+                                <span class="option-name">🇹🇷 Turkey Region Change</span>
+                                <span class="option-price">${translations[currentLang].price_on_discord}</span>
+                            </div>
+                        </div>
+                        <div class="special-note">
+                            💬 ${translations[currentLang].contact_discord}
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-epic-region" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('epic-region')}
+                    `;
+                    break;
+
+                case 'riot-region':
+                    content = `
+                        <h2 class="modal-title">${translations[currentLang].riot_region_title}</h2>
+                        <div class="option-list">
+                            <div class="option-item">
+                                <span class="option-name">🇹🇷 Valorant Turkey Region</span>
+                                <span class="option-price">${translations[currentLang].price_on_discord}</span>
+                            </div>
+                            <div class="option-item">
+                                <span class="option-name">🇹🇷 League of Legends Turkey Region</span>
+                                <span class="option-price">${translations[currentLang].price_on_discord}</span>
+                            </div>
+                        </div>
+                        <div class="special-note">
+                            💬 ${translations[currentLang].contact_discord}
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-riot-region" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('riot-region')}
+                    `;
+                    break;
+
+                case 'hbo':
+                    content = `
+                        <h2 class="modal-title">🎭 HBO MAX</h2>
+                        <div class="duration-selector">
+                            <button class="duration-btn active" data-duration="monthly" onclick="toggleDuration(this, 'hbo')">${translations[currentLang].monthly}</button>
+                            <button class="duration-btn" data-duration="yearly" onclick="toggleDuration(this, 'hbo')">${translations[currentLang].yearly}</button>
+                        </div>
+                        <div class="option-list" id="hbo-prices">
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">HBO Max Standard</div>
+                                    <div class="family-note"></div>
+                                    <div class="family-note">${translations[currentLang].original_price} €9.99 | ${translations[currentLang].you_save} €5.00 (50%)</div>
+                                </div>
+                                <span class="option-price">€4.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">HBO Max Premium (No Ads)</div>
+                                    <div class="family-note"></div>
+                                    <div class="family-note">${translations[currentLang].original_price} €13.99 | ${translations[currentLang].you_save} €6.00 (43%)</div>
+                                </div>
+                                <span class="option-price">€7.99</span>
+                            </div>
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-hbo" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('hbo')}
+                    `;
+                    break;
+
+                case 'prime':
+                    content = `
+                        <h2 class="modal-title">📦 PRIME VIDEO</h2>
+                        <div class="duration-selector">
+                            <button class="duration-btn active" data-duration="monthly" onclick="toggleDuration(this, 'prime')">${translations[currentLang].monthly}</button>
+                            <button class="duration-btn" data-duration="yearly" onclick="toggleDuration(this, 'prime')">${translations[currentLang].yearly}</button>
+                        </div>
+                        <div class="option-list" id="prime-prices">
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Prime Video</div>
+                                    <div class="family-note"></div>
+                                    <div class="family-note">${translations[currentLang].original_price} €8.99 | ${translations[currentLang].you_save} €3.00 (33%)</div>
+                                </div>
+                                <span class="option-price">€5.99</span>
+                            </div>
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-prime" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('prime')}
+                    `;
+                    break;
+
+                case 'avast':
+                    content = `
+                        <h2 class="modal-title">🛡️ AVAST PREMIUM</h2>
+                        <div class="duration-selector">
+                            <button class="duration-btn active" data-duration="monthly" onclick="toggleDuration(this, 'avast')">${translations[currentLang].monthly}</button>
+                            <button class="duration-btn" data-duration="yearly" onclick="toggleDuration(this, 'avast')">${translations[currentLang].yearly}</button>
+                        </div>
+                        <div class="option-list" id="avast-prices">
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Avast Premium - 1 Dispositivo</div>
+                                    <div class="family-note"></div>
+                                    <div class="family-note">${translations[currentLang].original_price} €7.99 | ${translations[currentLang].you_save} €3.00 (38%)</div>
+                                </div>
+                                <span class="option-price">€4.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Avast Premium - 5 Dispositivi</div>
+                                    <div class="family-note"></div>
+                                    <div class="family-note">${translations[currentLang].original_price} €14.99 | ${translations[currentLang].you_save} €5.00 (33%)</div>
+                                </div>
+                                <span class="option-price">€9.99</span>
+                            </div>
+                        </div>
+                        
+                        <div class="vpn-addon">
+                            <label class="vpn-checkbox">
+                                <input type="checkbox" id="avast-vpn-addon" onchange="updateAvastVPN(this.checked)">
+                                <span id="avast-vpn-label">Aggiungi Avast SecureLine VPN (+€2.99/mese)</span>
+                            </label>
+                        </div>
+                        
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-avast" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('avast')}
+                    `;
+                    break;
+
+                case 'kaspersky':
+                    content = `
+                        <h2 class="modal-title">🔒 KASPERSKY</h2>
+                        <div class="duration-selector">
+                            <button class="duration-btn active" data-duration="monthly" onclick="toggleDuration(this, 'kaspersky')">${translations[currentLang].monthly}</button>
+                            <button class="duration-btn" data-duration="yearly" onclick="toggleDuration(this, 'kaspersky')">${translations[currentLang].yearly}</button>
+                        </div>
+                        <div class="option-list" id="kaspersky-prices">
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Kaspersky Standard - 1 Dispositivo</div>
+                                    <div class="family-note"></div>
+                                    <div class="family-note">${translations[currentLang].original_price} €7.99 | ${translations[currentLang].you_save} €3.00 (38%)</div>
+                                </div>
+                                <span class="option-price">€4.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Kaspersky Plus - 3 Dispositivi</div>
+                                    <div class="family-note"></div>
+                                    <div class="family-note">${translations[currentLang].original_price} €12.99 | ${translations[currentLang].you_save} €5.00 (38%)</div>
+                                </div>
+                                <span class="option-price">€7.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Kaspersky Premium - 5 Dispositivi</div>
+                                    <div class="family-note"></div>
+                                    <div class="family-note">${translations[currentLang].original_price} €17.99 | ${translations[currentLang].you_save} €7.00 (39%)</div>
+                                </div>
+                                <span class="option-price">€10.99</span>
+                            </div>
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-kaspersky" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('kaspersky')}
+                    `;
+                    break;
+
+                case 'duolingo':
+                    content = `
+                        <h2 class="modal-title">🦉 DUOLINGO</h2>
+                        <div class="duration-selector">
+                            <button class="duration-btn active" data-duration="monthly" onclick="toggleDuration(this, 'duolingo')">${translations[currentLang].monthly}</button>
+                            <button class="duration-btn" data-duration="yearly" onclick="toggleDuration(this, 'duolingo')">${translations[currentLang].yearly}</button>
+                        </div>
+                        <div class="option-list" id="duolingo-prices">
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Duolingo Plus</div>
+                                    <div class="family-note">Senza pubblicità, vite illimitate</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €6.99 | ${translations[currentLang].you_save} €3.00 (43%)</div>
+                                </div>
+                                <span class="option-price">€3.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Duolingo Family (6 persone)</div>
+                                    <div class="family-note">Vantaggi Plus per la famiglia</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €13.99 | ${translations[currentLang].you_save} €5.00 (36%)</div>
+                                </div>
+                                <span class="option-price">€8.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Duolingo Max (con AI)</div>
+                                    <div class="family-note">Include spiegazioni AI</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €19.99 | ${translations[currentLang].you_save} €7.00 (35%)</div>
+                                </div>
+                                <span class="option-price">€12.99</span>
+                            </div>
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-duolingo" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('duolingo')}
+                    `;
+                    break;
+
+                
+                
+                case 'fortnite-vbucks':
+                    content = `
+                        <h2 class="modal-title">💎 Fortnite V-Bucks</h2>
+                        <div class="option-list">
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">1,000 V-Bucks</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €8.99 | ${translations[currentLang].you_save} €3.00 (33%)</div>
+                                </div>
+                                <span class="option-price">€5.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">2,800 V-Bucks</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €19.99 | ${translations[currentLang].you_save} €6.00 (30%)</div>
+                                </div>
+                                <span class="option-price">€13.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">5,000 V-Bucks</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €31.99 | ${translations[currentLang].you_save} €8.00 (25%)</div>
+                                </div>
+                                <span class="option-price">€23.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">13,500 V-Bucks</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €79.99 | ${translations[currentLang].you_save} €20.00 (25%)</div>
+                                </div>
+                                <span class="option-price">€59.99</span>
+                            </div>
+                        </div>
+                        
+                        <div class="special-note" style="background: rgba(255, 165, 0, 0.1); border-color: orange; color: var(--text-primary);">
+                            <strong style="color: orange;">⚠️ REQUISITI:</strong><br>
+                            • Devi avere Epic Games Store impostato in TURKEY<br>
+                            • Se non lo hai, ordina prima "Epic Games Turkey Region"<br>
+                            • Login Epic richiesto per consegna V-Bucks
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-fortnite-vbucks" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('fortnite-vbucks')}
+                    `;
+                    break;
+
+                case 'playstore-turkey':
+                    content = `
+                        <h2 class="modal-title">🇹🇷 Play Store Turkey</h2>
+                        <p style="text-align: center; color: var(--text-secondary); margin: 1rem 0;">
+                            Cambia la regione del tuo Google Play Store in Turchia per accedere a prezzi più bassi
+                        </p>
+                        <div class="option-list">
+                            <div class="option-item selected">
+                                <div>
+                                    <div class="option-name">Cambio Regione Play Store → Turkey</div>
+                                    <div class="family-note">Servizio una tantum - Accesso prezzi turchi</div>
+                                </div>
+                                <span class="option-price">€14.99</span>
+                            </div>
+                        </div>
+                        
+                        <div class="special-note" style="background: rgba(0, 255, 255, 0.1); border-color: var(--accent-cyan); color: var(--text-primary);">
+                            <strong style="color: var(--accent-cyan);">ℹ️ INFORMAZIONI:</strong><br>
+                            • Servizio NECESSARIO per YouTube Premium e Google One<br>
+                            • Cambio completo regione Play Store in TURKEY<br>
+                            • Accesso permanente a prezzi turchi (molto più bassi)<br>
+                            • Login Google richiesto per effettuare il cambio<br>
+                            • Una tantum (non serve rifare mai più)<br>
+                            • Dopo questo servizio potrai ordinare YouTube e Google One
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-playstore-turkey" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('playstore-turkey')}
+                    `;
+                    // Auto-select the only option
+                    setTimeout(() => {
+                        selectedPlan = 'Cambio Regione Play Store → Turkey';
+                        selectedPlanData = { name: 'Cambio Regione Play Store → Turkey', basePrice: 14.99, currentPrice: 14.99 };
+                        updateOrderSummaryForCurrentService();
+                    }, 100);
+                    break;
+
+                case 'cancel-subscription':
+                    content = `
+                        <h2 class="modal-title">${translations[currentLang].cancel_title}</h2>
+                        <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                            Compila il modulo sottostante e riceverai conferma entro 24-48 ore lavorative.
+                        </p>
+                        <div class="order-form-section">
+                            <div class="input-group">
+                                <label>${translations[currentLang].discord_id} *</label>
+                                <input type="text" id="cancel-discord-id" placeholder="es: username#1234">
+                            </div>
+                            <div class="input-group">
+                                <label>Servizio da disdire: *</label>
+                                <select id="cancel-service">
+                                    <option value="">Seleziona servizio...</option>
+                                    <option value="Spotify Premium">Spotify Premium</option>
+                                    <option value="Netflix">Netflix</option>
+                                    <option value="Disney+">Disney+</option>
+                                    <option value="YouTube Premium">YouTube Premium</option>
+                                    <option value="Crunchyroll">Crunchyroll</option>
+                                    <option value="IPTV">IPTV</option>
+                                    <option value="Discord Nitro">Discord Nitro</option>
+                                    <option value="Discord Server Boosts">Discord Server Boosts</option>
+                                    <option value="Discord Decorations">Discord Decorations</option>
+                                    <option value="Xbox Game Pass">Xbox Game Pass</option>
+                                    <option value="PlayStation Plus">PlayStation Plus</option>
+                                    <option value="HBO Max">HBO Max</option>
+                                    <option value="Prime Video">Prime Video</option>
+                                    <option value="Avast Premium">Avast Premium</option>
+                                    <option value="Kaspersky">Kaspersky</option>
+                                    <option value="Duolingo">Duolingo</option>
+                                    <option value="Fortnite Crew">Fortnite Crew</option>
+                                    <option value="Fortnite V-Bucks">Fortnite V-Bucks</option>
+                                    <option value="Google One">Google One</option>
+                                    <option value="Play Store Turkey">Play Store Turkey</option>
+                                    <option value="Altro">Altro</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label>Motivo (opzionale):</label>
+                                <textarea id="cancel-reason" placeholder="Dicci perché vuoi disdire..."></textarea>
+                            </div>
+                            <button class="btn" onclick="submitCancellation()" style="width: 100%;">
+                                ${translations[currentLang].order_now}
+                            </button>
+                        </div>
+                        <div class="special-note" style="background: rgba(255, 190, 11, 0.1); border-color: var(--accent-yellow); color: var(--text-primary);">
+                            ${translations[currentLang].cancellation_time}
+                        </div>
+                    `;
+                    break;
+
+                case 'sms-verification':
+                    content = `
+                        <h2 class="modal-title">${translations[currentLang].sms_title}</h2>
+                        <div class="input-group">
+                            <label>${translations[currentLang].select_country}</label>
+                            <select id="sms-country-select" onchange="updateSmsSummary()">
+                                <option value="">Seleziona un paese...</option>
+                                <option value="🇺🇦 Ukraine">🇺🇦 Ukraine</option>
+                                <option value="🇹🇷 Turkey">🇹🇷 Turkey</option>
+                                <option value="🇷🇺 Russia">🇷🇺 Russia</option>
+                                <option value="🇮🇳 India">🇮🇳 India</option>
+                                <option value="🇮🇩 Indonesia">🇮🇩 Indonesia</option>
+                                <option value="🇻🇳 Vietnam">🇻🇳 Vietnam</option>
+                                <option value="🇵🇭 Philippines">🇵🇭 Philippines</option>
+                                <option value="🇧🇩 Bangladesh">🇧🇩 Bangladesh</option>
+                                <option value="🇧🇷 Brazil">🇧🇷 Brazil</option>
+                                <option value="🇲🇽 Mexico">🇲🇽 Mexico</option>
+                                <option value="🇳🇬 Nigeria">🇳🇬 Nigeria</option>
+                                <option value="🇰🇪 Kenya">🇰🇪 Kenya</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>${translations[currentLang].select_service}</label>
+                            <select id="sms-service-select" onchange="updateSmsSummary()">
+                                <option value="">Seleziona un servizio...</option>
+                                <option value="discord">Discord</option>
+                                <option value="telegram">Telegram</option>
+                                <option value="whatsapp">WhatsApp</option>
+                                <option value="google">Google</option>
+                                <option value="microsoft">Microsoft</option>
+                                <option value="facebook">Facebook</option>
+                                <option value="instagram">Instagram</option>
+                                <option value="twitter">Twitter/X</option>
+                                <option value="tiktok">TikTok</option>
+                                <option value="steam">Steam</option>
+                                <option value="epic">Epic Games</option>
+                                <option value="paypal">PayPal</option>
+                                <option value="amazon">Amazon</option>
+                                <option value="ebay">eBay</option>
+                                <option value="other">Altri servizi</option>
+                            </select>
+                        </div>
+                        <div class="special-note">
+                            ⚠️ ${translations[currentLang].price_varies}<br>
+                            💬 ${translations[currentLang].contact_discord}
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-sms-verification" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('sms-verification')}
+                    `;
+                    // Auto-update summary dopo render
+                    setTimeout(() => updateSmsSummary(), 100);
+                    break;
+            }
+            
+            modalBody.innerHTML = content;
+            modal.classList.add('active');
+            
+            // Reset selected plan e dati
+            selectedPlan = null;
+            selectedPlanData = { name: '', basePrice: 0, currentPrice: 0 };
+            
+            // Reset sconto applicato per ogni nuovo ordine
+            discountApplied = { code: null, percentage: 0 };
+            
+            // Reset durata a mensile per ogni nuovo modal
+            currentServiceDuration = 'monthly';
+            currentAvastDuration = 'monthly';
+            
+            // Add click handlers to options after a short delay to ensure DOM is ready
+            setTimeout(() => {
+                addOptionClickHandlers();
+                // Inizializza il riepilogo con messaggio di selezione
+                updateOrderSummaryForCurrentService();
+            }, 100);
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('active');
+        }
+
+        function closeModalOnOutside(event) {
+            if (event.target === document.getElementById('modal')) {
+                closeModal();
+            }
+        }
+
+        function toggleDuration(btn, service) {
+            const buttons = btn.parentElement.querySelectorAll('.duration-btn');
+            buttons.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            const duration = btn.getAttribute('data-duration');
+            const pricesContainer = document.getElementById(service + '-prices');
+            
+            if (!pricesContainer) return;
+            
+            // Salva la durata corrente globalmente
+            currentServiceDuration = duration;
+            
+            // Aggiorna VPN label per Avast quando cambia la durata
+            if (service === 'avast') {
+                currentAvastDuration = duration;
+                const vpnLabel = document.getElementById('avast-vpn-label');
+                const vpnCheckbox = document.getElementById('avast-vpn-addon');
+                if (vpnLabel) {
+                    if (duration === 'yearly') {
+                        vpnLabel.textContent = 'Aggiungi Avast SecureLine VPN (+€29.99/anno)';
+                    } else {
+                        vpnLabel.textContent = 'Aggiungi Avast SecureLine VPN (+€2.99/mese)';
+                    }
+                }
+                // Aggiorna anche il prezzo se è già selezionato
+                if (vpnCheckbox && vpnCheckbox.checked) {
+                    vpnAddonData.price = duration === 'yearly' ? 29.99 : 2.99;
+                }
+            }
+            
+            // Prezzi mensili e annuali per ogni servizio
+            const prices = {
+                'spotify': {
+                    'monthly': {
+                        prices: ['€5.99', '€7.99', '€10.99'],
+                        originals: ['€10.99', '€14.99', '€19.99'],
+                        savings: ['€5.00 (45%)', '€7.00 (47%)', '€9.00 (45%)']
+                    },
+                    'yearly': {
+                        prices: ['€59.99', '€79.99', '€109.99'],
+                        originals: ['€131.88', '€179.88', '€239.88'],
+                        savings: ['€71.89 (55%)', '€99.89 (56%)', '€129.89 (54%)']
+                    }
+                },
+                'netflix': {
+                    'monthly': {
+                        prices: ['€3.99', '€9.99', '€13.99'],
+                        originals: ['€5.49', '€13.99', '€19.99'],
+                        savings: ['€1.50 (27%)', '€4.00 (29%)', '€6.00 (30%)']
+                    },
+                    'yearly': {
+                        prices: ['€39.99', '€99.99', '€139.99'],
+                        originals: ['€65.88', '€167.88', '€239.88'],
+                        savings: ['€25.89 (39%)', '€67.89 (40%)', '€99.89 (42%)']
+                    }
+                },
+                'disney': {
+                    'monthly': {
+                        prices: [translations[currentLang].coming_soon, translations[currentLang].coming_soon],
+                        originals: ['', ''],
+                        savings: ['', '']
+                    },
+                    'yearly': {
+                        prices: [translations[currentLang].coming_soon, translations[currentLang].coming_soon],
+                        originals: ['', ''],
+                        savings: ['', '']
+                    }
+                },
+                'youtube': {
+                    'monthly': {
+                        prices: ['€5.99', '€10.99'],
+                        originals: ['€11.99', '€17.99'],
+                        savings: ['€6.00 (50%)', '€7.00 (39%)']
+                    },
+                    'yearly': {
+                        prices: ['€59.99/anno', '€109.99/anno'],
+                        originals: ['€143.88', '€215.88'],
+                        savings: ['€83.89 (58%)', '€105.89 (49%)']
+                    }
+                },
+                'google-one': {
+                    'monthly': {
+                        prices: ['€1.49', '€1.99', '€6.99'],
+                        originals: ['€1.99', '€2.99', '€9.99'],
+                        savings: ['€0.50 (25%)', '€1.00 (33%)', '€3.00 (30%)']
+                    },
+                    'yearly': {
+                        prices: ['€14.99/anno', '€19.99/anno', '€69.99/anno'],
+                        originals: ['€23.88', '€35.88', '€119.88'],
+                        savings: ['€8.89 (37%)', '€15.89 (44%)', '€49.89 (42%)']
+                    }
+                },
+                'crunchyroll': {
+                    'monthly': {
+                        prices: ['€4.99', '€7.99', '€10.99'],
+                        originals: ['€7.99', '€11.99', '€15.99'],
+                        savings: ['€3.00 (38%)', '€4.00 (33%)', '€5.00 (31%)']
+                    },
+                    'yearly': {
+                        prices: ['€49.99', '€79.99', '€109.99'],
+                        originals: ['€95.88', '€143.88', '€191.88'],
+                        savings: ['€45.89 (48%)', '€63.89 (44%)', '€81.89 (43%)']
+                    }
+                },
+                'discord-nitro': {
+                    'monthly': {
+                        prices: ['€3.49', '€8.99'],
+                        originals: ['€3.99', '€9.99'],
+                        savings: ['€0.50 (13%)', '€1.00 (10%)']
+                    },
+                    'yearly': {
+                        prices: ['€34.99', '€89.99'],
+                        originals: ['€47.88', '€119.88'],
+                        savings: ['€12.89 (27%)', '€29.89 (25%)']
+                    }
+                },
+                'xbox-gamepass': {
+                    'monthly': {
+                        prices: ['€4.99', '€11.99', '€7.99'],
+                        originals: ['€6.99', '€17.99', '€11.99'],
+                        savings: ['€2.00 (29%)', '€6.00 (33%)', '€4.00 (33%)']
+                    },
+                    'yearly': {
+                        prices: ['€49.99', '€119.99', '€79.99'],
+                        originals: ['€83.88', '€215.88', '€143.88'],
+                        savings: ['€33.89 (40%)', '€95.89 (44%)', '€63.89 (44%)']
+                    }
+                },
+                'playstation-plus': {
+                    'monthly': {
+                        prices: ['€6.99', '€9.99', '€11.99'],
+                        originals: ['€8.99', '€13.99', '€16.99'],
+                        savings: ['€2.00 (22%)', '€4.00 (29%)', '€5.00 (29%)']
+                    },
+                    'yearly': {
+                        prices: ['€69.99', '€99.99', '€119.99'],
+                        originals: ['€107.88', '€167.88', '€203.88'],
+                        savings: ['€37.89 (35%)', '€67.89 (40%)', '€83.89 (41%)']
+                    }
+                },
+                'hbo': {
+                    'monthly': {
+                        prices: ['€4.99', '€7.99'],
+                        originals: ['€9.99', '€13.99'],
+                        savings: ['€5.00 (50%)', '€6.00 (43%)']
+                    },
+                    'yearly': {
+                        prices: ['€49.99/anno', '€79.99/anno'],
+                        originals: ['€119.88', '€167.88'],
+                        savings: ['€69.89 (58%)', '€87.89 (52%)']
+                    }
+                },
+                'prime': {
+                    'monthly': {
+                        prices: ['€5.99'],
+                        originals: ['€8.99'],
+                        savings: ['€3.00 (33%)']
+                    },
+                    'yearly': {
+                        prices: ['€59.99/anno'],
+                        originals: ['€107.88'],
+                        savings: ['€47.89 (44%)']
+                    }
+                },
+                'avast': {
+                    'monthly': {
+                        prices: ['€4.99', '€9.99'],
+                        originals: ['€7.99', '€14.99'],
+                        savings: ['€3.00 (38%)', '€5.00 (33%)']
+                    },
+                    'yearly': {
+                        prices: ['€49.99/anno', '€99.99/anno'],
+                        originals: ['€95.88', '€179.88'],
+                        savings: ['€45.89 (48%)', '€79.89 (44%)']
+                    }
+                },
+                'kaspersky': {
+                    'monthly': {
+                        prices: ['€4.99', '€7.99', '€10.99'],
+                        originals: ['€7.99', '€12.99', '€17.99'],
+                        savings: ['€3.00 (38%)', '€5.00 (38%)', '€7.00 (39%)']
+                    },
+                    'yearly': {
+                        prices: ['€49.99/anno', '€79.99/anno', '€109.99/anno'],
+                        originals: ['€95.88', '€155.88', '€215.88'],
+                        savings: ['€45.89 (48%)', '€75.89 (49%)', '€105.89 (49%)']
+                    }
+                },
+                'duolingo': {
+                    'monthly': {
+                        prices: ['€3.99', '€8.99', '€12.99'],
+                        originals: ['€6.99', '€13.99', '€19.99'],
+                        savings: ['€3.00 (43%)', '€5.00 (36%)', '€7.00 (35%)']
+                    },
+                    'yearly': {
+                        prices: ['€39.99/anno', '€89.99/anno', '€129.99/anno'],
+                        originals: ['€83.88', '€167.88', '€239.88'],
+                        savings: ['€43.89 (52%)', '€77.89 (46%)', '€109.89 (46%)']
+                    }
+                }
+            };
+            
+            if (prices[service] && prices[service][duration]) {
+                const priceElements = pricesContainer.querySelectorAll('.option-item');
+                const serviceData = prices[service][duration];
+                
+                priceElements.forEach((item, index) => {
+                    const priceEl = item.querySelector('.option-price');
+                    const savingsNotes = item.querySelectorAll('.family-note');
+                    
+                    // Update price
+                    if (priceEl && serviceData.prices[index]) {
+                        priceEl.textContent = serviceData.prices[index];
+                    }
+                    
+                    // Update savings info (last family-note is usually the savings one)
+                    if (savingsNotes.length > 0 && serviceData.originals[index] && serviceData.savings[index]) {
+                        const lastNote = savingsNotes[savingsNotes.length - 1];
+                        lastNote.textContent = `${translations[currentLang].original_price} ${serviceData.originals[index]} | ${translations[currentLang].you_save} ${serviceData.savings[index]}`;
+                    }
+                });
+                
+                // Rimuovi la selezione corrente e resetta il piano
+                priceElements.forEach(item => item.classList.remove('selected'));
+                selectedPlan = null;
+                selectedPlanData = { name: '', basePrice: 0, currentPrice: 0 };
+                
+                // Aggiorna il riepilogo ordine
+                updateOrderSummaryForCurrentService();
+            }
+        }
+
+        // Initialize language
+        updateLanguage();
+
+        // Variable to store selected plan
+        let selectedPlan = null;
+
+        // Add click handlers to option items after modal opens
+        function addOptionClickHandlers() {
+            const optionItems = document.querySelectorAll('.option-item');
+            optionItems.forEach(item => {
+                item.style.cursor = 'pointer';
+                item.style.position = 'relative';
+                item.onclick = function() {
+                    // Remove selected class from all items
+                    optionItems.forEach(i => i.classList.remove('selected'));
+                    // Add selected class to clicked item
+                    this.classList.add('selected');
+                    
+                    // Store selected plan data
+                    const planName = this.querySelector('.option-name')?.textContent || '';
+                    const priceText = this.querySelector('.option-price')?.textContent || '€0';
+                    const price = parseFloat(priceText.replace('€', '').replace('/mese', '').replace('/anno', ''));
+                    
+                    selectedPlanData = {
+                        name: planName,
+                        basePrice: price,
+                        currentPrice: price
+                    };
+                    
+                    selectedPlan = planName;
+                    
+                    // Aggiorna riepilogo
+                    updateOrderSummaryForCurrentService();
+                };
+            });
+        }
+        
+        function updateOrderSummaryForCurrentService() {
+            // Trova il service type dal modal aperto
+            const modal = document.getElementById('modal');
+            if (!modal || !modal.classList.contains('active')) return;
+            
+            const titleElement = modal.querySelector('.modal-title');
+            if (!titleElement) return;
+            
+            // Mappa titoli a service types
+            const serviceMap = {
+                'Spotify Premium': 'spotify',
+                'Netflix': 'netflix',
+                'Discord Nitro': 'discord-nitro',
+                '🎭 HBO MAX': 'hbo',
+                '📦 PRIME VIDEO': 'prime',
+                '🛡️ AVAST PREMIUM': 'avast',
+                '🔒 KASPERSKY': 'kaspersky',
+                '🦉 DUOLINGO': 'duolingo',
+                'Crunchyroll': 'crunchyroll',
+                'IPTV': 'iptv',
+                'Xbox Game Pass': 'xbox-gamepass',
+                '🎮 XBOX GAME PASS': 'xbox-gamepass',
+                'PlayStation Plus': 'playstation-plus',
+                '🎮 PLAYSTATION PLUS': 'playstation-plus',
+                'YouTube Premium': 'youtube',
+                '▶️ YouTube Premium': 'youtube',
+                '🔴 YOUTUBE PREMIUM': 'youtube',
+                'Google One': 'google-one',
+                '☁️ Google One': 'google-one',
+                'Fortnite V-Bucks': 'fortnite-vbucks',
+                '💎 Fortnite V-Bucks': 'fortnite-vbucks',
+                'Play Store Turkey': 'playstore-turkey',
+                '🇹🇷 Play Store Turkey': 'playstore-turkey'
+            };
+            
+            const title = titleElement.textContent.trim();
+            let serviceType = serviceMap[title];
+            
+            // Se non trovato esattamente, cerca una corrispondenza parziale
+            if (!serviceType) {
+                for (const [key, value] of Object.entries(serviceMap)) {
+                    if (title.includes(key) || key.includes(title)) {
+                        serviceType = value;
+                        break;
+                    }
+                }
+            }
+            
+            if (!serviceType) return;
+            
+            const summaryDiv = document.getElementById(`order-summary-${serviceType}`);
+            if (!summaryDiv) return;
+            
+            // Servizi una tantum
+            const oneTimeServices = ['playstore-turkey', 'steam-region', 'epic-region', 'riot-region', 'sms-verification', 'discord-decorations', 'fortnite-vbucks'];
+            const isOneTime = oneTimeServices.includes(serviceType);
+            
+            // Controlla se c'è un piano selezionato con prezzo valido
+            let total = (selectedPlanData.currentPrice && !isNaN(selectedPlanData.currentPrice)) ? selectedPlanData.currentPrice : 0;
+            let html = '';
+            
+            // Determina l'etichetta della durata
+            let durationLabel, priceLabel;
+            if (isOneTime) {
+                durationLabel = 'Una tantum';
+                priceLabel = '';
+            } else {
+                durationLabel = currentServiceDuration === 'yearly' ? 'Annuale' : 'Mensile';
+                priceLabel = currentServiceDuration === 'yearly' ? '/anno' : '/mese';
+            }
+            
+            if (selectedPlanData.name && total > 0) {
+                html += `<div style="margin: 0.3rem 0;"><strong>Piano:</strong> ${selectedPlanData.name}</div>`;
+                html += `<div style="margin: 0.3rem 0;"><strong>Durata:</strong> <span style="color: var(--accent-cyan);">${durationLabel}</span></div>`;
+                html += `<div style="margin: 0.3rem 0;"><strong>Prezzo base:</strong> €${total.toFixed(2)}${priceLabel}</div>`;
+            } else {
+                html += `<div style="margin: 0.3rem 0; color: var(--text-secondary);"><em>Seleziona un piano per vedere il riepilogo</em></div>`;
+                summaryDiv.innerHTML = html;
+                return;
+            }
+            
+            // VPN per Avast (con prezzo corretto mensile/annuale)
+            if (serviceType === 'avast') {
+                const vpnCheckbox = document.getElementById('avast-vpn-addon');
+                if (vpnCheckbox && vpnCheckbox.checked) {
+                    const vpnPrice = currentAvastDuration === 'yearly' ? 29.99 : 2.99;
+                    const vpnLabel = currentAvastDuration === 'yearly' ? '€29.99/anno' : '€2.99/mese';
+                    html += `<div style="margin: 0.3rem 0; color: var(--accent-cyan);"><strong>+ VPN:</strong> ${vpnLabel}</div>`;
+                    total += vpnPrice;
+                }
+            }
+            
+            // Sconto se applicato
+            if (discountApplied.percentage > 0) {
+                const discount = total * (discountApplied.percentage / 100);
+                html += `<div style="margin: 0.3rem 0; color: var(--accent-green);"><strong>Sconto ${discountApplied.code} (-${discountApplied.percentage}%):</strong> -€${discount.toFixed(2)}</div>`;
+                total -= discount;
+            }
+            
+            html += `<div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 2px solid var(--accent-cyan); font-size: 1.2rem;"><strong>TOTALE DA PAGARE:</strong> <span style="color: var(--accent-green);">€${total.toFixed(2)}${priceLabel}</span></div>`;
+            
+            summaryDiv.innerHTML = html;
+        }
+
+        // Google Sheets URL
+        const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzsURIJtA9IYde8_J1lqLEM2H64hf6tx8c2G7xenEfTf0wnbP19aTPQeOus5_fA4XXDOg/exec';
+
+        // Submit order
+        function submitOrder(serviceType) {
+            const discordId = document.getElementById('discord-id-input')?.value.trim();
+            
+            if (!discordId) {
+                alert('Inserisci il tuo Discord ID');
+                return;
+            }
+
+            // Servizi che non richiedono selezione piano
+            const noSelectionRequired = ['discord-decorations', 'discord-boosts', 'sms-verification', 'steam-region', 'epic-region', 'riot-region'];
+            
+            // Controlla se il piano è selezionato solo per servizi che lo richiedono
+            if (!noSelectionRequired.includes(serviceType) && !selectedPlan) {
+                alert('Seleziona un piano prima di ordinare');
+                return;
+            }
+
+            // Get selected service details
+            const modalTitle = document.querySelector('.modal-title')?.textContent;
+            const selectedItem = document.querySelector('.option-item.selected');
+            
+            // Calcola TOTALE corretto
+            let basePrice = selectedPlanData.currentPrice;
+            let vpnPrice = 0;
+            let discountAmount = 0;
+            let totalPrice = basePrice;
+            
+            // Determina la durata
+            let durationLabel = 'Mensile';
+            let priceLabel = '/mese';
+            
+            if (currentServiceDuration === 'yearly') {
+                durationLabel = 'Annuale';
+                priceLabel = '/anno';
+            } else if (currentServiceDuration === 'once') {
+                durationLabel = 'Una Tantum';
+                priceLabel = '';
+            }
+            
+            // Per SMS verification, aggiungi dettagli regione e piattaforma
+            let smsDetails = '';
+            if (serviceType === 'sms-verification') {
+                const countrySelect = document.getElementById('sms-country-select');
+                const serviceSelect = document.getElementById('sms-service-select');
+                const country = countrySelect?.value || 'Non specificato';
+                const platform = serviceSelect?.options[serviceSelect.selectedIndex]?.text || 'Non specificato';
+                smsDetails = ` | Regione: ${country} | Piattaforma: ${platform}`;
+            }
+            
+            // Aggiungi VPN se Avast (con prezzo corretto mensile/annuale)
+            if (serviceType === 'avast') {
+                const vpnCheckbox = document.getElementById('avast-vpn-addon');
+                if (vpnCheckbox && vpnCheckbox.checked) {
+                    vpnPrice = currentAvastDuration === 'yearly' ? 29.99 : 2.99;
+                    totalPrice += vpnPrice;
+                }
+            }
+            
+            // Applica sconto
+            if (discountApplied.percentage > 0) {
+                discountAmount = totalPrice * (discountApplied.percentage / 100);
+                totalPrice -= discountAmount;
+            }
+            
+            // Formatta stringhe per display
+            const priceDisplay = totalPrice > 0 ? `€${totalPrice.toFixed(2)}${priceLabel}` : 'Da concordare';
+            const vpnPriceText = currentAvastDuration === 'yearly' ? '€29.99/anno' : '€2.99/mese';
+            const planDetails = selectedPlanData.name + 
+                (vpnPrice > 0 ? ` + VPN (${vpnPriceText})` : '') +
+                (discountApplied.percentage > 0 ? ` - Sconto ${discountApplied.code} (${discountApplied.percentage}%)` : '') +
+                smsDetails;
+            
+            const discountText = discountApplied.percentage > 0 ? 
+                `${discountApplied.code} (-${discountApplied.percentage}%)` : 'Nessuno';
+
+            // Create order object
+            const order = {
+                id: Date.now(),
+                date: new Date().toISOString(),
+                discordId: discordId,
+                service: modalTitle,
+                plan: planDetails,
+                duration: durationLabel,
+                price: priceDisplay,
+                basePrice: basePrice,
+                vpnAdded: vpnPrice > 0,
+                discountApplied: discountText,
+                serviceType: serviceType,
+                status: 'pending',
+                notes: document.getElementById('order-notes')?.value || ''
+            };
+
+            // Save to localStorage (same as admin panel)
+            const orders = JSON.parse(localStorage.getItem('luxsave_orders') || '[]');
+            orders.unshift(order); // Add to beginning
+            localStorage.setItem('luxsave_orders', JSON.stringify(orders));
+
+            // Salva su Google Sheets
+            const orderData = {
+                type: 'new_order',
+                service: order.service || '',
+                plan: order.plan || '',
+                duration: order.duration || '',
+                price: totalPrice || 0,
+                total: totalPrice || 0,
+                discount: order.discountApplied || '-',
+                discordId: order.discordId || '',
+                notes: order.notes || ''
+            };
+            
+            fetch(GOOGLE_SHEETS_URL, {
+                method: 'POST',
+                body: JSON.stringify(orderData)
+            }).then(response => {
+                console.log('Ordine inviato a Google Sheets');
+            }).catch(err => {
+                console.log('Google Sheets (atteso):', err);
+            });
+
+            // Invia ordine a Discord
+            fetch('https://discord.com/api/webhooks/1460653071880159334/gvLic40YxD1BfM9Tp40jjr3-wU6lbVwaxmxvEkxOJVMCeHEpDblsONg63akvM_NFNiY6', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    embeds: [{
+                        title: '🛒 NUOVO ORDINE RICEVUTO!',
+                        color: 65535,
+                        description: '**Un nuovo cliente ha effettuato un ordine su LUXSAVE!**',
+                        fields: [
+                            { name: '👤 Discord ID', value: order.discordId || 'Non specificato', inline: true },
+                            { name: '📝 Servizio', value: order.service || serviceType, inline: true },
+                            { name: '📦 Piano Selezionato', value: order.plan || 'Non specificato', inline: false },
+                            { name: '⏱️ Durata', value: order.duration || 'Mensile', inline: true },
+                            { name: '💰 Prezzo', value: order.price || 'N/A', inline: true },
+                            { name: '🎟️ Sconto Applicato', value: order.discountApplied || 'Nessuno', inline: false },
+                            { name: '📋 Note', value: order.notes || 'Nessuna nota', inline: false },
+                            { name: '📊 Stato', value: '⏳ In attesa', inline: true }
+                        ],
+                        timestamp: new Date().toISOString(),
+                        footer: { 
+                            text: '💎 LUXSAVE Orders System',
+                            icon_url: 'https://cdn.discordapp.com/emojis/1234567890.png'
+                        }
+                    }]
+                })
+            }).catch(err => console.error('Errore invio Discord:', err));
+
+            // Show success message
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 3rem;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">✅</div>
+                    <h2 style="font-family: 'Oswald', sans-serif; color: var(--accent-green); margin-bottom: 1rem;">
+                        ${translations[currentLang].order_success}
+                    </h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                        Ti risponderemo su Discord entro 24-48 ore lavorative.
+                    </p>
+                    <button class="btn" onclick="closeModal()">Chiudi</button>
+                </div>
+            `;
+        }
+
+        // Submit cancellation
+        function submitCancellation() {
+            const discordId = document.getElementById('cancel-discord-id')?.value.trim();
+            const service = document.getElementById('cancel-service')?.value.trim();
+            const reason = document.getElementById('cancel-reason')?.value.trim();
+            
+            if (!discordId || !service) {
+                alert('Compila tutti i campi obbligatori');
+                return;
+            }
+
+            // Create cancellation object
+            const cancellation = {
+                id: Date.now(),
+                date: new Date().toISOString(),
+                discordId: discordId,
+                service: service,
+                reason: reason,
+                status: 'pending'
+            };
+
+            // Save to localStorage
+            const cancellations = JSON.parse(localStorage.getItem('luxsave_cancellations') || '[]');
+            cancellations.unshift(cancellation);
+            localStorage.setItem('luxsave_cancellations', JSON.stringify(cancellations));
+
+            // Salva su Google Sheets
+            const cancellationData = {
+                type: 'new_cancellation',
+                discordId: cancellation.discordId || '',
+                service: cancellation.service || '',
+                reason: cancellation.reason || ''
+            };
+            
+            fetch(GOOGLE_SHEETS_URL, {
+                method: 'POST',
+                body: JSON.stringify(cancellationData)
+            }).then(response => {
+                console.log('Disdetta inviata a Google Sheets');
+            }).catch(err => {
+                console.log('Google Sheets (atteso):', err);
+            });
+
+            // Invia disdetta a Discord
+            fetch('https://discord.com/api/webhooks/1460653071880159334/gvLic40YxD1BfM9Tp40jjr3-wU6lbVwaxmxvEkxOJVMCeHEpDblsONg63akvM_NFNiY6', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    embeds: [{
+                        title: '❌ NUOVA RICHIESTA DI DISDETTA',
+                        color: 16711680,
+                        description: '**Un cliente ha richiesto la disdetta di un abbonamento.**',
+                        fields: [
+                            { name: '👤 Discord ID', value: cancellation.discordId || 'Non specificato', inline: true },
+                            { name: '📝 Servizio', value: cancellation.service || 'Non specificato', inline: true },
+                            { name: '💬 Motivo', value: cancellation.reason || 'Nessun motivo specificato', inline: false },
+                            { name: '⏱️ Tempo Elaborazione', value: '24-48 ore lavorative', inline: false },
+                            { name: '📊 Stato', value: '⏳ In attesa', inline: true }
+                        ],
+                        timestamp: new Date().toISOString(),
+                        footer: { 
+                            text: '💎 LUXSAVE Cancellation System',
+                            icon_url: 'https://cdn.discordapp.com/emojis/1234567890.png'
+                        }
+                    }]
+                })
+            }).catch(err => console.error('Errore invio Discord:', err));
+
+            // Show success message
+            const modalBody = document.getElementById('modalBody');
+            modalBody.innerHTML = `
+                <div style="text-align: center; padding: 3rem;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">✅</div>
+                    <h2 style="font-family: 'Oswald', sans-serif; color: var(--accent-green); margin-bottom: 1rem;">
+                        Richiesta inviata con successo!
+                    </h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 2rem;">
+                        Elaboreremo la tua disdetta entro 24-48 ore lavorative.
+                    </p>
+                    <button class="btn" onclick="closeModal()">Chiudi</button>
+                </div>
+            `;
+        }
+
+        // Apply discount code
+
+        function removeDiscount() {
+            const input = document.getElementById('discount-code-input');
+            const messageDiv = document.getElementById('discount-message');
+            
+            // Ripristina tutti i prezzi originali
+            const priceElements = document.querySelectorAll('.option-price');
+            priceElements.forEach(el => {
+                // Se ha lo sconto applicato (2 div), ripristina
+                const strikethrough = el.querySelector('div[style*="line-through"]');
+                if (strikethrough) {
+                    const originalPrice = strikethrough.textContent;
+                    el.innerHTML = originalPrice;
+                }
+            });
+            
+            // Pulisci input e messaggio
+            input.value = '';
+            input.disabled = false;
+            messageDiv.innerHTML = '<div style="color: var(--accent-green); margin-top: 1rem;">✅ Sconto rimosso</div>';
+            
+            // Reset sconto
+            discountApplied = { code: null, percentage: 0 };
+            
+            // Aggiorna riepilogo (sia per servizi normali che per Discord Boost/Decorations)
+            updateOrderSummaryForCurrentService();
+            updateBoostSummary();
+            updateDecorationSummary();
+            
+            // Rimuovi messaggio dopo 2 secondi
+            setTimeout(() => {
+                messageDiv.innerHTML = '';
+            }, 2000);
+        }
+
+        function applyDiscount() {
+            const input = document.getElementById('discount-code-input');
+            const code = input.value.trim().toUpperCase();
+            const messageDiv = document.getElementById('discount-message');
+
+            if (!code) {
+                messageDiv.innerHTML = '<div style="color: var(--accent-pink); margin-top: 1rem; font-weight: 600;">⚠️ Inserisci un codice sconto</div>';
+                return;
+            }
+
+            // Mostra loading
+            messageDiv.innerHTML = '<div style="color: var(--accent-cyan); margin-top: 1rem;">⏳ Verifica codice...</div>';
+
+            // Leggi da Google Sheets
+            fetch(GOOGLE_SHEETS_URL + '?type=get_discounts')
+                .then(response => response.json())
+                .then(data => {
+                    const discounts = data.discounts || [];
+                    const discount = discounts.find(d => d.code === code && d.active === 'SI');
+
+                    if (!discount) {
+                        messageDiv.innerHTML = '<div style="color: var(--accent-pink); margin-top: 1rem; font-weight: 600;">❌ Codice non valido o disattivato</div>';
+                        return;
+                    }
+
+                    const now = new Date();
+
+                    // Check start date (if exists)
+                    if (discount.startDate) {
+                        const startParts = discount.startDate.split('/');
+                        if (startParts.length === 3) {
+                            const startDate = new Date(startParts[2], startParts[1] - 1, startParts[0]);
+                            if (now < startDate) {
+                                messageDiv.innerHTML = '<div style="color: var(--accent-pink); margin-top: 1rem; font-weight: 600;">❌ Codice non ancora attivo</div>';
+                                return;
+                            }
+                        }
+                    }
+
+                    // Check expiry
+                    let expiry;
+                    if (discount.expiry.includes('/')) {
+                        // Formato italiano dd/mm/yyyy
+                        const expiryParts = discount.expiry.split('/');
+                        expiry = new Date(expiryParts[2], expiryParts[1] - 1, expiryParts[0], 23, 59, 59);
+                    } else {
+                        // Formato ISO
+                        expiry = new Date(discount.expiry);
+                    }
+                    
+                    if (now > expiry) {
+                        messageDiv.innerHTML = '<div style="color: var(--accent-pink); margin-top: 1rem; font-weight: 600;">❌ Codice scaduto</div>';
+                        return;
+                    }
+
+                    // Check max uses
+                    if (discount.maxUses > 0 && discount.currentUses >= discount.maxUses) {
+                        messageDiv.innerHTML = '<div style="color: var(--accent-pink); margin-top: 1rem; font-weight: 600;">❌ Codice esaurito</div>';
+                        return;
+                    }
+
+                    // Apply discount to all prices
+                    const priceElements = document.querySelectorAll('.option-price');
+                    priceElements.forEach(el => {
+                        const priceText = el.textContent;
+                        const priceMatch = priceText.match(/€([\d.]+)/);
+                        if (priceMatch) {
+                            const originalPrice = parseFloat(priceMatch[1]);
+                            const discountedPrice = (originalPrice * (1 - discount.percentage / 100)).toFixed(2);
+                            el.innerHTML = `
+                                <div style="text-decoration: line-through; font-size: 0.9rem; color: var(--text-secondary);">€${originalPrice}</div>
+                                <div style="color: var(--accent-green); font-weight: 700;">€${discountedPrice}</div>
+                            `;
+                        }
+                    });
+
+                    messageDiv.innerHTML = `
+                        <div class="discount-applied">
+                            ✅ Codice "${code}" applicato! Sconto del ${discount.percentage}% attivo
+                        </div>
+                    `;
+
+                    // Salva sconto applicato
+                    discountApplied = {
+                        code: code,
+                        percentage: discount.percentage
+                    };
+                    
+                    input.disabled = true;
+                    
+                    // Aggiorna riepilogo (sia per servizi normali che per Discord Boost/Decorations)
+                    updateOrderSummaryForCurrentService();
+                    updateBoostSummary();
+                    updateDecorationSummary();
+                })
+                .catch(err => {
+                    console.error('Errore Google Sheets:', err);
+                    messageDiv.innerHTML = '<div style="color: var(--accent-pink); margin-top: 1rem; font-weight: 600;">❌ Errore di connessione. Riprova.</div>';
+                });
+        }
+    
+        // Variabile per tracciare la durata corrente di Avast
+        let currentAvastDuration = 'monthly';
+        
+        // Variabile globale per tracciare la durata corrente del servizio
+        let currentServiceDuration = 'monthly';
+        
+        function updateAvastVPN(checked) {
+            const vpnPrices = {
+                'monthly': 2.99,
+                'yearly': 29.99
+            };
+            
+            vpnAddonData.active = checked;
+            vpnAddonData.price = checked ? vpnPrices[currentAvastDuration] : 0;
+            updateOrderSummaryForCurrentService();
+        }
+        
+        function updateBoostSummary() {
+            const amountSelect = document.getElementById('boost-amount');
+            const durationSelect = document.getElementById('boost-duration');
+            const summaryDiv = document.getElementById('order-summary-discord-boosts');
+            
+            if (!amountSelect || !durationSelect || !summaryDiv) return;
+            
+            const boostCount = parseInt(amountSelect.value);
+            const selectedOption = durationSelect.options[durationSelect.selectedIndex];
+            const pricePerBoost = parseFloat(selectedOption.getAttribute('data-price'));
+            const originalPerBoost = parseFloat(selectedOption.getAttribute('data-original'));
+            const savingsPercent = selectedOption.getAttribute('data-savings');
+            
+            const totalPrice = boostCount * pricePerBoost;
+            const originalTotal = boostCount * originalPerBoost;
+            const totalSavings = originalTotal - totalPrice;
+            
+            const durationText = durationSelect.options[durationSelect.selectedIndex].text.split(' - ')[0];
+            
+            let html = `
+                <div style="margin: 0.3rem 0;"><strong>Quantità:</strong> ${boostCount} Boost(s)</div>
+                <div style="margin: 0.3rem 0;"><strong>Durata:</strong> ${durationText}</div>
+                <div style="margin: 0.3rem 0;"><strong>Prezzo per boost:</strong> €${pricePerBoost.toFixed(2)}</div>
+                <div style="margin: 0.3rem 0; color: var(--accent-green);"><strong>Risparmi:</strong> €${totalSavings.toFixed(2)} (${savingsPercent})</div>
+            `;
+            
+            // Applica sconto se presente
+            let finalTotal = totalPrice;
+            if (discountApplied.percentage > 0) {
+                const discount = totalPrice * (discountApplied.percentage / 100);
+                html += `<div style="margin: 0.3rem 0; color: var(--accent-green);"><strong>Sconto ${discountApplied.code} (-${discountApplied.percentage}%):</strong> -€${discount.toFixed(2)}</div>`;
+                finalTotal -= discount;
+            }
+            
+            html += `<div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 2px solid var(--accent-cyan); font-size: 1.2rem;"><strong>TOTALE DA PAGARE:</strong> <span style="color: var(--accent-green);">€${finalTotal.toFixed(2)}</span></div>`;
+            
+            summaryDiv.innerHTML = html;
+            
+            // Aggiorna selectedPlanData per l'ordine
+            selectedPlanData = {
+                name: `${boostCount} Boost(s) - ${durationText}`,
+                basePrice: totalPrice,
+                currentPrice: totalPrice
+            };
+            selectedPlan = selectedPlanData.name;
+        }
+        
+        function updateDecorationSummary() {
+            const decorationSelect = document.getElementById('decoration-select');
+            const summaryDiv = document.getElementById('order-summary-discord-decorations');
+            
+            if (!decorationSelect || !summaryDiv) return;
+            
+            const selectedOption = decorationSelect.options[decorationSelect.selectedIndex];
+            const price = parseFloat(selectedOption.getAttribute('data-price')) || 0;
+            const originalPrice = parseFloat(selectedOption.getAttribute('data-original')) || 0;
+            const savingsPercent = selectedOption.getAttribute('data-savings') || '0%';
+            const decorationName = selectedOption.text.split(' - ')[0];
+            
+            if (price === 0) {
+                summaryDiv.innerHTML = `<div style="color: var(--text-secondary);"><em>Seleziona una decorazione per vedere il riepilogo</em></div>`;
+                selectedPlan = null;
+                selectedPlanData = { name: '', basePrice: 0, currentPrice: 0 };
+                return;
+            }
+            
+            const savings = originalPrice - price;
+            
+            let html = `
+                <div style="margin: 0.3rem 0;"><strong>Decorazione:</strong> ${decorationName}</div>
+                <div style="margin: 0.3rem 0;"><strong>Prezzo:</strong> €${price.toFixed(2)}</div>
+                <div style="margin: 0.3rem 0; color: var(--accent-green);"><strong>Risparmi:</strong> €${savings.toFixed(2)} (${savingsPercent})</div>
+            `;
+            
+            // Applica sconto se presente
+            let finalTotal = price;
+            if (discountApplied.percentage > 0) {
+                const discount = price * (discountApplied.percentage / 100);
+                html += `<div style="margin: 0.3rem 0; color: var(--accent-green);"><strong>Sconto ${discountApplied.code} (-${discountApplied.percentage}%):</strong> -€${discount.toFixed(2)}</div>`;
+                finalTotal -= discount;
+            }
+            
+            html += `<div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 2px solid var(--accent-cyan); font-size: 1.2rem;"><strong>TOTALE DA PAGARE:</strong> <span style="color: var(--accent-green);">€${finalTotal.toFixed(2)}</span></div>`;
+            
+            summaryDiv.innerHTML = html;
+            
+            // Aggiorna selectedPlanData per l'ordine
+            selectedPlanData = {
+                name: decorationName,
+                basePrice: price,
+                currentPrice: price
+            };
+            selectedPlan = selectedPlanData.name;
+        }
+        
+        function updateSmsSummary() {
+            const countrySelect = document.getElementById('sms-country-select');
+            const serviceSelect = document.getElementById('sms-service-select');
+            const summaryDiv = document.getElementById('order-summary-sms-verification');
+            
+            if (!countrySelect || !serviceSelect || !summaryDiv) return;
+            
+            const country = countrySelect.value;
+            const service = serviceSelect.options[serviceSelect.selectedIndex]?.text || '';
+            
+            if (!country || !service || service === 'Seleziona un servizio...') {
+                summaryDiv.innerHTML = `<div style="color: var(--text-secondary);"><em>Seleziona paese e servizio per vedere il riepilogo</em></div>`;
+                selectedPlan = null;
+                selectedPlanData = { name: '', basePrice: 0, currentPrice: 0 };
+                return;
+            }
+            
+            let html = `
+                <div style="margin: 0.3rem 0;"><strong>🌍 Regione:</strong> ${country}</div>
+                <div style="margin: 0.3rem 0;"><strong>📱 Piattaforma:</strong> ${service}</div>
+                <div style="margin: 0.3rem 0;"><strong>⏱️ Tipo:</strong> <span style="color: var(--accent-yellow);">Una Tantum</span></div>
+                <div style="margin: 0.3rem 0;"><strong>💰 Prezzo:</strong> Variabile (da confermare su Discord)</div>
+            `;
+            
+            html += `<div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 2px solid var(--accent-cyan); font-size: 1rem; color: var(--accent-yellow);">⚠️ Il prezzo verrà comunicato su Discord</div>`;
+            
+            summaryDiv.innerHTML = html;
+            
+            // Aggiorna selectedPlanData per l'ordine
+            selectedPlanData = {
+                name: `SMS ${service} - ${country}`,
+                basePrice: 0,
+                currentPrice: 0
+            };
+            selectedPlan = selectedPlanData.name;
+            
+            // Imposta la durata come "una tantum"
+            currentServiceDuration = 'once';
+        }
+
+        function updateOrderSummary() {
+            const summaryDiv = document.getElementById('order-summary');
+            if (!summaryDiv) return;
+            
+            let total = selectedPlanData.currentPrice;
+            let html = '<div class="summary-content">';
+            
+            if (selectedPlanData.name) {
+                html += `<div class="summary-line"><strong>Piano:</strong> ${selectedPlanData.name}</div>`;
+                html += `<div class="summary-line"><strong>Prezzo:</strong> €${selectedPlanData.currentPrice.toFixed(2)}</div>`;
+            }
+            
+            if (vpnAddonData.active) {
+                html += `<div class="summary-line"><strong>VPN:</strong> +€${vpnAddonData.price.toFixed(2)}</div>`;
+                total += vpnAddonData.price;
+            }
+            
+            if (discountApplied.percentage > 0) {
+                const discount = total * (discountApplied.percentage / 100);
+                html += `<div class="summary-line" style="color: var(--accent-green);"><strong>Sconto ${discountApplied.code}:</strong> -€${discount.toFixed(2)}</div>`;
+                total -= discount;
+            }
+            
+            html += `<div class="summary-total"><strong>TOTALE:</strong> €${total.toFixed(2)}</div>`;
+            html += '</div>';
+            
+            summaryDiv.innerHTML = html;
+        }
+</script>
+
+    <script>
+        // ===== AUTH SYSTEM =====
+        let currentUser = null;
+        
+        // Controlla se utente è loggato
+        async function checkAuth() {
+            // Mostra il bottone subito (fallback)
+            updateAuthUI();
+            
+            try {
+                const response = await fetch('/api/user/me');
+                const data = await response.json();
+                
+                currentUser = data.user;
+                updateAuthUI();
+                
+                if (currentUser) {
+                    document.getElementById('reviewFormContainer').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                // Anche in caso di errore, mostra il bottone login
+                updateAuthUI();
+            }
+        }
+        
+        // Aggiorna UI in base allo stato auth
+        function updateAuthUI() {
+            const authBtn = document.getElementById('authBtn');
+            const authText = document.getElementById('authText');
+            
+            if (!authBtn) {
+                console.error('Auth button not found!');
+                return;
+            }
+            
+            // Mostra sempre il bottone
+            authBtn.style.display = 'inline-block';
+            
+            if (currentUser) {
+                const lang = document.getElementById('languageSelect').value;
+                authText.textContent = `${translations[lang].auth_logged}${currentUser.username}`;
+                authBtn.onclick = () => showUserMenu();
+            } else {
+                // Usa le traduzioni per il testo
+                const lang = document.getElementById('languageSelect').value;
+                authText.textContent = translations[lang].auth_login;
+                authBtn.onclick = async () => {
+                    try {
+                        // Test se le Functions esistono
+                        const testResponse = await fetch('/api/user/me');
+                        if (testResponse.status === 404) {
+                            alert('⚠️ ERRORE: Le Functions non sono state caricate!\n\nAssicurati di aver caricato la cartella "functions/" su Cloudflare Pages.');
+                            return;
+                        }
+                        // Se OK, reindirizza
+                        window.location.href = '/api/auth/login';
+                    } catch (error) {
+                        console.error('Auth error:', error);
+                        alert('⚠️ ERRORE: Impossibile connettersi all\'API.\n\nVerifica che:\n1. Le variabili d\'ambiente siano configurate\n2. La cartella "functions/" sia stata caricata\n3. Hai fatto "Retry deployment"');
+                    }
+                };
+            }
+        }
+        
+        // Menu utente (dropdown)
+        function showUserMenu() {
+            const menu = confirm('Vuoi disconnetterti?');
+            if (menu) {
+                window.location.href = '/api/auth/logout';
+            }
+        }
+        
+        // ===== REVIEWS SYSTEM =====
+        
+        // Carica recensioni
+        async function loadReviews() {
+            try {
+                const response = await fetch('/api/reviews/get');
+                const data = await response.json();
+                
+                if (data.success && data.reviews) {
+                    displayReviews(data.reviews);
+                }
+            } catch (error) {
+                console.error('Load reviews failed:', error);
+                document.getElementById('reviewsList').innerHTML = 
+                    '<p style="text-align: center; color: var(--accent-pink);">Errore nel caricamento delle recensioni</p>';
+            }
+        }
+        
+        // Mostra recensioni
+        function displayReviews(reviews) {
+            const container = document.getElementById('reviewsList');
+            
+            if (reviews.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Nessuna recensione ancora. Sii il primo!</p>';
+                return;
+            }
+            
+            container.innerHTML = reviews.map(review => `
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="review-user">
+                            <div class="review-avatar" style="background-image: url('https://cdn.discordapp.com/avatars/${review.users.discord_id}/${review.users.avatar}.png')"></div>
+                            <div>
+                                <strong>${review.users.username}</strong>
+                                <div style="font-size: 0.85rem; color: var(--text-secondary);">${review.service}</div>
+                            </div>
+                        </div>
+                        <div class="review-stars">${'⭐'.repeat(review.rating)}</div>
+                    </div>
+                    <div class="review-title">${review.title}</div>
+                    <div class="review-content">${review.content}</div>
+                    ${review.admin_reply ? `
+                        <div class="review-reply">
+                            <strong style="color: var(--accent-cyan);">📢 Risposta LUXSAVE:</strong><br>
+                            ${review.admin_reply}
+                        </div>
+                    ` : ''}
+                    <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                        ${new Date(review.created_at).toLocaleDateString('it-IT')}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Invia nuova recensione
+        async function submitReview(event) {
+            event.preventDefault();
+            
+            if (!currentUser) {
+                alert('Devi effettuare il login per lasciare una recensione');
+                return;
+            }
+            
+            const data = {
+                service: document.getElementById('reviewService').value,
+                rating: document.getElementById('reviewRating').value,
+                title: document.getElementById('reviewTitle').value,
+                content: document.getElementById('reviewContent').value
+            };
+            
+            try {
+                const response = await fetch('/api/reviews/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('✅ ' + result.message);
+                    document.getElementById('reviewForm').reset();
+                    loadReviews();
+                } else {
+                    alert('❌ ' + result.error);
+                }
+            } catch (error) {
+                alert('❌ Errore durante l\'invio della recensione');
+                console.error(error);
+            }
+        }
+        
+        // Inizializza al caricamento pagina
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            loadReviews();
+        });
+    </script>
+
+</body>
+</html>

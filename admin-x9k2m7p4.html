@@ -1,0 +1,1609 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUXSAVE - Pannello Admin</title>
+    <link rel="icon" type="image/png" sizes="48x48" href="favicon_admin.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="logo_admin.png">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #141419;
+            --accent-cyan: #00fff7;
+            --accent-pink: #ff006e;
+            --accent-yellow: #ffbe0b;
+            --accent-green: #3bff85;
+            --text-primary: #ffffff;
+            --text-secondary: #a8a8b3;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 1rem 2rem;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .tab:hover {
+            color: var(--accent-cyan);
+        }
+
+        .tab.active {
+            color: var(--accent-cyan);
+            border-bottom-color: var(--accent-cyan);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card h2 {
+            font-family: 'Oswald', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: var(--accent-cyan);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink));
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 255, 247, 0.3);
+        }
+
+        .btn-small {
+            padding: 0.4rem 1rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--accent-pink), #c00050);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--accent-green), #2acc70);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            font-size: 1.2rem;
+            color: var(--accent-cyan);
+        }
+
+        .loading::after {
+            content: '...';
+            animation: dots 1.5s steps(3, end) infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60%, 100% { content: '...'; }
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th {
+            background: var(--bg-primary);
+            padding: 1rem;
+            text-align: left;
+            color: var(--accent-cyan);
+            font-weight: 600;
+            border-bottom: 2px solid var(--accent-cyan);
+            position: sticky;
+            top: 0;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tr:hover {
+            background: rgba(0, 255, 247, 0.05);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .badge-pending {
+            background: rgba(255, 190, 11, 0.2);
+            color: var(--accent-yellow);
+        }
+
+        .badge-completed {
+            background: rgba(59, 255, 133, 0.2);
+            color: var(--accent-green);
+        }
+
+        .badge-cancelled {
+            background: rgba(255, 0, 110, 0.2);
+            color: var(--accent-pink);
+        }
+
+        .badge-once {
+            background: rgba(138, 43, 226, 0.2);
+            color: #a855f7;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-box h2 {
+            margin-bottom: 1.5rem;
+            color: var(--accent-cyan);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 255, 247, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            .container {
+                padding: 0.5rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .subtitle {
+                font-size: 0.85rem;
+            }
+
+            .tabs {
+                overflow-x: auto;
+                gap: 0.3rem;
+                padding-bottom: 0.5rem;
+            }
+
+            .tab {
+                font-size: 0.75rem;
+                padding: 0.5rem 0.8rem;
+                white-space: nowrap;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 0.8rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-value {
+                font-size: 1.8rem;
+            }
+
+            .stat-label {
+                font-size: 0.7rem;
+            }
+
+            .card {
+                padding: 1rem;
+            }
+
+            .card h2 {
+                font-size: 1.1rem;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+
+            table {
+                font-size: 0.75rem;
+                min-width: 600px;
+            }
+
+            th, td {
+                padding: 0.4rem 0.3rem;
+            }
+
+            .btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+
+            .btn-small {
+                padding: 0.3rem 0.5rem;
+                font-size: 0.7rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.3rem;
+            }
+
+            input, select {
+                font-size: 0.85rem;
+                padding: 0.5rem;
+            }
+
+            #search-orders, #search-cancellations {
+                min-width: 150px !important;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tab {
+                font-size: 0.7rem;
+                padding: 0.4rem 0.6rem;
+            }
+
+            table {
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <img src="logo_admin.png" alt="LUXSAVE Admin" style="width: 500px; max-width: 95%; height: auto;">
+        </div>
+        <p class="subtitle">Gestione Ordini, Disdette e Codici Sconto - Connesso a Google Sheets</p>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+            <button class="tab" onclick="switchTab('orders')">🛒 Ordini</button>
+            <button class="tab" onclick="switchTab('expiring')">⏰ In Scadenza</button>
+            <button class="tab" onclick="switchTab('cancellations')">❌ Disdette</button>
+            <button class="tab" onclick="switchTab('discounts')">🎟️ Codici Sconto</button>
+        </div>
+
+        <!-- Dashboard Tab -->
+        <div id="dashboard" class="tab-content active">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="total-orders">-</div>
+                    <div class="stat-label">Ordini Totali</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="pending-orders">-</div>
+                    <div class="stat-label">In Attesa</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="completed-orders">-</div>
+                    <div class="stat-label">Completati</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="total-revenue">-</div>
+                    <div class="stat-label">Guadagno Totale</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="active-discounts">-</div>
+                    <div class="stat-label">Codici Attivi</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🔄 Azioni Rapide</h2>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button class="btn" onclick="refreshAllData()">♻️ Aggiorna Tutti i Dati</button>
+                    <button class="btn btn-success" onclick="window.open('https://docs.google.com/spreadsheets', '_blank')">📊 Apri Google Sheets</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Tab -->
+        <div id="orders" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                    <h2>🛒 Tutti gli Ordini</h2>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                        <input type="text" id="search-orders" placeholder="🔍 Cerca ordine..." onkeyup="filterOrders()" style="padding: 0.4rem 1rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; min-width: 200px;">
+                        <select id="filter-orders" onchange="loadOrders()" style="padding: 0.4rem 1rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-family: 'DM Sans', sans-serif;">
+                            <option value="all">Tutti gli Ordini</option>
+                            <option value="paid">Solo Pagati</option>
+                            <option value="unpaid">Solo Non Pagati</option>
+                            <option value="pending">Solo Pending</option>
+                            <option value="completed">Solo Completati</option>
+                        </select>
+                        <button class="btn btn-small btn-danger" onclick="autoDeleteUnpaid()">🗑️ Elimina Non Pagati (5h+)</button>
+                        <button class="btn btn-small" onclick="loadOrders()">♻️ Aggiorna</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <div id="orders-list" class="loading">Caricamento ordini da Google Sheets</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expiring Orders Tab -->
+        <div id="expiring" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                    <h2>⏰ Ordini in Scadenza</h2>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <select id="filter-expiring" onchange="loadExpiringOrders()" style="padding: 0.4rem 1rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-family: 'DM Sans', sans-serif;">
+                            <option value="7">Scadono entro 7 giorni</option>
+                            <option value="14">Scadono entro 14 giorni</option>
+                            <option value="30" selected>Scadono entro 30 giorni</option>
+                            <option value="expired">Già scaduti</option>
+                        </select>
+                        <button class="btn btn-small" onclick="loadExpiringOrders()">♻️ Aggiorna</button>
+                    </div>
+                </div>
+                <div class="special-note" style="background: rgba(255, 190, 11, 0.1); border: 1px solid var(--accent-yellow); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; color: var(--accent-yellow);">
+                    ⚠️ Questi ordini sono in scadenza e potrebbero necessitare di un rinnovo. Contatta i clienti per confermare il rinnovo.
+                </div>
+                <div class="table-container">
+                    <div id="expiring-list" class="loading">Caricamento ordini in scadenza...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cancellations Tab -->
+        <div id="cancellations" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                    <h2>❌ Richieste di Disdetta</h2>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                        <input type="text" id="search-cancellations" placeholder="🔍 Cerca disdetta..." onkeyup="filterCancellations()" style="padding: 0.4rem 1rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; min-width: 200px;">
+                        <button class="btn btn-small" onclick="loadCancellations()">♻️ Aggiorna</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <div id="cancellations-list" class="loading">Caricamento disdette da Google Sheets</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Discounts Tab -->
+        <div id="discounts" class="tab-content">
+            <div class="card">
+                <h2>➕ Crea Nuovo Codice Sconto</h2>
+                <form onsubmit="event.preventDefault(); addDiscount();" style="max-width: 600px;">
+                    <div class="form-group">
+                        <label>Codice *</label>
+                        <input type="text" id="discount-code" placeholder="es: NATALE25" required style="text-transform: uppercase;">
+                    </div>
+                    <div class="form-group">
+                        <label>Percentuale Sconto (%) *</label>
+                        <input type="number" id="discount-percentage" min="1" max="100" placeholder="es: 25" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Data Inizio Validità *</label>
+                        <input type="date" id="discount-start" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Data Scadenza *</label>
+                        <input type="date" id="discount-expiry" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Utilizzi Massimi (0 = illimitato)</label>
+                        <input type="number" id="discount-max-uses" min="0" value="0" placeholder="0">
+                    </div>
+                    <button type="submit" class="btn">➕ Crea Codice Sconto</button>
+                </form>
+            </div>
+
+            <!-- Modal Modifica Codice -->
+            <div id="edit-discount-modal" class="modal-overlay" style="display: none;">
+                <div class="modal-box">
+                    <h2>✏️ Modifica Codice Sconto</h2>
+                    <form onsubmit="event.preventDefault(); saveDiscountChanges();">
+                        <input type="hidden" id="edit-discount-code-hidden">
+                        <div class="form-group">
+                            <label>Codice</label>
+                            <input type="text" id="edit-discount-code" disabled style="background: rgba(255,255,255,0.05);">
+                        </div>
+                        <div class="form-group">
+                            <label>Percentuale Sconto (%) *</label>
+                            <input type="number" id="edit-discount-percentage" min="1" max="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Data Inizio Validità *</label>
+                            <input type="date" id="edit-discount-start" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Data Scadenza *</label>
+                            <input type="date" id="edit-discount-expiry" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Utilizzi Massimi (0 = illimitato)</label>
+                            <input type="number" id="edit-discount-max-uses" min="0">
+                        </div>
+                        <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                            <button type="submit" class="btn">💾 Salva Modifiche</button>
+                            <button type="button" class="btn btn-danger" onclick="closeEditDiscountModal()">❌ Annulla</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                    <h2>🎟️ Codici Sconto Attivi</h2>
+                    <button class="btn btn-small" onclick="loadDiscounts()">♻️ Aggiorna</button>
+                </div>
+                <div class="table-container">
+                    <div id="discounts-list" class="loading">Caricamento codici da Google Sheets</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reviews Tab -->
+        <div id="reviews" class="tab-content">
+            <div class="stat-card">
+                <h2 style="margin-bottom: 1.5rem;">💬 Gestione Recensioni</h2>
+                
+                <!-- Filtri -->
+                <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
+                    <button class="btn" onclick="filterReviews('all')" style="background: var(--accent-cyan); color: #000;">Tutte</button>
+                    <button class="btn" onclick="filterReviews('pending')" style="background: var(--accent-yellow); color: #000;">In Attesa</button>
+                    <button class="btn" onclick="filterReviews('approved')" style="background: var(--accent-green); color: #000;">Approvate</button>
+                </div>
+                
+                <!-- Lista Recensioni -->
+                <div id="reviewsList">
+                    <p style="text-align: center; color: var(--text-secondary);">Caricamento recensioni...</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Google Sheets URL
+        const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzsURIJtA9IYde8_J1lqLEM2H64hf6tx8c2G7xenEfTf0wnbP19aTPQeOus5_fA4XXDOg/exec';
+
+        // Switch tabs
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'dashboard') loadDashboard();
+            if (tabName === 'orders') loadOrders();
+            if (tabName === 'expiring') loadExpiringOrders();
+            if (tabName === 'cancellations') loadCancellations();
+            if (tabName === 'discounts') loadDiscounts();
+        }
+
+        // Load dashboard stats
+        function loadDashboard() {
+            fetch(GOOGLE_SHEETS_URL + '?type=get_stats')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('total-orders').textContent = data.totalOrders;
+                    document.getElementById('pending-orders').textContent = data.pendingOrders;
+                    document.getElementById('completed-orders').textContent = data.completedOrders;
+                    document.getElementById('total-revenue').textContent = '€' + data.totalRevenue;
+                    document.getElementById('active-discounts').textContent = data.activeDiscounts;
+                })
+                .catch(err => {
+                    console.error('Errore caricamento statistiche:', err);
+                    document.getElementById('total-orders').textContent = '❌';
+                    document.getElementById('pending-orders').textContent = '❌';
+                    document.getElementById('completed-orders').textContent = '❌';
+                    document.getElementById('total-revenue').textContent = '❌';
+                    document.getElementById('active-discounts').textContent = '❌';
+                });
+        }
+
+        // Load orders
+        function loadOrders() {
+            const container = document.getElementById('orders-list');
+            container.innerHTML = '<div class="loading">Caricamento ordini da Google Sheets</div>';
+
+            fetch(GOOGLE_SHEETS_URL + '?type=get_orders')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.orders || data.orders.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📦</div>
+                                <h3>Nessun ordine trovato</h3>
+                                <p>Gli ordini appariranno qui quando i clienti effettueranno acquisti.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    // Applica filtro
+                    const filter = document.getElementById('filter-orders').value;
+                    let filteredOrders = data.orders;
+                    
+                    if (filter === 'paid') {
+                        filteredOrders = data.orders.filter(o => o.paid === 'SI');
+                    } else if (filter === 'unpaid') {
+                        filteredOrders = data.orders.filter(o => o.paid !== 'SI');
+                    } else if (filter === 'pending') {
+                        filteredOrders = data.orders.filter(o => o.status === 'Pending');
+                    } else if (filter === 'completed') {
+                        filteredOrders = data.orders.filter(o => o.status === 'Completato');
+                    }
+
+                    if (filteredOrders.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-state-icon">🔍</div>
+                                <h3>Nessun ordine trovato con questo filtro</h3>
+                                <p>Cambia il filtro per vedere altri ordini.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    let html = '<table>';
+                    html += '<thead><tr>';
+                    html += '<th>ID</th>';
+                    html += '<th>Data</th>';
+                    html += '<th>Discord ID</th>';
+                    html += '<th>Servizio</th>';
+                    html += '<th>Piano</th>';
+                    html += '<th>Durata</th>';
+                    html += '<th>Prezzo</th>';
+                    html += '<th>Sconto</th>';
+                    html += '<th>Note</th>';
+                    html += '<th>Pagato</th>';
+                    html += '<th>Stato</th>';
+                    html += '<th>Azioni</th>';
+                    html += '</tr></thead><tbody>';
+
+                    filteredOrders.forEach(order => {
+                        const status = order.status || 'Pending';
+                        const badgeClass = status === 'Completato' ? 'badge-completed' : 
+                                         status === 'Cancellato' ? 'badge-cancelled' : 'badge-pending';
+                        
+                        const isPaid = order.paid === 'SI';
+                        const paidBadgeClass = isPaid ? 'badge-completed' : 'badge-pending';
+                        const paidText = isPaid ? '✅ SI' : '❌ NO';
+                        
+                        const date = new Date(order.date);
+                        const dateStr = date.toLocaleDateString('it-IT') + ' ' + date.toLocaleTimeString('it-IT', {hour: '2-digit', minute: '2-digit'});
+                        
+                        // Calcola ore passate
+                        const now = new Date();
+                        const hoursAgo = Math.floor((now - date) / (1000 * 60 * 60));
+                        
+                        // Durata con badge colorato - deduce da order.duration o dal prezzo
+                        let duration = order.duration || '';
+                        if (!duration) {
+                            // Deduce la durata dal prezzo (se contiene /anno è annuale)
+                            if (order.price && (order.price.includes('/anno') || order.price.includes('anno'))) {
+                                duration = 'Annuale';
+                            } else if (order.price && order.price.includes('Da concordare')) {
+                                duration = 'Una Tantum';
+                            } else {
+                                duration = 'Mensile';
+                            }
+                        }
+                        let durationBadgeClass = 'badge-pending';
+                        if (duration === 'Annuale') {
+                            durationBadgeClass = 'badge-completed';
+                        } else if (duration === 'Una Tantum') {
+                            durationBadgeClass = 'badge-once';
+                        }
+
+                        html += '<tr>';
+                        html += `<td>${order.id}</td>`;
+                        html += `<td>${dateStr}<br><small style="color: var(--text-secondary);">(${hoursAgo}h fa)</small></td>`;
+                        html += `<td>${order.discordId}</td>`;
+                        html += `<td>${order.service}</td>`;
+                        html += `<td>${order.plan}</td>`;
+                        html += `<td><span class="badge ${durationBadgeClass}">${duration}</span></td>`;
+                        html += `<td>${order.price}</td>`;
+                        html += `<td>${order.discount || '-'}</td>`;
+                        html += `<td>${order.notes || '-'}</td>`;
+                        html += `<td><span class="badge ${paidBadgeClass}">${paidText}</span></td>`;
+                        html += `<td><span class="badge ${badgeClass}">${status}</span></td>`;
+                        html += `<td><div class="action-buttons">`;
+                        
+                        if (!isPaid) {
+                            html += `<button class="btn btn-small btn-success" onclick="markAsPaid(${order.id})">💰 Pagato</button>`;
+                        }
+                        
+                        if (status === 'Pending' && isPaid) {
+                            html += `<button class="btn btn-small btn-success" onclick="updateOrderStatus(${order.id}, 'Completato')">✅ Completa</button>`;
+                        }
+                        
+                        html += `<button class="btn btn-small btn-danger" onclick="deleteOrder(${order.id})">🗑️ Elimina</button>`;
+                        html += `</div></td>`;
+                        html += '</tr>';
+                    });
+
+                    html += '</tbody></table>';
+                    html += `<p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;">Totale ordini visualizzati: ${filteredOrders.length} / ${data.orders.length}</p>`;
+                    container.innerHTML = html;
+                })
+                .catch(err => {
+                    console.error('Errore caricamento ordini:', err);
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">❌</div>
+                            <h3>Errore nel caricamento</h3>
+                            <p>Impossibile caricare gli ordini. Controlla la connessione con Google Sheets.</p>
+                            <button class="btn" onclick="loadOrders()" style="margin-top: 1rem;">♻️ Riprova</button>
+                        </div>
+                    `;
+                });
+        }
+
+        // Load expiring orders
+        function loadExpiringOrders() {
+            const container = document.getElementById('expiring-list');
+            container.innerHTML = '<div class="loading">Caricamento ordini in scadenza...</div>';
+
+            fetch(GOOGLE_SHEETS_URL + '?type=get_orders')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.orders || data.orders.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📦</div>
+                                <h3>Nessun ordine trovato</h3>
+                                <p>Gli ordini appariranno qui quando i clienti effettueranno acquisti.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    const filter = document.getElementById('filter-expiring').value;
+                    const now = new Date();
+                    
+                    // Filtra solo ordini completati e pagati
+                    let expiringOrders = data.orders.filter(order => {
+                        if (order.status !== 'Completato' || order.paid !== 'SI') return false;
+                        
+                        const orderDate = new Date(order.date);
+                        
+                        // Determina la durata dell'abbonamento
+                        let duration = order.duration || '';
+                        if (!duration) {
+                            if (order.price && (order.price.includes('/anno') || order.price.includes('anno'))) {
+                                duration = 'Annuale';
+                            } else {
+                                duration = 'Mensile';
+                            }
+                        }
+                        
+                        // Calcola data di scadenza
+                        let expiryDate = new Date(orderDate);
+                        if (duration === 'Annuale') {
+                            expiryDate.setFullYear(expiryDate.getFullYear() + 1);
+                        } else {
+                            expiryDate.setMonth(expiryDate.getMonth() + 1);
+                        }
+                        
+                        // Salva la data di scadenza nell'ordine per visualizzarla
+                        order.expiryDate = expiryDate;
+                        order.calculatedDuration = duration;
+                        
+                        // Calcola giorni alla scadenza
+                        const daysToExpiry = Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24));
+                        order.daysToExpiry = daysToExpiry;
+                        
+                        if (filter === 'expired') {
+                            return daysToExpiry < 0;
+                        } else {
+                            const filterDays = parseInt(filter);
+                            return daysToExpiry >= 0 && daysToExpiry <= filterDays;
+                        }
+                    });
+                    
+                    // Ordina per data di scadenza (più vicina prima)
+                    expiringOrders.sort((a, b) => a.daysToExpiry - b.daysToExpiry);
+
+                    if (expiringOrders.length === 0) {
+                        const filterText = filter === 'expired' ? 'scaduti' : `in scadenza entro ${filter} giorni`;
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-state-icon">✅</div>
+                                <h3>Nessun ordine ${filterText}</h3>
+                                <p>Ottimo! Non ci sono abbonamenti ${filterText}.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    let html = '<table>';
+                    html += '<thead><tr>';
+                    html += '<th>Discord ID</th>';
+                    html += '<th>Servizio</th>';
+                    html += '<th>Piano</th>';
+                    html += '<th>Durata</th>';
+                    html += '<th>Data Ordine</th>';
+                    html += '<th>Scadenza</th>';
+                    html += '<th>Giorni Rimasti</th>';
+                    html += '<th>Azioni</th>';
+                    html += '</tr></thead><tbody>';
+
+                    expiringOrders.forEach(order => {
+                        const orderDate = new Date(order.date);
+                        const orderDateStr = orderDate.toLocaleDateString('it-IT');
+                        const expiryDateStr = order.expiryDate.toLocaleDateString('it-IT');
+                        
+                        // Badge per giorni rimasti
+                        let daysClass = 'badge-completed';
+                        let daysText = order.daysToExpiry + ' giorni';
+                        
+                        if (order.daysToExpiry < 0) {
+                            daysClass = 'badge-cancelled';
+                            daysText = 'SCADUTO (' + Math.abs(order.daysToExpiry) + 'g fa)';
+                        } else if (order.daysToExpiry <= 3) {
+                            daysClass = 'badge-cancelled';
+                            daysText = '⚠️ ' + order.daysToExpiry + ' giorni!';
+                        } else if (order.daysToExpiry <= 7) {
+                            daysClass = 'badge-pending';
+                            daysText = order.daysToExpiry + ' giorni';
+                        }
+                        
+                        const durationBadgeClass = order.calculatedDuration === 'Annuale' ? 'badge-completed' : 'badge-pending';
+
+                        html += '<tr>';
+                        html += `<td><strong>${order.discordId}</strong></td>`;
+                        html += `<td>${order.service}</td>`;
+                        html += `<td>${order.plan}</td>`;
+                        html += `<td><span class="badge ${durationBadgeClass}">${order.calculatedDuration}</span></td>`;
+                        html += `<td>${orderDateStr}</td>`;
+                        html += `<td>${expiryDateStr}</td>`;
+                        html += `<td><span class="badge ${daysClass}">${daysText}</span></td>`;
+                        html += `<td><button class="btn btn-small btn-success" onclick="markForRenewal('${order.discordId}', '${order.service}')">📧 Contatta</button></td>`;
+                        html += '</tr>';
+                    });
+
+                    html += '</tbody></table>';
+                    html += `<p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;">Totale ordini in scadenza: ${expiringOrders.length}</p>`;
+                    container.innerHTML = html;
+                })
+                .catch(err => {
+                    console.error('Errore caricamento ordini:', err);
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">❌</div>
+                            <h3>Errore nel caricamento</h3>
+                            <p>Impossibile caricare gli ordini. Controlla la connessione con Google Sheets.</p>
+                            <button class="btn" onclick="loadExpiringOrders()" style="margin-top: 1rem;">♻️ Riprova</button>
+                        </div>
+                    `;
+                });
+        }
+        
+        // Funzione per contattare cliente per rinnovo
+        function markForRenewal(discordId, service) {
+            const message = `Ciao! Il tuo abbonamento ${service} sta per scadere. Vuoi rinnovarlo?`;
+            
+            // Copia il messaggio negli appunti
+            navigator.clipboard.writeText(message).then(() => {
+                alert(`✅ Messaggio copiato negli appunti!\n\nOra puoi contattare ${discordId} su Discord e incollare il messaggio.`);
+            }).catch(() => {
+                alert(`📧 Contatta ${discordId} su Discord per rinnovare ${service}`);
+            });
+        }
+
+        // Load cancellations
+        function loadCancellations() {
+            const container = document.getElementById('cancellations-list');
+            container.innerHTML = '<div class="loading">Caricamento disdette da Google Sheets</div>';
+
+            fetch(GOOGLE_SHEETS_URL + '?type=get_cancellations')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.cancellations || data.cancellations.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📭</div>
+                                <h3>Nessuna disdetta trovata</h3>
+                                <p>Le richieste di disdetta appariranno qui.</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    let html = '<table>';
+                    html += '<thead><tr>';
+                    html += '<th>ID</th>';
+                    html += '<th>Data</th>';
+                    html += '<th>Discord ID</th>';
+                    html += '<th>Servizio</th>';
+                    html += '<th>Motivo</th>';
+                    html += '<th>Stato</th>';
+                    html += '<th>Azioni</th>';
+                    html += '</tr></thead><tbody>';
+
+                    data.cancellations.forEach(cancel => {
+                        const status = cancel.status || 'Pending';
+                        const badgeClass = status === 'Completato' ? 'badge-completed' : 'badge-pending';
+                        
+                        const date = new Date(cancel.date);
+                        const dateStr = date.toLocaleDateString('it-IT') + ' ' + date.toLocaleTimeString('it-IT');
+
+                        html += '<tr>';
+                        html += `<td>${cancel.id}</td>`;
+                        html += `<td>${dateStr}</td>`;
+                        html += `<td>${cancel.discordId}</td>`;
+                        html += `<td>${cancel.service}</td>`;
+                        html += `<td>${cancel.reason || '-'}</td>`;
+                        html += `<td><span class="badge ${badgeClass}">${status}</span></td>`;
+                        html += `<td><div class="action-buttons">`;
+                        html += `<button class="btn btn-small btn-danger" onclick="deleteCancellation(${cancel.id})">🗑️ Elimina</button>`;
+                        html += `</div></td>`;
+                        html += '</tr>';
+                    });
+
+                    html += '</tbody></table>';
+                    container.innerHTML = html;
+                })
+                .catch(err => {
+                    console.error('Errore caricamento disdette:', err);
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">❌</div>
+                            <h3>Errore nel caricamento</h3>
+                            <p>Impossibile caricare le disdette.</p>
+                            <button class="btn" onclick="loadCancellations()" style="margin-top: 1rem;">♻️ Riprova</button>
+                        </div>
+                    `;
+                });
+        }
+
+        // Load discounts
+        function loadDiscounts() {
+            const container = document.getElementById('discounts-list');
+            container.innerHTML = '<div class="loading">Caricamento codici da Google Sheets</div>';
+
+            fetch(GOOGLE_SHEETS_URL + '?type=get_all_discounts')
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.discounts || data.discounts.length === 0) {
+                        container.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-state-icon">🎟️</div>
+                                <h3>Nessun codice sconto trovato</h3>
+                                <p>Crea il tuo primo codice sconto usando il form qui sopra!</p>
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    let html = '<table>';
+                    html += '<thead><tr>';
+                    html += '<th>Codice</th>';
+                    html += '<th>Sconto</th>';
+                    html += '<th>Inizio</th>';
+                    html += '<th>Scadenza</th>';
+                    html += '<th>Max Utilizzi</th>';
+                    html += '<th>Utilizzi Attuali</th>';
+                    html += '<th>Creato il</th>';
+                    html += '<th>Stato</th>';
+                    html += '<th>Azioni</th>';
+                    html += '</tr></thead><tbody>';
+
+                    data.discounts.forEach(discount => {
+                        const isActive = discount.active === 'SI';
+                        const badgeClass = isActive ? 'badge-completed' : 'badge-cancelled';
+                        const statusText = isActive ? 'Attivo' : 'Disattivato';
+
+                        html += '<tr>';
+                        html += `<td><strong>${discount.code}</strong></td>`;
+                        html += `<td>${discount.percentage}%</td>`;
+                        html += `<td>${discount.startDate || '-'}</td>`;
+                        html += `<td>${discount.expiry}</td>`;
+                        html += `<td>${discount.maxUses === 0 ? 'Illimitato' : discount.maxUses}</td>`;
+                        html += `<td>${discount.currentUses}</td>`;
+                        html += `<td>${discount.created}</td>`;
+                        html += `<td><span class="badge ${badgeClass}">${statusText}</span></td>`;
+                        html += `<td><div class="action-buttons">`;
+                        
+                        html += `<button class="btn btn-small" onclick="openEditDiscountModal('${discount.code}', ${discount.percentage}, '${discount.startDate || ''}', '${discount.expiry}', ${discount.maxUses})">✏️ Modifica</button>`;
+                        
+                        if (isActive) {
+                            html += `<button class="btn btn-small btn-danger" onclick="toggleDiscount('${discount.code}')">❌ Disattiva</button>`;
+                        } else {
+                            html += `<button class="btn btn-small btn-success" onclick="toggleDiscount('${discount.code}')">✅ Attiva</button>`;
+                        }
+                        
+                        html += `<button class="btn btn-small btn-danger" onclick="deleteDiscount('${discount.code}')">🗑️ Elimina</button>`;
+                        html += `</div></td>`;
+                        html += '</tr>';
+                    });
+
+                    html += '</tbody></table>';
+                    container.innerHTML = html;
+                })
+                .catch(err => {
+                    console.error('Errore caricamento codici:', err);
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">❌</div>
+                            <h3>Errore nel caricamento</h3>
+                            <p>Impossibile caricare i codici sconto.</p>
+                            <button class="btn" onclick="loadDiscounts()" style="margin-top: 1rem;">♻️ Riprova</button>
+                        </div>
+                    `;
+                });
+        }
+
+        // Add discount
+        function addDiscount() {
+            const code = document.getElementById('discount-code').value.trim().toUpperCase();
+            const percentage = parseInt(document.getElementById('discount-percentage').value);
+            const startDate = document.getElementById('discount-start').value;
+            const expiry = document.getElementById('discount-expiry').value;
+            const maxUses = parseInt(document.getElementById('discount-max-uses').value);
+
+            if (!code || !percentage || !startDate || !expiry) {
+                alert('⚠️ Compila tutti i campi obbligatori');
+                return;
+            }
+
+            if (percentage < 1 || percentage > 100) {
+                alert('⚠️ La percentuale deve essere tra 1 e 100');
+                return;
+            }
+
+            if (new Date(startDate) > new Date(expiry)) {
+                alert('⚠️ La data di inizio deve essere prima della data di scadenza');
+                return;
+            }
+
+            // Converti le date in formato italiano
+            const startDateObj = new Date(startDate);
+            const startFormatted = startDateObj.toLocaleDateString('it-IT');
+            const dateObj = new Date(expiry);
+            const expiryFormatted = dateObj.toLocaleDateString('it-IT');
+
+            fetch(GOOGLE_SHEETS_URL, {
+                method: 'POST',
+                
+                
+                body: JSON.stringify({
+                    type: 'add_discount',
+                    code: code,
+                    percentage: percentage,
+                    startDate: startFormatted,
+                    expiry: expiryFormatted,
+                    maxUses: maxUses
+                })
+            })
+            .then(() => {
+                alert('✅ Codice sconto creato con successo!');
+                // Reset form
+                document.getElementById('discount-code').value = '';
+                document.getElementById('discount-percentage').value = '';
+                document.getElementById('discount-start').value = '';
+                document.getElementById('discount-expiry').value = '';
+                document.getElementById('discount-max-uses').value = '0';
+                // Reload discounts
+                loadDiscounts();
+                loadDashboard();
+            })
+            .catch(err => {
+                console.error('Errore creazione codice:', err);
+                alert('✅ Codice creato! (Ricarica la pagina per vederlo)');
+                loadDiscounts();
+            });
+        }
+
+        // Delete discount
+        function deleteDiscount(code) {
+            if (!confirm(`Sei sicuro di voler eliminare il codice "${code}"?`)) return;
+
+            fetch(GOOGLE_SHEETS_URL, {
+                method: 'POST',
+                
+                
+                body: JSON.stringify({
+                    type: 'delete_discount',
+                    code: code
+                })
+            })
+            .then(() => {
+                alert('✅ Codice sconto eliminato!');
+                loadDiscounts();
+                loadDashboard();
+            })
+            .catch(err => {
+                console.error('Errore eliminazione codice:', err);
+                alert('✅ Codice eliminato! (Ricarica la pagina per confermare)');
+                loadDiscounts();
+            });
+        }
+
+        // Toggle discount active status
+        function toggleDiscount(code) {
+            fetch(GOOGLE_SHEETS_URL, {
+                method: 'POST',
+                
+                
+                body: JSON.stringify({
+                    type: 'toggle_discount',
+                    code: code
+                })
+            })
+            .then(() => {
+                alert('✅ Stato codice aggiornato!');
+                loadDiscounts();
+                loadDashboard();
+            })
+            .catch(err => {
+                console.error('Errore aggiornamento stato:', err);
+                alert('✅ Stato aggiornato! (Ricarica la pagina per confermare)');
+                loadDiscounts();
+            });
+        }
+
+        // Open edit discount modal
+        function openEditDiscountModal(code, percentage, startDate, expiry, maxUses) {
+            document.getElementById('edit-discount-code-hidden').value = code;
+            document.getElementById('edit-discount-code').value = code;
+            document.getElementById('edit-discount-percentage').value = percentage;
+            document.getElementById('edit-discount-max-uses').value = maxUses;
+            
+            // Converti le date da formato italiano (dd/mm/yyyy) a formato input (yyyy-mm-dd)
+            if (startDate && startDate !== '-' && startDate !== 'undefined') {
+                const startParts = startDate.split('/');
+                if (startParts.length === 3) {
+                    document.getElementById('edit-discount-start').value = `${startParts[2]}-${startParts[1].padStart(2, '0')}-${startParts[0].padStart(2, '0')}`;
+                }
+            } else {
+                document.getElementById('edit-discount-start').value = '';
+            }
+            
+            if (expiry) {
+                const expiryParts = expiry.split('/');
+                if (expiryParts.length === 3) {
+                    document.getElementById('edit-discount-expiry').value = `${expiryParts[2]}-${expiryParts[1].padStart(2, '0')}-${expiryParts[0].padStart(2, '0')}`;
+                }
+            }
+            
+            document.getElementById('edit-discount-modal').style.display = 'flex';
+        }
+
+        // Close edit discount modal
+        function closeEditDiscountModal() {
+            document.getElementById('edit-discount-modal').style.display = 'none';
+        }
+
+        // Save discount changes
+        function saveDiscountChanges() {
+            const code = document.getElementById('edit-discount-code-hidden').value;
+            const percentage = parseInt(document.getElementById('edit-discount-percentage').value);
+            const startDate = document.getElementById('edit-discount-start').value;
+            const expiry = document.getElementById('edit-discount-expiry').value;
+            const maxUses = parseInt(document.getElementById('edit-discount-max-uses').value);
+
+            if (!percentage || !startDate || !expiry) {
+                alert('⚠️ Compila tutti i campi obbligatori');
+                return;
+            }
+
+            if (percentage < 1 || percentage > 100) {
+                alert('⚠️ La percentuale deve essere tra 1 e 100');
+                return;
+            }
+
+            if (new Date(startDate) > new Date(expiry)) {
+                alert('⚠️ La data di inizio deve essere prima della data di scadenza');
+                return;
+            }
+
+            // Converti le date in formato italiano
+            const startDateObj = new Date(startDate);
+            const startFormatted = startDateObj.toLocaleDateString('it-IT');
+            const dateObj = new Date(expiry);
+            const expiryFormatted = dateObj.toLocaleDateString('it-IT');
+
+            fetch(GOOGLE_SHEETS_URL, {
+                method: 'POST',
+                
+                
+                body: JSON.stringify({
+                    type: 'update_discount',
+                    code: code,
+                    percentage: percentage,
+                    startDate: startFormatted,
+                    expiry: expiryFormatted,
+                    maxUses: maxUses
+                })
+            })
+            .then(() => {
+                alert('✅ Codice sconto aggiornato con successo!');
+                closeEditDiscountModal();
+                loadDiscounts();
+                loadDashboard();
+            })
+            .catch(err => {
+                console.error('Errore aggiornamento codice:', err);
+                alert('✅ Codice aggiornato! (Ricarica la pagina per confermare)');
+                closeEditDiscountModal();
+                loadDiscounts();
+            });
+        }
+
+        // Update order status
+        function updateOrderStatus(orderId, status) {
+            fetch(GOOGLE_SHEETS_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    type: 'update_order_status',
+                    id: orderId,
+                    status: status
+                })
+            })
+            .then(() => {
+                // Invia notifica Discord
+                const orderRow = Array.from(document.querySelectorAll('#orders-list table tbody tr')).find(row => {
+                    return row.cells[0].textContent == orderId;
+                });
+                
+                if (orderRow) {
+                    const discordId = orderRow.cells[2].textContent;
+                    const service = orderRow.cells[3].textContent;
+                    const plan = orderRow.cells[4].textContent;
+                    
+                    fetch('https://discord.com/api/webhooks/1460653071880159334/gvLic40YxD1BfM9Tp40jjr3-wU6lbVwaxmxvEkxOJVMCeHEpDblsONg63akvM_NFNiY6', {
+                        method: 'POST',
+                        
+                        body: JSON.stringify({
+                            embeds: [{
+                                title: '✅ ORDINE COMPLETATO!',
+                                color: 4059648, // Verde
+                                description: '**Un ordine è stato segnato come completato.**',
+                                fields: [
+                                    { name: '🆔 Order ID', value: String(orderId), inline: true },
+                                    { name: '👤 Discord ID', value: discordId, inline: true },
+                                    { name: '📝 Servizio', value: service, inline: false },
+                                    { name: '📦 Piano', value: plan, inline: false },
+                                    { name: '📊 Stato', value: '✅ Completato', inline: true },
+                                    { name: '📅 Data Completamento', value: new Date().toLocaleString('it-IT'), inline: true }
+                                ],
+                                timestamp: new Date().toISOString(),
+                                footer: { text: '💎 LUXSAVE Admin System' }
+                            }]
+                        })
+                    }).catch(err => console.log('Discord notification error:', err));
+                }
+                
+                alert('✅ Stato ordine aggiornato!');
+                loadOrders();
+                loadDashboard();
+            })
+            .catch(err => {
+                console.error('Errore aggiornamento stato:', err);
+                alert('❌ Errore nell\'aggiornamento dello stato');
+            });
+        }
+
+        // Delete order
+        function deleteOrder(orderId) {
+            if (!confirm('Sei sicuro di voler eliminare questo ordine?')) return;
+
+            // Ottieni i dettagli dell'ordine prima di eliminarlo
+            const orderRow = Array.from(document.querySelectorAll('#orders-list table tbody tr')).find(row => {
+                return row.cells[0].textContent == orderId;
+            });
+            
+            let discordId = 'N/A';
+            let service = 'N/A';
+            let plan = 'N/A';
+            
+            if (orderRow) {
+                discordId = orderRow.cells[2].textContent;
+                service = orderRow.cells[3].textContent;
+                plan = orderRow.cells[4].textContent;
+            }
+
+            fetch(GOOGLE_SHEETS_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    type: 'delete_order',
+                    id: orderId
+                })
+            })
+            .then(() => {
+                // Invia notifica Discord
+                fetch('https://discord.com/api/webhooks/1460653071880159334/gvLic40YxD1BfM9Tp40jjr3-wU6lbVwaxmxvEkxOJVMCeHEpDblsONg63akvM_NFNiY6', {
+                    method: 'POST',
+                    
+                    body: JSON.stringify({
+                        embeds: [{
+                            title: '🗑️ ORDINE ELIMINATO',
+                            color: 16711680, // Rosso
+                            description: '**Un ordine è stato eliminato dal sistema.**',
+                            fields: [
+                                { name: '🆔 Order ID', value: String(orderId), inline: true },
+                                { name: '👤 Discord ID', value: discordId, inline: true },
+                                { name: '📝 Servizio', value: service, inline: false },
+                                { name: '📦 Piano', value: plan, inline: false },
+                                { name: '📊 Azione', value: '🗑️ Eliminato', inline: true },
+                                { name: '📅 Data Eliminazione', value: new Date().toLocaleString('it-IT'), inline: true }
+                            ],
+                            timestamp: new Date().toISOString(),
+                            footer: { text: '💎 LUXSAVE Admin System' }
+                        }]
+                    })
+                }).catch(err => console.log('Discord notification error:', err));
+                
+                alert('✅ Ordine eliminato!');
+                loadOrders();
+                loadDashboard();
+            })
+            .catch(err => {
+                console.error('Errore eliminazione ordine:', err);
+                alert('❌ Errore nell\'eliminazione dell\'ordine');
+            });
+        }
+
+        // Filter orders by search
+        function filterOrders() {
+            const searchTerm = document.getElementById('search-orders').value.toLowerCase();
+            const rows = document.querySelectorAll('#orders-list table tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Filter cancellations by search
+        function filterCancellations() {
+            const searchTerm = document.getElementById('search-cancellations').value.toLowerCase();
+            const rows = document.querySelectorAll('#cancellations-list table tbody tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Refresh all data
+        function refreshAllData() {
+            loadDashboard();
+            loadOrders();
+            loadCancellations();
+            loadDiscounts();
+            alert('✅ Dati aggiornati!');
+        }
+
+        // Mark order as paid
+        function markAsPaid(orderId) {
+            if (!confirm('Confermi che questo ordine è stato pagato?')) return;
+
+            fetch(GOOGLE_SHEETS_URL, {
+                method: 'POST',
+                
+                
+                body: JSON.stringify({
+                    type: 'mark_as_paid',
+                    id: orderId
+                })
+            })
+            .then(() => {
+                alert('✅ Ordine segnato come pagato!');
+                loadOrders();
+                loadDashboard();
+            })
+            .catch(err => {
+                console.error('Errore:', err);
+                alert('✅ Ordine segnato come pagato! (Ricarica per confermare)');
+                loadOrders();
+            });
+        }
+
+        // Auto-delete unpaid orders after 5 hours
+        function autoDeleteUnpaid() {
+            if (!confirm('Eliminare tutti gli ordini NON PAGATI più vecchi di 5 ore?')) return;
+
+            fetch(GOOGLE_SHEETS_URL, {
+                method: 'POST',
+                
+                
+                body: JSON.stringify({
+                    type: 'auto_delete_unpaid'
+                })
+            })
+            .then(() => {
+                // Invia notifica Discord
+                fetch('https://discord.com/api/webhooks/1460653071880159334/gvLic40YxD1BfM9Tp40jjr3-wU6lbVwaxmxvEkxOJVMCeHEpDblsONg63akvM_NFNiY6', {
+                    method: 'POST',
+                    
+                    body: JSON.stringify({
+                        embeds: [{
+                            title: '🗑️ AUTO-ELIMINAZIONE ORDINI NON PAGATI',
+                            color: 16711680,
+                            description: '**Gli ordini non pagati più vecchi di 5 ore sono stati eliminati automaticamente.**',
+                            fields: [
+                                { name: '⏰ Criterio', value: 'Ordini non pagati > 5 ore', inline: false },
+                                { name: '📊 Azione', value: 'Eliminati automaticamente', inline: true },
+                                { name: '📅 Data', value: new Date().toLocaleString('it-IT'), inline: true }
+                            ],
+                            timestamp: new Date().toISOString(),
+                            footer: { text: '💎 LUXSAVE Admin System - Auto-Clean' }
+                        }]
+                    })
+                }).catch(err => console.log('Discord notification error:', err));
+
+                alert('✅ Ordini non pagati eliminati!');
+                loadOrders();
+                loadDashboard();
+            })
+            .catch(err => {
+                console.error('Errore:', err);
+                alert('✅ Operazione completata! (Ricarica per confermare)');
+                loadOrders();
+            });
+        }
+
+        // Delete cancellation
+        function deleteCancellation(cancelId) {
+            if (!confirm('Sei sicuro di voler eliminare questa disdetta?')) return;
+
+            // Ottieni i dettagli della disdetta prima di eliminarla
+            const cancelRow = Array.from(document.querySelectorAll('#cancellations-list table tbody tr')).find(row => {
+                return row.cells[0].textContent == cancelId;
+            });
+            
+            let discordId = 'N/A';
+            let service = 'N/A';
+            let reason = 'N/A';
+            
+            if (cancelRow) {
+                discordId = cancelRow.cells[2].textContent;
+                service = cancelRow.cells[3].textContent;
+                reason = cancelRow.cells[4].textContent;
+            }
+
+            fetch(GOOGLE_SHEETS_URL, {
+                method: 'POST',
+                
+                
+                body: JSON.stringify({
+                    type: 'delete_cancellation',
+                    id: cancelId
+                })
+            })
+            .then(() => {
+                // Invia notifica Discord
+                fetch('https://discord.com/api/webhooks/1460653071880159334/gvLic40YxD1BfM9Tp40jjr3-wU6lbVwaxmxvEkxOJVMCeHEpDblsONg63akvM_NFNiY6', {
+                    method: 'POST',
+                    
+                    body: JSON.stringify({
+                        embeds: [{
+                            title: '✅ DISDETTA ELABORATA',
+                            color: 4059648,
+                            description: '**Una richiesta di disdetta è stata elaborata ed eliminata.**',
+                            fields: [
+                                { name: '🆔 Request ID', value: String(cancelId), inline: true },
+                                { name: '👤 Discord ID', value: discordId, inline: true },
+                                { name: '📝 Servizio', value: service, inline: false },
+                                { name: '💬 Motivo', value: reason, inline: false },
+                                { name: '📊 Azione', value: '✅ Elaborata e Rimossa', inline: true },
+                                { name: '📅 Data', value: new Date().toLocaleString('it-IT'), inline: true }
+                            ],
+                            timestamp: new Date().toISOString(),
+                            footer: { text: '💎 LUXSAVE Admin System' }
+                        }]
+                    })
+                }).catch(err => console.log('Discord notification error:', err));
+                
+                alert('✅ Disdetta eliminata!');
+                loadCancellations();
+            })
+            .catch(err => {
+                console.error('Errore eliminazione disdetta:', err);
+                alert('❌ Errore nell\'eliminazione della disdetta');
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDashboard();
+            loadOrders();
+        });
+    </script>
+</body>
+</html>
