@@ -446,6 +446,7 @@
             <button class="tab" onclick="switchTab('expiring')">⏰ In Scadenza</button>
             <button class="tab" onclick="switchTab('cancellations')">❌ Disdette</button>
             <button class="tab" onclick="switchTab('discounts')">🎟️ Codici Sconto</button>
+            <button class="tab" onclick="switchTab('reviews')">💬 Recensioni</button>
         </div>
 
         <!-- Dashboard Tab -->
@@ -670,6 +671,7 @@
             if (tabName === 'expiring') loadExpiringOrders();
             if (tabName === 'cancellations') loadCancellations();
             if (tabName === 'discounts') loadDiscounts();
+            if (tabName === 'reviews') loadAdminReviews();
         }
 
         // Load dashboard stats
@@ -1607,6 +1609,208 @@
                 console.error('Errore eliminazione disdetta:', err);
                 alert('❌ Errore nell\'eliminazione della disdetta');
             });
+        }
+
+        // ==================== REVIEWS MANAGEMENT ====================
+        let allReviews = [];
+        let currentReviewFilter = 'all';
+
+        // Load reviews for admin
+        async function loadAdminReviews() {
+            const container = document.getElementById('reviewsList');
+            container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Caricamento recensioni...</p>';
+
+            try {
+                const response = await fetch('/api/reviews/get?admin=true');
+                const data = await response.json();
+                
+                if (data.success) {
+                    allReviews = data.reviews || [];
+                    renderAdminReviews();
+                } else {
+                    container.innerHTML = '<p style="text-align: center; color: var(--accent-pink);">Errore nel caricamento recensioni</p>';
+                }
+            } catch (error) {
+                console.error('Load reviews error:', error);
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Nessuna recensione da visualizzare</p>';
+            }
+        }
+
+        // Filter reviews
+        function filterReviews(filter) {
+            currentReviewFilter = filter;
+            renderAdminReviews();
+            
+            // Update button styles
+            document.querySelectorAll('#reviews .btn').forEach(btn => {
+                btn.style.opacity = '0.6';
+            });
+            event.target.style.opacity = '1';
+        }
+
+        // Render reviews in admin
+        function renderAdminReviews() {
+            const container = document.getElementById('reviewsList');
+            
+            let filtered = allReviews;
+            if (currentReviewFilter === 'pending') {
+                filtered = allReviews.filter(r => !r.approved);
+            } else if (currentReviewFilter === 'approved') {
+                filtered = allReviews.filter(r => r.approved);
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Nessuna recensione trovata</p>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(review => `
+                <div class="review-admin-card" style="background: var(--bg-secondary); border: 1px solid ${review.approved ? 'var(--accent-green)' : 'var(--accent-yellow)'}; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <img src="${review.user_avatar || ''}" style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink));" onerror="this.style.background='linear-gradient(135deg, var(--accent-cyan), var(--accent-pink))'">
+                                <div>
+                                    <strong>${review.user_name || 'Utente'}</strong>
+                                    <div style="font-size: 0.85rem; color: var(--text-secondary);">${review.service || 'N/A'}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="color: #FFD700;">${'★'.repeat(review.rating || 5)}${'☆'.repeat(5 - (review.rating || 5))}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">${new Date(review.created_at).toLocaleDateString('it-IT')}</div>
+                            <span style="display: inline-block; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; background: ${review.approved ? 'var(--accent-green)' : 'var(--accent-yellow)'}; color: #000; margin-top: 0.25rem;">
+                                ${review.approved ? '✅ Approvata' : '⏳ In Attesa'}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <h4 style="margin-bottom: 0.5rem;">${review.title || 'Senza titolo'}</h4>
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">${review.content || ''}</p>
+                    
+                    ${review.admin_reply ? `
+                        <div style="background: rgba(0,255,247,0.1); border-left: 3px solid var(--accent-cyan); padding: 1rem; margin-bottom: 1rem; border-radius: 0 8px 8px 0;">
+                            <strong style="color: var(--accent-cyan);">💎 Risposta LUXSAVE:</strong>
+                            <p style="margin-top: 0.5rem; color: var(--text-secondary);">${review.admin_reply}</p>
+                        </div>
+                    ` : ''}
+                    
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        ${!review.approved ? `
+                            <button class="btn" onclick="approveReview('${review.id}')" style="background: var(--accent-green); color: #000; font-size: 0.85rem; padding: 0.5rem 1rem;">
+                                ✅ Approva
+                            </button>
+                        ` : ''}
+                        <button class="btn" onclick="showReplyModal('${review.id}')" style="background: var(--accent-cyan); color: #000; font-size: 0.85rem; padding: 0.5rem 1rem;">
+                            💬 ${review.admin_reply ? 'Modifica Risposta' : 'Rispondi'}
+                        </button>
+                        <button class="btn" onclick="deleteReview('${review.id}')" style="background: var(--accent-pink); color: #fff; font-size: 0.85rem; padding: 0.5rem 1rem;">
+                            🗑️ Elimina
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Approve review
+        async function approveReview(reviewId) {
+            try {
+                const response = await fetch('/api/reviews/approve', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reviewId })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ Recensione approvata!');
+                    loadAdminReviews();
+                } else {
+                    alert('❌ Errore: ' + (data.error || 'Impossibile approvare'));
+                }
+            } catch (error) {
+                console.error('Approve error:', error);
+                alert('❌ Errore di connessione');
+            }
+        }
+
+        // Delete review
+        async function deleteReview(reviewId) {
+            if (!confirm('Sei sicuro di voler eliminare questa recensione?')) return;
+            
+            try {
+                const response = await fetch('/api/reviews/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reviewId })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ Recensione eliminata!');
+                    loadAdminReviews();
+                } else {
+                    alert('❌ Errore: ' + (data.error || 'Impossibile eliminare'));
+                }
+            } catch (error) {
+                console.error('Delete error:', error);
+                alert('❌ Errore di connessione');
+            }
+        }
+
+        // Show reply modal
+        function showReplyModal(reviewId) {
+            const existingReply = allReviews.find(r => r.id === reviewId)?.admin_reply || '';
+            
+            const modal = document.createElement('div');
+            modal.id = 'replyModal';
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; z-index: 9999;';
+            modal.innerHTML = `
+                <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 2rem; max-width: 500px; width: 90%;">
+                    <h3 style="margin-bottom: 1rem;">💬 Rispondi alla recensione</h3>
+                    <textarea id="replyText" style="width: 100%; min-height: 120px; padding: 1rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); resize: vertical;">${existingReply}</textarea>
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                        <button class="btn" onclick="submitReply('${reviewId}')" style="background: var(--accent-cyan); color: #000; flex: 1;">📤 Invia</button>
+                        <button class="btn" onclick="closeReplyModal()" style="background: var(--bg-primary); border: 1px solid var(--border-color); flex: 1;">❌ Annulla</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // Close reply modal
+        function closeReplyModal() {
+            const modal = document.getElementById('replyModal');
+            if (modal) modal.remove();
+        }
+
+        // Submit reply
+        async function submitReply(reviewId) {
+            const replyText = document.getElementById('replyText').value.trim();
+            if (!replyText) {
+                alert('Inserisci una risposta');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/reviews/reply', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reviewId, reply: replyText })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert('✅ Risposta salvata!');
+                    closeReplyModal();
+                    loadAdminReviews();
+                } else {
+                    alert('❌ Errore: ' + (data.error || 'Impossibile salvare'));
+                }
+            } catch (error) {
+                console.error('Reply error:', error);
+                alert('❌ Errore di connessione');
+            }
         }
 
         // Initialize

@@ -17,77 +17,65 @@ export async function onRequest(context) {
     });
   };
   
-  // Helper per query Supabase
-  const supabaseQuery = async (table, query = {}) => {
-    const url = new URL(`${env.SUPABASE_URL}/rest/v1/${table}`);
-    
-    // Aggiungi parametri query
-    if (query.select) url.searchParams.append('select', query.select);
-    if (query.eq) {
-      for (const [key, value] of Object.entries(query.eq)) {
-        url.searchParams.append(key, `eq.${value}`);
-      }
-    }
-    if (query.gt) {
-      for (const [key, value] of Object.entries(query.gt)) {
-        url.searchParams.append(key, `gt.${value}`);
-      }
-    }
-    
-    const response = await fetch(url.toString(), {
-      headers: {
-        'apikey': env.SUPABASE_ANON_KEY,
-        'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
-      }
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Supabase error: ${response.status}`);
-    }
-    
-    return await response.json();
-  };
-  
-  // Helper per ottenere utente da session
-  const getAuthUser = async (request, env) => {
-    const cookieHeader = request.headers.get('Cookie') || '';
-    const sessionMatch = cookieHeader.match(/session=([^;]+)/);
-    
-    if (!sessionMatch) return null;
-    
-    const sessionToken = sessionMatch[1];
-    
-    try {
-      const sessions = await supabaseQuery('sessions', {
-        select: 'id,user_id,users(id,discord_id,username,avatar,email)',
-        eq: { session_token: sessionToken },
-        gt: { expires_at: new Date().toISOString() }
-      });
-      
-      if (!sessions || sessions.length === 0) return null;
-      
-      return sessions[0]?.users || null;
-    } catch (error) {
-      console.error('Auth error:', error);
-      return null;
-    }
-  };
-  
   if (request.method === 'OPTIONS') {
     return jsonResponse({}, 200);
   }
   
+  // Check if Supabase is configured
+  if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
+    return jsonResponse({
+      authenticated: false,
+      user: null,
+      message: 'Auth not configured'
+    });
+  }
+  
   try {
-    const user = await getAuthUser(request, env);
+    const cookieHeader = request.headers.get('Cookie') || '';
+    const sessionMatch = cookieHeader.match(/session=([^;]+)/);
     
-    if (!user) {
+    if (!sessionMatch) {
       return jsonResponse({
         authenticated: false,
         user: null
       });
     }
+    
+    const sessionToken = sessionMatch[1];
+    
+    const supabaseHeaders = {
+      'apikey': env.SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json'
+    };
+    
+    // Get session
+    const sessionUrl = `${env.SUPABASE_URL}/rest/v1/sessions?session_token=eq.${sessionToken}&expires_at=gt.${new Date().toISOString()}&select=*`;
+    const sessionResponse = await fetch(sessionUrl, { headers: supabaseHeaders });
+    const sessions = await sessionResponse.json();
+    
+    if (!sessions || sessions.length === 0) {
+      return jsonResponse({
+        authenticated: false,
+        user: null
+      });
+    }
+    
+    const session = sessions[0];
+    
+    // Get user
+    const userUrl = `${env.SUPABASE_URL}/rest/v1/users?id=eq.${session.user_id}&select=*`;
+    const userResponse = await fetch(userUrl, { headers: supabaseHeaders });
+    const users = await userResponse.json();
+    
+    if (!users || users.length === 0) {
+      return jsonResponse({
+        authenticated: false,
+        user: null
+      });
+    }
+    
+    const user = users[0];
     
     return jsonResponse({
       authenticated: true,
@@ -109,4 +97,3 @@ export async function onRequest(context) {
     });
   }
 }
-

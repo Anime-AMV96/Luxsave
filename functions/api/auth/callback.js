@@ -20,9 +20,18 @@ export async function onRequest(context) {
   const state = url.searchParams.get('state');
   const savedState = getCookie(request, 'oauth_state');
   
+  // Check if env vars are set
+  if (!env.DISCORD_CLIENT_ID || !env.DISCORD_CLIENT_SECRET || !env.DISCORD_REDIRECT_URI) {
+    return new Response('Discord OAuth not configured', { status: 500 });
+  }
+  
+  if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
+    return new Response('Supabase not configured', { status: 500 });
+  }
+  
   // Verifica CSRF
   if (!state || state !== savedState) {
-    return new Response('Invalid state', { status: 400 });
+    return new Response('Invalid state - please try again', { status: 400 });
   }
   
   if (!code) {
@@ -46,7 +55,8 @@ export async function onRequest(context) {
     });
     
     if (!tokenResponse.ok) {
-      throw new Error('Failed to get access token');
+      const errorData = await tokenResponse.text();
+      throw new Error(`Failed to get access token: ${errorData}`);
     }
     
     const tokenData = await tokenResponse.json();
@@ -73,11 +83,15 @@ export async function onRequest(context) {
       'Prefer': 'return=representation'
     };
     
+    const avatarUrl = discordUser.avatar 
+      ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`
+      : null;
+    
     const userData = {
       discord_id: discordUser.id,
       username: discordUser.username,
       discriminator: discordUser.discriminator || '0',
-      avatar: discordUser.avatar,
+      avatar: avatarUrl,
       email: discordUser.email
     };
     
@@ -106,6 +120,9 @@ export async function onRequest(context) {
         body: JSON.stringify(userData)
       });
       const newUsers = await insertResponse.json();
+      if (!newUsers || !newUsers[0]) {
+        throw new Error('Failed to create user');
+      }
       userId = newUsers[0].id;
     }
     
@@ -124,10 +141,17 @@ export async function onRequest(context) {
     });
     
     // 5. Redirect alla home con cookie di sessione
-    const response = Response.redirect('/', 302);
-    response.headers.set('Set-Cookie', `session=${sessionToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${7*24*60*60}`);
-    
-    return response;
+    // NOTA: Non possiamo usare Response.redirect() perché è immutabile
+    // Invece creiamo una Response manuale con status 302
+    return new Response(null, {
+      status: 302,
+      headers: {
+        'Location': '/',
+        'Set-Cookie': `session=${sessionToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${7*24*60*60}`,
+        // Clear oauth_state cookie
+        'Set-Cookie': `oauth_state=; Path=/; Max-Age=0`
+      }
+    });
     
   } catch (error) {
     console.error('OAuth error:', error);

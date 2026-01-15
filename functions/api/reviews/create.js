@@ -8,30 +8,10 @@ export async function onRequest(context) {
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type'
       }
     });
-  };
-  
-  const getAuthUser = async (request, env) => {
-    const cookieHeader = request.headers.get('Cookie') || '';
-    const sessionMatch = cookieHeader.match(/session=([^;]+)/);
-    if (!sessionMatch) return null;
-    const sessionToken = sessionMatch[1];
-    try {
-      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
-      const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
-      const { data: session } = await supabase
-        .from('sessions')
-        .select('*, users(*)')
-        .eq('session_token', sessionToken)
-        .gt('expires_at', new Date().toISOString())
-        .single();
-      return session?.users || null;
-    } catch (error) {
-      return null;
-    }
   };
   
   if (request.method === 'OPTIONS') {
@@ -43,13 +23,51 @@ export async function onRequest(context) {
   }
   
   try {
-    const user = await getAuthUser(request, env);
+    if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
+      return jsonResponse({ success: false, error: 'Supabase not configured' }, 500);
+    }
+
+    const supabaseHeaders = {
+      'apikey': env.SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json'
+    };
     
-    if (!user) {
+    // Get user from session cookie
+    const cookieHeader = request.headers.get('Cookie') || '';
+    const sessionMatch = cookieHeader.match(/session=([^;]+)/);
+    
+    if (!sessionMatch) {
       return jsonResponse({
         success: false,
         error: 'Devi effettuare il login per lasciare una recensione'
       }, 401);
+    }
+    
+    const sessionToken = sessionMatch[1];
+    
+    // Get session and user
+    const sessionUrl = `${env.SUPABASE_URL}/rest/v1/sessions?session_token=eq.${sessionToken}&expires_at=gt.${new Date().toISOString()}&select=*`;
+    const sessionResponse = await fetch(sessionUrl, { headers: supabaseHeaders });
+    const sessions = await sessionResponse.json();
+    
+    if (!sessions || sessions.length === 0) {
+      return jsonResponse({
+        success: false,
+        error: 'Sessione scaduta, effettua nuovamente il login'
+      }, 401);
+    }
+    
+    const session = sessions[0];
+    
+    // Get user info
+    const userUrl = `${env.SUPABASE_URL}/rest/v1/users?id=eq.${session.user_id}&select=*`;
+    const userResponse = await fetch(userUrl, { headers: supabaseHeaders });
+    const users = await userResponse.json();
+    const user = users && users.length > 0 ? users[0] : null;
+    
+    if (!user) {
+      return jsonResponse({ success: false, error: 'Utente non trovato' }, 401);
     }
     
     const data = await request.json();
@@ -69,15 +87,10 @@ export async function onRequest(context) {
       }, 400);
     }
     
-    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
-    const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
-    
-    // Verifica se già recensito
-    const { data: existing } = await supabase
-      .from('reviews')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('service', service);
+    // Check if already reviewed this service
+    const existingUrl = `${env.SUPABASE_URL}/rest/v1/reviews?user_id=eq.${user.id}&service=eq.${encodeURIComponent(service)}&select=id`;
+    const existingResponse = await fetch(existingUrl, { headers: supabaseHeaders });
+    const existing = await existingResponse.json();
     
     if (existing && existing.length > 0) {
       return jsonResponse({
@@ -86,26 +99,36 @@ export async function onRequest(context) {
       }, 400);
     }
     
-    // Crea recensione
-    const { data: review, error } = await supabase
-      .from('reviews')
-      .insert([{
+    // Create review
+    const createUrl = `${env.SUPABASE_URL}/rest/v1/reviews`;
+    const createResponse = await fetch(createUrl, {
+      method: 'POST',
+      headers: {
+        ...supabaseHeaders,
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({
         user_id: user.id,
+        user_name: user.username,
+        user_avatar: user.avatar,
         service,
         rating: parseInt(rating),
         title,
         content,
         approved: false
-      }])
-      .select()
-      .single();
+      })
+    });
     
-    if (error) throw error;
+    if (!createResponse.ok) {
+      throw new Error('Failed to create review');
+    }
+    
+    const review = await createResponse.json();
     
     return jsonResponse({
       success: true,
       message: 'Recensione inviata! Sarà visibile dopo l\'approvazione.',
-      review: review
+      review: review[0]
     });
     
   } catch (error) {

@@ -22,18 +22,31 @@ export async function onRequest(context) {
   }
   
   try {
+    // Check if Supabase is configured
+    if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
+      return jsonResponse({
+        success: true,
+        reviews: [],
+        message: 'Supabase not configured'
+      });
+    }
+
     const supabaseHeaders = {
       'apikey': env.SUPABASE_ANON_KEY,
       'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
       'Content-Type': 'application/json'
     };
     
+    // Check URL params
+    const url = new URL(request.url);
+    const isAdminRequest = url.searchParams.get('admin') === 'true';
+    
     // Get user auth
     const cookieHeader = request.headers.get('Cookie') || '';
     const sessionMatch = cookieHeader.match(/session=([^;]+)/);
     let isAdmin = false;
     
-    if (sessionMatch) {
+    if (sessionMatch && isAdminRequest) {
       const sessionToken = sessionMatch[1];
       
       // Check session
@@ -51,28 +64,43 @@ export async function onRequest(context) {
     }
     
     // Build query URL
-    let reviewsUrl = `${env.SUPABASE_URL}/rest/v1/reviews?select=*,users(discord_id,username,avatar)&order=created_at.desc`;
+    let reviewsUrl = `${env.SUPABASE_URL}/rest/v1/reviews?select=*&order=created_at.desc`;
     
     // Se non admin, solo recensioni approvate
-    if (!isAdmin) {
+    if (!isAdmin && !isAdminRequest) {
       reviewsUrl += '&approved=eq.true';
     }
     
     const reviewsResponse = await fetch(reviewsUrl, { headers: supabaseHeaders });
     const reviews = await reviewsResponse.json();
     
+    // Format reviews with user info
+    const formattedReviews = Array.isArray(reviews) ? reviews.map(r => ({
+      id: r.id,
+      user_id: r.user_id,
+      user_name: r.user_name || 'Utente',
+      user_avatar: r.user_avatar,
+      service: r.service,
+      rating: r.rating,
+      title: r.title,
+      content: r.content,
+      approved: r.approved,
+      admin_reply: r.admin_reply,
+      created_at: r.created_at
+    })) : [];
+    
     return jsonResponse({
       success: true,
-      reviews: reviews || []
+      reviews: formattedReviews,
+      isAdmin: isAdmin
     });
     
   } catch (error) {
     console.error('Get reviews error:', error);
     return jsonResponse({
-      success: false,
-      error: 'Failed to fetch reviews',
-      details: error.message
-    }, 500);
+      success: true,
+      reviews: [],
+      error: error.message
+    });
   }
 }
-

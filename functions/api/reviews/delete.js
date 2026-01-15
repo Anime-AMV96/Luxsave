@@ -8,84 +8,49 @@ export async function onRequest(context) {
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'DELETE, OPTIONS',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type'
       }
     });
-  };
-  
-  const getAuthUser = async (request, env) => {
-    const cookieHeader = request.headers.get('Cookie') || '';
-    const sessionMatch = cookieHeader.match(/session=([^;]+)/);
-    if (!sessionMatch) return null;
-    const sessionToken = sessionMatch[1];
-    try {
-      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
-      const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
-      const { data: session } = await supabase
-        .from('sessions')
-        .select('*, users(*)')
-        .eq('session_token', sessionToken)
-        .gt('expires_at', new Date().toISOString())
-        .single();
-      return session?.users || null;
-    } catch (error) {
-      return null;
-    }
-  };
-  
-  const isAdmin = async (userId, env) => {
-    try {
-      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
-      const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
-      const { data } = await supabase
-        .from('admin_users')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
-      return !!data;
-    } catch {
-      return false;
-    }
   };
   
   if (request.method === 'OPTIONS') {
     return jsonResponse({}, 200);
   }
   
-  if (request.method !== 'DELETE') {
+  if (request.method !== 'POST') {
     return jsonResponse({ error: 'Method not allowed' }, 405);
   }
   
   try {
-    const user = await getAuthUser(request, env);
-    
-    if (!user || !(await isAdmin(user.id, env))) {
-      return jsonResponse({
-        success: false,
-        error: 'Non autorizzato'
-      }, 403);
+    if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
+      return jsonResponse({ success: false, error: 'Supabase not configured' }, 500);
     }
+
+    const supabaseHeaders = {
+      'apikey': env.SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal'
+    };
     
-    const url = new URL(request.url);
-    const reviewId = url.searchParams.get('id');
+    const data = await request.json();
+    const { reviewId } = data;
     
     if (!reviewId) {
-      return jsonResponse({
-        success: false,
-        error: 'Review ID richiesto'
-      }, 400);
+      return jsonResponse({ success: false, error: 'Review ID richiesto' }, 400);
     }
     
-    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
-    const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
+    // Delete review
+    const deleteUrl = `${env.SUPABASE_URL}/rest/v1/reviews?id=eq.${reviewId}`;
+    const deleteResponse = await fetch(deleteUrl, {
+      method: 'DELETE',
+      headers: supabaseHeaders
+    });
     
-    const { error } = await supabase
-      .from('reviews')
-      .delete()
-      .eq('id', reviewId);
-    
-    if (error) throw error;
+    if (!deleteResponse.ok) {
+      throw new Error('Failed to delete review');
+    }
     
     return jsonResponse({
       success: true,
@@ -93,7 +58,7 @@ export async function onRequest(context) {
     });
     
   } catch (error) {
-    console.error('Delete error:', error);
+    console.error('Delete review error:', error);
     return jsonResponse({
       success: false,
       error: 'Errore durante l\'eliminazione'
