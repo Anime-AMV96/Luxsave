@@ -3591,17 +3591,12 @@
                 
                 currentUser = data.user;
                 
-                // Check if user is admin
+                // Check if user is admin usando la Function dedicata
                 if (currentUser) {
                     try {
-                        const adminCheckUrl = `https://lzbdpappjqrlqyzjwnov.supabase.co/rest/v1/admin_users?user_id=eq.${currentUser.id}&select=id`;
-                        const adminResponse = await fetch(adminCheckUrl, {
-                            headers: {
-                                'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6YmRwYXBwanFybHF5emp3bm92Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY5NTAwMzcsImV4cCI6MjA1MjUyNjAzN30.aQPPRoH0TVDwzIdz8b79sYWCx8i3FXx7-AcIfhWGvWg'
-                            }
-                        });
+                        const adminResponse = await fetch('/api/user/is-admin');
                         const adminData = await adminResponse.json();
-                        isAdmin = adminData && adminData.length > 0;
+                        isAdmin = adminData.isAdmin || false;
                     } catch (error) {
                         console.error('Admin check failed:', error);
                         isAdmin = false;
@@ -3639,7 +3634,11 @@
             
             if (currentUser) {
                 const lang = document.getElementById('languageSelect').value;
-                authText.textContent = `${translations[lang].auth_logged}${currentUser.username}`;
+                // Mostra avatar + username
+                const avatarHtml = currentUser.avatar 
+                    ? `<img src="${currentUser.avatar}" style="width: 24px; height: 24px; border-radius: 50%; margin-right: 0.5rem; vertical-align: middle;">` 
+                    : '🔐 ';
+                authText.innerHTML = `${avatarHtml}${currentUser.username}`;
                 authBtn.onclick = () => showUserMenu();
             } else {
                 // Usa le traduzioni per il testo

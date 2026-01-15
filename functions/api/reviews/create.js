@@ -118,7 +118,9 @@ export async function onRequest(context) {
     });
     
     if (!createResponse.ok) {
-      throw new Error('Failed to create review');
+      const errorText = await createResponse.text();
+      console.error('Supabase create error:', errorText);
+      throw new Error(`Failed to create review: ${errorText}`);
     }
     
     const review = await createResponse.json();
@@ -161,7 +163,8 @@ export async function onRequest(context) {
     console.error('Create review error:', error);
     return jsonResponse({
       success: false,
-      error: 'Errore durante la creazione della recensione'
+      error: 'Errore durante la creazione della recensione',
+      details: error.message
     }, 500);
   }
 }
