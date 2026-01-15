@@ -1532,6 +1532,9 @@
             return `
                 <div class="discount-section">
                     <label style="font-weight: 600; color: var(--text-primary);">${translations[currentLang].discount_code}</label>
+                    <div style="color: var(--accent-yellow); font-size: 0.9rem; margin-bottom: 0.5rem; padding: 0.5rem; background: rgba(255,190,11,0.05); border-radius: 4px; border: 1px solid rgba(255,190,11,0.2);">
+                        🔐 Per utilizzare codici sconto devi essere registrato con Discord
+                    </div>
                     <div class="discount-input-wrapper">
                         <input type="text" id="discount-code-input" placeholder="Inserisci codice..." style="text-transform: uppercase;">
                         <button class="discount-btn" onclick="applyDiscount()">${translations[currentLang].apply_discount}</button>
@@ -3236,6 +3239,19 @@
 
             if (!code) {
                 messageDiv.innerHTML = '<div style="color: var(--accent-pink); margin-top: 1rem; font-weight: 600;">⚠️ Inserisci un codice sconto</div>';
+                return;
+            }
+
+            // ✅ CONTROLLO LOGIN OBBLIGATORIO
+            if (!currentUser) {
+                messageDiv.innerHTML = `
+                    <div style="color: var(--accent-yellow); margin-top: 1rem; font-weight: 600; padding: 1rem; background: rgba(255,190,11,0.1); border-radius: 8px; border: 1px solid var(--accent-yellow);">
+                        🔐 Devi effettuare il login con Discord per usare codici sconto!
+                        <button onclick="loginWithDiscord()" style="display: block; margin-top: 0.5rem; padding: 0.5rem 1rem; background: var(--accent-cyan); color: #000; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                            Accedi con Discord
+                        </button>
+                    </div>
+                `;
                 return;
             }
 

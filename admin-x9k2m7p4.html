@@ -1628,11 +1628,12 @@
                     allReviews = data.reviews || [];
                     renderAdminReviews();
                 } else {
-                    container.innerHTML = '<p style="text-align: center; color: var(--accent-pink);">Errore nel caricamento recensioni</p>';
+                    console.error('Load reviews error:', data);
+                    container.innerHTML = `<p style="text-align: center; color: var(--accent-pink);">Errore: ${data.error || 'Impossibile caricare recensioni'}</p>`;
                 }
             } catch (error) {
                 console.error('Load reviews error:', error);
-                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Nessuna recensione da visualizzare</p>';
+                container.innerHTML = `<p style="text-align: center; color: var(--accent-pink);">Errore di connessione: ${error.message}</p>`;
             }
         }
 
@@ -1726,11 +1727,12 @@
                     alert('✅ Recensione approvata!');
                     loadAdminReviews();
                 } else {
+                    console.error('Approve error response:', data);
                     alert('❌ Errore: ' + (data.error || 'Impossibile approvare'));
                 }
             } catch (error) {
                 console.error('Approve error:', error);
-                alert('❌ Errore di connessione');
+                alert('❌ Errore di connessione: ' + error.message);
             }
         }
 
@@ -1750,11 +1752,12 @@
                     alert('✅ Recensione eliminata!');
                     loadAdminReviews();
                 } else {
+                    console.error('Delete error response:', data);
                     alert('❌ Errore: ' + (data.error || 'Impossibile eliminare'));
                 }
             } catch (error) {
                 console.error('Delete error:', error);
-                alert('❌ Errore di connessione');
+                alert('❌ Errore di connessione: ' + error.message);
             }
         }
 

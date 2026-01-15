@@ -135,22 +135,20 @@ export async function onRequest(context) {
       headers: supabaseHeaders,
       body: JSON.stringify({
         user_id: userId,
-        session_token: sessionToken,
+        token: sessionToken,
         expires_at: expiresAt.toISOString()
       })
     });
     
     // 5. Redirect alla home con cookie di sessione
-    // NOTA: Non possiamo usare Response.redirect() perché è immutabile
-    // Invece creiamo una Response manuale con status 302
+    const headers = new Headers();
+    headers.set('Location', '/');
+    headers.append('Set-Cookie', `session=${sessionToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${7*24*60*60}`);
+    headers.append('Set-Cookie', `oauth_state=; Path=/; Max-Age=0`);
+    
     return new Response(null, {
       status: 302,
-      headers: {
-        'Location': '/',
-        'Set-Cookie': `session=${sessionToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${7*24*60*60}`,
-        // Clear oauth_state cookie
-        'Set-Cookie': `oauth_state=; Path=/; Max-Age=0`
-      }
+      headers: headers
     });
     
   } catch (error) {
