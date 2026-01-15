@@ -54,10 +54,10 @@ function setupSpreadsheet() {
     codiciSheet = ss.insertSheet('Codici_Sconto');
   }
   codiciSheet.clear();
-  codiciSheet.getRange(1, 1, 1, 8).setValues([[
-    'Codice', 'Percentuale', 'Data Inizio', 'Data Scadenza', 'Max Utilizzi', 'Utilizzi Attuali', 'Creato il', 'Attivo'
+  codiciSheet.getRange(1, 1, 1, 9).setValues([[
+    'Codice', 'Percentuale', 'Data Inizio', 'Data Scadenza', 'Max Utilizzi', 'Utilizzi Attuali', 'Servizi', 'Creato il', 'Attivo'
   ]]);
-  codiciSheet.getRange(1, 1, 1, 8).setFontWeight('bold').setBackground('#ffbe0b').setFontColor('#000000');
+  codiciSheet.getRange(1, 1, 1, 9).setFontWeight('bold').setBackground('#ffbe0b').setFontColor('#000000');
   codiciSheet.setFrozenRows(1);
   
   // 4. STATISTICHE (ultimo perché usa riferimenti agli altri fogli)
@@ -304,7 +304,7 @@ function getDiscounts() {
   const data = sheet.getDataRange().getValues().slice(1);
   const discounts = data.map(r => ({
     code: r[0], percentage: r[1], startDate: r[2], expiry: r[3],
-    maxUses: r[4], currentUses: r[5], created: r[6], active: r[7]
+    maxUses: r[4], currentUses: r[5], services: r[6] || '-', created: r[7], active: r[8]
   }));
   
   return { discounts };
@@ -317,10 +317,11 @@ function addDiscount(data) {
   
   const created = new Date().toLocaleString('it-IT');
   const startDate = data.startDate || new Date().toLocaleDateString('it-IT');
+  const services = data.services || '-'; // '-' = tutti i servizi
   
   sheet.appendRow([
     data.code.toUpperCase(), data.percentage, startDate, data.expiry,
-    data.maxUses || 0, 0, created, 'SI'
+    data.maxUses || 0, 0, services, created, 'SI'
   ]);
   
   getStats();

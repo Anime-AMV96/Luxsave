@@ -571,6 +571,14 @@
                         <label>Utilizzi Massimi (0 = illimitato)</label>
                         <input type="number" id="discount-max-uses" min="0" value="0" placeholder="0">
                     </div>
+                    <div class="form-group">
+                        <label>Servizi Ammessi (lascia vuoto per TUTTI)</label>
+                        <input type="text" id="discount-services" placeholder="es: NETFLIX,SPOTIFY,DISNEY" style="text-transform: uppercase;">
+                        <small style="color: var(--text-secondary); display: block; margin-top: 0.5rem;">
+                            Separa con virgola. Es: NETFLIX,SPOTIFY = solo Netflix e Spotify.<br>
+                            Vuoto o "-" = valido per tutti i servizi.
+                        </small>
+                    </div>
                     <button type="submit" class="btn">➕ Crea Codice Sconto</button>
                 </form>
             </div>
@@ -1126,6 +1134,7 @@
             const startDate = document.getElementById('discount-start').value;
             const expiry = document.getElementById('discount-expiry').value;
             const maxUses = parseInt(document.getElementById('discount-max-uses').value);
+            const services = document.getElementById('discount-services').value.trim().toUpperCase() || '-';
 
             if (!code || !percentage || !startDate || !expiry) {
                 alert('⚠️ Compila tutti i campi obbligatori');
@@ -1158,7 +1167,8 @@
                     percentage: percentage,
                     startDate: startFormatted,
                     expiry: expiryFormatted,
-                    maxUses: maxUses
+                    maxUses: maxUses,
+                    services: services
                 })
             })
             .then(() => {

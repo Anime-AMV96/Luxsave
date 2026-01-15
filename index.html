@@ -3086,6 +3086,48 @@
                         return;
                     }
 
+                    // ========== CHECK SERVIZIO SPECIFICO ==========
+                    // Se il codice ha un campo "services" (lista di servizi ammessi), verifica
+                    if (discount.services && discount.services.trim() !== '' && discount.services !== '-') {
+                        // Ottieni il servizio corrente dal titolo del modal
+                        const modalTitle = document.querySelector('.modal-title')?.textContent || '';
+                        const allowedServices = discount.services.toUpperCase().split(',').map(s => s.trim());
+                        
+                        // Mappa titoli modal -> codici servizio
+                        const serviceNames = {
+                            'APPLE MUSIC': 'APPLE',
+                            'CRUNCHYROLL': 'CRUNCHYROLL',
+                            'SPOTIFY': 'SPOTIFY',
+                            'NETFLIX': 'NETFLIX',
+                            'DISNEY+': 'DISNEY',
+                            'YOUTUBE PREMIUM': 'YOUTUBE',
+                            'CANVA PRO': 'CANVA',
+                            'AVAST ANTIVIRUS': 'AVAST',
+                            'AUTODESK': 'AUTODESK',
+                            'IPTV': 'IPTV',
+                            'DISCORD NITRO': 'NITRO',
+                            'DISCORD BOOSTS': 'BOOSTS',
+                            'DISCORD DECORATIONS': 'DECORATIONS',
+                            'SMS VERIFICATION': 'SMS',
+                            'STEAM': 'STEAM',
+                            'EPIC GAMES': 'EPIC',
+                            'RIOT': 'RIOT'
+                        };
+                        
+                        const currentService = serviceNames[modalTitle.toUpperCase()] || modalTitle.toUpperCase();
+                        
+                        // Verifica se il servizio corrente è nella lista
+                        const isAllowed = allowedServices.some(allowed => 
+                            currentService.includes(allowed) || allowed.includes(currentService) || allowed === 'TUTTI' || allowed === 'ALL'
+                        );
+                        
+                        if (!isAllowed) {
+                            messageDiv.innerHTML = `<div style="color: var(--accent-pink); margin-top: 1rem; font-weight: 600;">❌ Questo codice è valido solo per: ${discount.services}</div>`;
+                            return;
+                        }
+                    }
+                    // ========== FINE CHECK SERVIZIO ==========
+
                     // Apply discount to all prices
                     const priceElements = document.querySelectorAll('.option-price');
                     priceElements.forEach(el => {
