@@ -143,7 +143,8 @@ export async function onRequest(context) {
     // 5. Redirect alla home con cookie di sessione
     const headers = new Headers();
     headers.set('Location', '/');
-    headers.append('Set-Cookie', `session=${sessionToken}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${7*24*60*60}`);
+    // SameSite=None è necessario per i redirect OAuth cross-site
+    headers.append('Set-Cookie', `session=${sessionToken}; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=${7*24*60*60}`);
     headers.append('Set-Cookie', `oauth_state=; Path=/; Max-Age=0`);
     
     return new Response(null, {

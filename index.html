@@ -3634,6 +3634,11 @@
             }
         }
         
+        // Login con Discord (funzione helper)
+        function loginWithDiscord() {
+            window.location.href = '/api/auth/login';
+        }
+        
         // Menu utente (dropdown)
         function showUserMenu() {
             const menu = confirm('Vuoi disconnetterti?');

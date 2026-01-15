@@ -46,7 +46,7 @@ export async function onRequest(context) {
     status: 302,
     headers: {
       'Location': authUrl.toString(),
-      'Set-Cookie': `oauth_state=${state}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=300`
+      'Set-Cookie': `oauth_state=${state}; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=300`
     }
   });
 }
