@@ -666,6 +666,154 @@
             color: var(--text-primary);
         }
 
+        /* Reviews Section */
+        .reviews-section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .reviews-section h2 {
+            text-align: center;
+            font-family: 'Oswald', sans-serif;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .reviews-section .subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+        }
+
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .review-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .review-card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-3px);
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .review-user {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .review-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink));
+            background-size: cover;
+            background-position: center;
+        }
+
+        .review-stars {
+            color: #FFD700;
+            font-size: 1.1rem;
+        }
+
+        .review-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .review-content {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .review-reply {
+            background: rgba(0, 255, 247, 0.1);
+            border-left: 3px solid var(--accent-cyan);
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .review-form {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 600px;
+            margin: 2rem auto 0;
+        }
+
+        .review-form h3 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--accent-cyan);
+        }
+
+        .review-form .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .review-form label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        .review-form input,
+        .review-form select,
+        .review-form textarea {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .review-form textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 0.5rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .star-rating span {
+            color: #444;
+            transition: color 0.2s;
+        }
+
+        .star-rating span:hover,
+        .star-rating span.active {
+            color: #FFD700;
+        }
+
         /* Support Notice */
         .support-notice {
             position: fixed;
@@ -1122,6 +1270,62 @@
             <div id="modalBody"></div>
         </div>
     </div>
+
+    <!-- Reviews Section -->
+    <section class="reviews-section" id="recensioni">
+        <h2>⭐ RECENSIONI</h2>
+        <p class="subtitle">Cosa dicono i nostri clienti</p>
+        
+        <div class="reviews-grid" id="reviewsList">
+            <p style="text-align: center; color: var(--text-secondary); grid-column: 1/-1;">Caricamento recensioni...</p>
+        </div>
+        
+        <div class="review-form" id="reviewForm" style="display: none;">
+            <h3>✍️ Lascia una recensione</h3>
+            <div class="form-group">
+                <label>Servizio acquistato *</label>
+                <select id="reviewService" required>
+                    <option value="">Seleziona servizio...</option>
+                    <option value="Netflix">Netflix</option>
+                    <option value="Spotify">Spotify</option>
+                    <option value="Disney+">Disney+</option>
+                    <option value="YouTube Premium">YouTube Premium</option>
+                    <option value="Crunchyroll">Crunchyroll</option>
+                    <option value="Apple Music">Apple Music</option>
+                    <option value="Canva Pro">Canva Pro</option>
+                    <option value="Avast">Avast Antivirus</option>
+                    <option value="IPTV">IPTV</option>
+                    <option value="Discord Nitro">Discord Nitro</option>
+                    <option value="Discord Boosts">Discord Boosts</option>
+                    <option value="Altro">Altro</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Valutazione *</label>
+                <div class="star-rating" id="starRating">
+                    <span data-value="1" onclick="setRating(1)">☆</span>
+                    <span data-value="2" onclick="setRating(2)">☆</span>
+                    <span data-value="3" onclick="setRating(3)">☆</span>
+                    <span data-value="4" onclick="setRating(4)">☆</span>
+                    <span data-value="5" onclick="setRating(5)">☆</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Titolo *</label>
+                <input type="text" id="reviewTitle" placeholder="Es: Servizio eccellente!" maxlength="100" required>
+            </div>
+            <div class="form-group">
+                <label>La tua esperienza *</label>
+                <textarea id="reviewContent" placeholder="Descrivi la tua esperienza con il servizio..." maxlength="500" required></textarea>
+            </div>
+            <button class="btn" onclick="submitReview()" style="width: 100%;">📤 Invia Recensione</button>
+        </div>
+        
+        <div id="loginToReview" style="text-align: center; margin-top: 2rem;">
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">Accedi con Discord per lasciare una recensione</p>
+            <button class="btn" onclick="window.location.href='/api/auth/login'" style="background: #5865F2;">🔐 Accedi con Discord</button>
+        </div>
+    </section>
 
     <!-- Support Notice -->
     <div class="support-notice">
@@ -3358,6 +3562,7 @@
         async function checkAuth() {
             // Mostra il bottone subito (fallback)
             updateAuthUI();
+            updateReviewForm();
             
             try {
                 const response = await fetch('/api/user/me');
@@ -3365,14 +3570,12 @@
                 
                 currentUser = data.user;
                 updateAuthUI();
-                
-                if (currentUser) {
-                    document.getElementById('reviewFormContainer').style.display = 'block';
-                }
+                updateReviewForm();
             } catch (error) {
                 console.error('Auth check failed:', error);
                 // Anche in caso di errore, mostra il bottone login
                 updateAuthUI();
+                updateReviewForm();
             }
         }
         
@@ -3477,20 +3680,44 @@
             `).join('');
         }
         
+        // Rating system
+        let selectedRating = 0;
+        
+        function setRating(rating) {
+            selectedRating = rating;
+            const stars = document.querySelectorAll('#starRating span');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.textContent = '⭐';
+                    star.classList.add('active');
+                } else {
+                    star.textContent = '☆';
+                    star.classList.remove('active');
+                }
+            });
+        }
+        
         // Invia nuova recensione
-        async function submitReview(event) {
-            event.preventDefault();
-            
+        async function submitReview() {
             if (!currentUser) {
                 alert('Devi effettuare il login per lasciare una recensione');
                 return;
             }
             
+            const service = document.getElementById('reviewService').value;
+            const title = document.getElementById('reviewTitle').value;
+            const content = document.getElementById('reviewContent').value;
+            
+            if (!service || !selectedRating || !title || !content) {
+                alert('⚠️ Compila tutti i campi');
+                return;
+            }
+            
             const data = {
-                service: document.getElementById('reviewService').value,
-                rating: document.getElementById('reviewRating').value,
-                title: document.getElementById('reviewTitle').value,
-                content: document.getElementById('reviewContent').value
+                service: service,
+                rating: selectedRating,
+                title: title,
+                content: content
             };
             
             try {
@@ -3504,7 +3731,11 @@
                 
                 if (result.success) {
                     alert('✅ ' + result.message);
-                    document.getElementById('reviewForm').reset();
+                    // Reset form
+                    document.getElementById('reviewService').value = '';
+                    document.getElementById('reviewTitle').value = '';
+                    document.getElementById('reviewContent').value = '';
+                    setRating(0);
                     loadReviews();
                 } else {
                     alert('❌ ' + result.error);
@@ -3512,6 +3743,20 @@
             } catch (error) {
                 alert('❌ Errore durante l\'invio della recensione');
                 console.error(error);
+            }
+        }
+        
+        // Mostra/nascondi form recensione in base al login
+        function updateReviewForm() {
+            const form = document.getElementById('reviewForm');
+            const loginPrompt = document.getElementById('loginToReview');
+            
+            if (currentUser) {
+                form.style.display = 'block';
+                loginPrompt.style.display = 'none';
+            } else {
+                form.style.display = 'none';
+                loginPrompt.style.display = 'block';
             }
         }
         

@@ -1,6 +1,4 @@
 // functions/api/auth/login.js
-// Inizia il flow di login con Discord
-
 export async function onRequest(context) {
   const { env } = context;
   
@@ -18,9 +16,12 @@ export async function onRequest(context) {
   authUrl.searchParams.set('scope', 'identify email');
   authUrl.searchParams.set('state', state);
   
-  // Salva state in cookie per verificarlo dopo
-  const response = Response.redirect(authUrl.toString(), 302);
-  response.headers.set('Set-Cookie', `oauth_state=${state}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=300`);
-  
-  return response;
+  // Redirect con cookie per state
+  return new Response(null, {
+    status: 302,
+    headers: {
+      'Location': authUrl.toString(),
+      'Set-Cookie': `oauth_state=${state}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=300`
+    }
+  });
 }
