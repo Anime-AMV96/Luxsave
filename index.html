@@ -1017,6 +1017,10 @@
             <button id="authBtn" class="auth-btn">
                 <span id="authText" data-lang="auth_login">🔐 Accedi con Discord</span>
             </button>
+            
+            <button id="adminBtn" class="admin-btn" style="display: none; background: linear-gradient(135deg, #ff006e, #ffbe0b); margin-left: 0.5rem;" onclick="window.location.href='/admin-x9k2m7p4.html'">
+                <span>⚙️ ADMIN</span>
+            </button>
 
             <a href="https://discord.gg/aabPMyv2g6" target="_blank" class="discord-btn">
                 <span>💬</span>
@@ -3573,6 +3577,7 @@
     <script>
         // ===== AUTH SYSTEM =====
         let currentUser = null;
+        let isAdmin = false;
         
         // Controlla se utente è loggato
         async function checkAuth() {
@@ -3585,6 +3590,24 @@
                 const data = await response.json();
                 
                 currentUser = data.user;
+                
+                // Check if user is admin
+                if (currentUser) {
+                    try {
+                        const adminCheckUrl = `https://lzbdpappjqrlqyzjwnov.supabase.co/rest/v1/admin_users?user_id=eq.${currentUser.id}&select=id`;
+                        const adminResponse = await fetch(adminCheckUrl, {
+                            headers: {
+                                'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6YmRwYXBwanFybHF5emp3bm92Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY5NTAwMzcsImV4cCI6MjA1MjUyNjAzN30.aQPPRoH0TVDwzIdz8b79sYWCx8i3FXx7-AcIfhWGvWg'
+                            }
+                        });
+                        const adminData = await adminResponse.json();
+                        isAdmin = adminData && adminData.length > 0;
+                    } catch (error) {
+                        console.error('Admin check failed:', error);
+                        isAdmin = false;
+                    }
+                }
+                
                 updateAuthUI();
                 updateReviewForm();
             } catch (error) {
@@ -3599,6 +3622,7 @@
         function updateAuthUI() {
             const authBtn = document.getElementById('authBtn');
             const authText = document.getElementById('authText');
+            const adminBtn = document.getElementById('adminBtn');
             
             if (!authBtn) {
                 console.error('Auth button not found!');
@@ -3607,6 +3631,11 @@
             
             // Mostra sempre il bottone
             authBtn.style.display = 'inline-block';
+            
+            // Mostra pulsante admin solo se l'utente è admin
+            if (adminBtn) {
+                adminBtn.style.display = (currentUser && isAdmin) ? 'inline-block' : 'none';
+            }
             
             if (currentUser) {
                 const lang = document.getElementById('languageSelect').value;

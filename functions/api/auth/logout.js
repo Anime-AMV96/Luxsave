@@ -12,22 +12,28 @@ export async function onRequest(context) {
   
   const token = getCookie(request, 'session');
   
-  if (token) {
+  if (token && env.SUPABASE_URL && env.SUPABASE_ANON_KEY) {
     try {
-      const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
-      const supabase = createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
+      const supabaseHeaders = {
+        'apikey': env.SUPABASE_ANON_KEY,
+        'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
+        'Content-Type': 'application/json'
+      };
       
-      await supabase
-        .from('sessions')
-        .delete()
-        .eq('session_token', token);
+      await fetch(`${env.SUPABASE_URL}/rest/v1/sessions?token=eq.${token}`, {
+        method: 'DELETE',
+        headers: supabaseHeaders
+      });
     } catch (error) {
       console.error('Logout error:', error);
     }
   }
   
-  const response = Response.redirect('/', 302);
-  response.headers.set('Set-Cookie', 'session=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
-  
-  return response;
+  return new Response(null, {
+    status: 302,
+    headers: {
+      'Location': '/',
+      'Set-Cookie': 'session=; Path=/; HttpOnly; Secure; SameSite=None; Max-Age=0'
+    }
+  });
 }

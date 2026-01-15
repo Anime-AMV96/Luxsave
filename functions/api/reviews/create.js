@@ -47,7 +47,7 @@ export async function onRequest(context) {
     const sessionToken = sessionMatch[1];
     
     // Get session and user
-    const sessionUrl = `${env.SUPABASE_URL}/rest/v1/sessions?session_token=eq.${sessionToken}&expires_at=gt.${new Date().toISOString()}&select=*`;
+    const sessionUrl = `${env.SUPABASE_URL}/rest/v1/sessions?token=eq.${sessionToken}&expires_at=gt.${new Date().toISOString()}&select=*`;
     const sessionResponse = await fetch(sessionUrl, { headers: supabaseHeaders });
     const sessions = await sessionResponse.json();
     
@@ -109,8 +109,6 @@ export async function onRequest(context) {
       },
       body: JSON.stringify({
         user_id: user.id,
-        user_name: user.username,
-        user_avatar: user.avatar,
         service,
         rating: parseInt(rating),
         title,
@@ -124,6 +122,34 @@ export async function onRequest(context) {
     }
     
     const review = await createResponse.json();
+    
+    // Send Discord notification (if webhook configured)
+    if (env.DISCORD_WEBHOOK_URL) {
+      try {
+        await fetch(env.DISCORD_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            embeds: [{
+              title: '⭐ Nuova Recensione',
+              color: 0x00FFF7,
+              fields: [
+                { name: '👤 Utente', value: user.username, inline: true },
+                { name: '📦 Servizio', value: service, inline: true },
+                { name: '⭐ Valutazione', value: '⭐'.repeat(rating), inline: true },
+                { name: '📝 Titolo', value: title },
+                { name: '💬 Contenuto', value: content.length > 500 ? content.substring(0, 497) + '...' : content }
+              ],
+              footer: { text: 'LUXSAVE - Nuova recensione in attesa di approvazione' },
+              timestamp: new Date().toISOString()
+            }]
+          })
+        });
+      } catch (error) {
+        console.error('Discord notification failed:', error);
+        // Non bloccare la creazione della recensione se la notifica fallisce
+      }
+    }
     
     return jsonResponse({
       success: true,
