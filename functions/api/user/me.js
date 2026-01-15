@@ -50,7 +50,7 @@ export async function onRequest(context) {
     };
     
     // Get session
-    const sessionUrl = `${env.SUPABASE_URL}/rest/v1/sessions?session_token=eq.${sessionToken}&expires_at=gt.${new Date().toISOString()}&select=*`;
+    const sessionUrl = `${env.SUPABASE_URL}/rest/v1/sessions?token=eq.${sessionToken}&expires_at=gt.${new Date().toISOString()}&select=*`;
     const sessionResponse = await fetch(sessionUrl, { headers: supabaseHeaders });
     const sessions = await sessionResponse.json();
     
