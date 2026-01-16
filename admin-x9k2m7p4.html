@@ -434,22 +434,21 @@
     </style>
 </head>
 <body>
-    <!-- Login Screen - Shown if not authenticated -->
-    <div id="login-screen" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-primary); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+    <!-- Login Screen -->
+    <div id="login-screen" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-primary); z-index: 9999; align-items: center; justify-content: center;">
         <div style="text-align: center; padding: 2rem;">
             <img src="logo_admin.png" alt="LUXSAVE Admin" style="width: 300px; max-width: 90%; margin-bottom: 2rem;">
             <h2 style="color: var(--text-primary); margin-bottom: 1rem; font-family: 'Oswald', sans-serif;">🔐 Accesso Richiesto</h2>
             <p style="color: var(--text-secondary); margin-bottom: 2rem;">Devi effettuare il login con Discord per accedere al pannello admin.</p>
-            <button onclick="loginWithDiscord()" style="padding: 1rem 2rem; background: linear-gradient(135deg, #5865F2, #7289DA); color: white; border: none; border-radius: 12px; font-size: 1.1rem; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; font-family: 'DM Sans', sans-serif; transition: transform 0.2s, box-shadow 0.2s;">
+            <button onclick="window.location.href='/api/auth/login'" style="padding: 1rem 2rem; background: linear-gradient(135deg, #5865F2, #7289DA); color: white; border: none; border-radius: 12px; font-size: 1.1rem; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; font-family: 'DM Sans', sans-serif;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
                 Accedi con Discord
             </button>
-            <div id="login-error" style="color: var(--accent-pink); margin-top: 1rem; display: none;"></div>
         </div>
     </div>
 
     <!-- Access Denied Screen -->
-    <div id="access-denied" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-primary); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+    <div id="access-denied" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-primary); z-index: 9999; align-items: center; justify-content: center;">
         <div style="text-align: center; padding: 2rem;">
             <div style="font-size: 5rem; margin-bottom: 1rem;">🚫</div>
             <h2 style="color: var(--accent-pink); margin-bottom: 1rem; font-family: 'Oswald', sans-serif;">Accesso Negato</h2>
@@ -484,7 +483,7 @@
             <div id="admin-user-info" style="display: flex; align-items: center; gap: 10px; background: var(--bg-secondary); padding: 0.5rem 1rem; border-radius: 20px; border: 1px solid var(--border-color);">
                 <img id="admin-avatar" src="" style="width: 32px; height: 32px; border-radius: 50%; display: none;">
                 <span id="admin-username" style="color: var(--text-primary); font-size: 0.9rem;"></span>
-                <button onclick="logoutAdmin()" style="background: none; border: none; color: var(--accent-pink); cursor: pointer; font-size: 0.85rem;">Esci</button>
+                <button onclick="logoutAdmin()" style="background: none; border: none; color: var(--accent-pink); cursor: pointer; font-size: 0.85rem; padding: 0.25rem 0.5rem;">Esci</button>
             </div>
         </div>
 
@@ -1964,14 +1963,10 @@
         // ===== AUTHENTICATION SYSTEM =====
         let currentAdminUser = null;
 
-        function loginWithDiscord() {
-            window.location.href = '/api/auth/login';
-        }
-
         function logoutAdmin() {
             fetch('/api/auth/logout', { credentials: 'include' })
                 .then(() => {
-                    window.location.reload();
+                    window.location.href = '/';
                 });
         }
 
@@ -1986,13 +1981,13 @@
                 const meResponse = await fetch('/api/user/me', { credentials: 'include' });
                 
                 if (!meResponse.ok) {
-                    // Not logged in - show login screen
                     loadingScreen.style.display = 'none';
                     loginScreen.style.display = 'flex';
                     return false;
                 }
 
                 const userData = await meResponse.json();
+                console.log('User data:', userData);
                 
                 if (!userData.authenticated || !userData.user) {
                     loadingScreen.style.display = 'none';
@@ -2005,9 +2000,9 @@
                 // Check if user is admin
                 const adminResponse = await fetch('/api/user/is-admin', { credentials: 'include' });
                 const adminData = await adminResponse.json();
+                console.log('Admin check:', adminData);
 
                 if (!adminData.isAdmin) {
-                    // User is logged in but not admin
                     loadingScreen.style.display = 'none';
                     accessDenied.style.display = 'flex';
                     return false;

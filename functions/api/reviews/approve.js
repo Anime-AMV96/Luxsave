@@ -40,7 +40,7 @@ export async function onRequest(context) {
       return jsonResponse({ success: false, error: 'Review ID richiesto' }, 400);
     }
     
-    // First, get the review details for Discord notification
+    // Get review details
     const getUrl = `${env.SUPABASE_URL}/rest/v1/reviews?id=eq.${reviewId}&select=*`;
     const getResponse = await fetch(getUrl, { headers: supabaseHeaders });
     
@@ -65,14 +65,11 @@ export async function onRequest(context) {
       }
     }
     
-    // Update review to approved
+    // Update review
     const updateUrl = `${env.SUPABASE_URL}/rest/v1/reviews?id=eq.${reviewId}`;
     const updateResponse = await fetch(updateUrl, {
       method: 'PATCH',
-      headers: {
-        ...supabaseHeaders,
-        'Prefer': 'return=minimal'
-      },
+      headers: { ...supabaseHeaders, 'Prefer': 'return=minimal' },
       body: JSON.stringify({ approved: true })
     });
     
@@ -80,73 +77,37 @@ export async function onRequest(context) {
       throw new Error('Failed to approve review');
     }
     
-    // Send Discord notification for approved review
+    // Discord notification
     if (env.DISCORD_WEBHOOK_URL && reviewData) {
       try {
         const stars = '⭐'.repeat(reviewData.rating || 5);
-        const userName = userData?.username || 'Utente';
-        
         await fetch(env.DISCORD_WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             embeds: [{
-              title: '✅ RECENSIONE APPROVATA E PUBBLICATA',
+              title: '✅ RECENSIONE APPROVATA',
               color: 0x00FF00,
               fields: [
-                {
-                  name: '👤 Utente',
-                  value: userName,
-                  inline: true
-                },
-                {
-                  name: '🎬 Servizio',
-                  value: reviewData.service || 'N/A',
-                  inline: true
-                },
-                {
-                  name: '⭐ Valutazione',
-                  value: stars,
-                  inline: true
-                },
-                {
-                  name: '📝 Titolo',
-                  value: reviewData.title || 'Nessun titolo',
-                  inline: false
-                },
-                {
-                  name: '💬 Contenuto',
-                  value: (reviewData.content || 'Nessun contenuto').substring(0, 500),
-                  inline: false
-                },
-                {
-                  name: '📊 Stato',
-                  value: '✅ **PUBBLICATA SUL SITO**',
-                  inline: false
-                }
+                { name: '👤 Utente', value: userData?.username || 'Utente', inline: true },
+                { name: '🎬 Servizio', value: reviewData.service || 'N/A', inline: true },
+                { name: '⭐ Valutazione', value: stars, inline: true },
+                { name: '📝 Titolo', value: reviewData.title || 'N/A', inline: false },
+                { name: '📊 Stato', value: '✅ **PUBBLICATA**', inline: false }
               ],
-              footer: {
-                text: `ID Recensione: ${reviewId}`
-              },
               timestamp: new Date().toISOString()
             }]
           })
         });
-      } catch (webhookError) {
-        console.error('Discord webhook error:', webhookError);
+      } catch (e) {
+        console.error('Webhook error:', e);
       }
     }
     
-    return jsonResponse({
-      success: true,
-      message: 'Recensione approvata e pubblicata'
-    });
+    return jsonResponse({ success: true, message: 'Recensione approvata' });
     
   } catch (error) {
-    console.error('Approve review error:', error);
-    return jsonResponse({
-      success: false,
-      error: 'Errore durante l\'approvazione'
-    }, 500);
+    console.error('Approve error:', error);
+    return jsonResponse({ success: false, error: 'Errore approvazione' }, 500);
   }
 }

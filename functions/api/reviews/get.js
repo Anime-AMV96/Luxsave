@@ -32,7 +32,6 @@ export async function onRequest(context) {
     const url = new URL(request.url);
     const isAdminRequest = url.searchParams.get('admin') === 'true';
     
-    // Build query - admin sees all, public sees only approved
     let reviewsUrl = `${env.SUPABASE_URL}/rest/v1/reviews?select=*&order=created_at.desc`;
     
     if (!isAdminRequest) {
@@ -42,8 +41,6 @@ export async function onRequest(context) {
     const reviewsResponse = await fetch(reviewsUrl, { headers: supabaseHeaders });
     
     if (!reviewsResponse.ok) {
-      const errorText = await reviewsResponse.text();
-      console.error('Reviews fetch error:', errorText);
       return jsonResponse({ success: false, reviews: [], error: 'Errore caricamento recensioni' });
     }
     
@@ -53,13 +50,12 @@ export async function onRequest(context) {
       return jsonResponse({ success: true, reviews: [] });
     }
     
-    // Get user info for reviews
+    // Get user info
     const userIds = [...new Set(reviews.map(r => r.user_id).filter(Boolean))];
     let usersMap = {};
     
     if (userIds.length > 0) {
       try {
-        // Format user IDs for the IN query - properly quote UUIDs
         const formattedIds = userIds.map(id => `"${id}"`).join(',');
         const usersUrl = `${env.SUPABASE_URL}/rest/v1/users?id=in.(${formattedIds})&select=id,username,avatar,discord_id`;
         const usersResponse = await fetch(usersUrl, { headers: supabaseHeaders });
@@ -75,29 +71,19 @@ export async function onRequest(context) {
       }
     }
     
-    // Format reviews with nested "users" object (matching frontend expectations)
+    // Format reviews
     const formattedReviews = reviews.map(r => {
       const user = usersMap[r.user_id] || {};
-      
-      // Build avatar URL
-      let avatarUrl = null;
-      if (user.discord_id && user.avatar) {
-        avatarUrl = `https://cdn.discordapp.com/avatars/${user.discord_id}/${user.avatar}.png`;
-      }
       
       return {
         id: r.id,
         user_id: r.user_id,
-        // Nested users object for frontend compatibility
         users: {
           username: user.username || 'Utente Anonimo',
           avatar: user.avatar || null,
-          discord_id: user.discord_id || null,
-          avatar_url: avatarUrl
+          discord_id: user.discord_id || null
         },
-        // Also keep flat fields for admin panel
         user_name: user.username || 'Utente Anonimo',
-        user_avatar: avatarUrl,
         service: r.service,
         rating: r.rating,
         title: r.title,
