@@ -19,12 +19,12 @@ export async function onRequest(context) {
   }
   
   if (request.method !== 'POST') {
-    return jsonResponse({ error: 'Method not allowed' }, 405);
+    return jsonResponse({ success: false, error: 'Method not allowed' }, 405);
   }
   
   try {
     if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
-      return jsonResponse({ success: false, error: 'Supabase not configured' }, 500);
+      return jsonResponse({ success: false, error: 'Database non configurato' }, 500);
     }
 
     const supabaseHeaders = {
@@ -33,99 +33,76 @@ export async function onRequest(context) {
       'Content-Type': 'application/json'
     };
     
-    // Get user from session cookie
+    // Get session cookie
     const cookieHeader = request.headers.get('Cookie') || '';
     const sessionMatch = cookieHeader.match(/session=([^;]+)/);
     
     if (!sessionMatch) {
-      return jsonResponse({
-        success: false,
-        error: 'Devi effettuare il login per lasciare una recensione'
-      }, 401);
+      return jsonResponse({ success: false, error: 'Devi effettuare il login' }, 401);
     }
     
     const sessionToken = sessionMatch[1];
     
-    // Get session and user
-    const sessionUrl = `${env.SUPABASE_URL}/rest/v1/sessions?token=eq.${sessionToken}&expires_at=gt.${new Date().toISOString()}&select=*`;
+    // Get session
+    const sessionUrl = `${env.SUPABASE_URL}/rest/v1/sessions?token=eq.${sessionToken}&select=*`;
     const sessionResponse = await fetch(sessionUrl, { headers: supabaseHeaders });
     const sessions = await sessionResponse.json();
     
     if (!sessions || sessions.length === 0) {
-      return jsonResponse({
-        success: false,
-        error: 'Sessione scaduta, effettua nuovamente il login'
-      }, 401);
+      return jsonResponse({ success: false, error: 'Sessione non valida' }, 401);
     }
     
     const session = sessions[0];
     
-    // Get user info
+    // Get user
     const userUrl = `${env.SUPABASE_URL}/rest/v1/users?id=eq.${session.user_id}&select=*`;
     const userResponse = await fetch(userUrl, { headers: supabaseHeaders });
     const users = await userResponse.json();
-    const user = users && users.length > 0 ? users[0] : null;
     
-    if (!user) {
+    if (!users || users.length === 0) {
       return jsonResponse({ success: false, error: 'Utente non trovato' }, 401);
     }
     
+    const user = users[0];
+    
+    // Parse body
     const data = await request.json();
     const { service, rating, title, content } = data;
     
     if (!service || !rating || !title || !content) {
-      return jsonResponse({
-        success: false,
-        error: 'Tutti i campi sono obbligatori'
-      }, 400);
+      return jsonResponse({ success: false, error: 'Tutti i campi sono obbligatori' }, 400);
     }
     
-    if (rating < 1 || rating > 5) {
-      return jsonResponse({
-        success: false,
-        error: 'Rating deve essere tra 1 e 5'
-      }, 400);
-    }
-    
-    // Check if already reviewed this service
-    const existingUrl = `${env.SUPABASE_URL}/rest/v1/reviews?user_id=eq.${user.id}&service=eq.${encodeURIComponent(service)}&select=id`;
-    const existingResponse = await fetch(existingUrl, { headers: supabaseHeaders });
-    const existing = await existingResponse.json();
-    
-    if (existing && existing.length > 0) {
-      return jsonResponse({
-        success: false,
-        error: 'Hai già recensito questo servizio'
-      }, 400);
+    const ratingNum = parseInt(rating);
+    if (isNaN(ratingNum) || ratingNum < 1 || ratingNum > 5) {
+      return jsonResponse({ success: false, error: 'Rating deve essere tra 1 e 5' }, 400);
     }
     
     // Create review
+    const reviewData = {
+      user_id: user.id,
+      service: String(service).trim(),
+      rating: ratingNum,
+      title: String(title).trim(),
+      content: String(content).trim(),
+      approved: false
+    };
+    
     const createUrl = `${env.SUPABASE_URL}/rest/v1/reviews`;
     const createResponse = await fetch(createUrl, {
       method: 'POST',
-      headers: {
-        ...supabaseHeaders,
-        'Prefer': 'return=representation'
-      },
-      body: JSON.stringify({
-        user_id: user.id,
-        service,
-        rating: parseInt(rating),
-        title,
-        content,
-        approved: false
-      })
+      headers: { ...supabaseHeaders, 'Prefer': 'return=representation' },
+      body: JSON.stringify(reviewData)
     });
     
     if (!createResponse.ok) {
       const errorText = await createResponse.text();
-      console.error('Supabase create error:', errorText);
-      throw new Error(`Failed to create review: ${errorText}`);
+      return jsonResponse({ success: false, error: 'Errore salvataggio', details: errorText }, 500);
     }
     
     const review = await createResponse.json();
     
-    // Send Discord notification (if webhook configured)
+    // Discord notification with IN ATTESA
     if (env.DISCORD_WEBHOOK_URL) {
       try {
         await fetch(env.DISCORD_WEBHOOK_URL, {
@@ -133,38 +110,35 @@ export async function onRequest(context) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             embeds: [{
-              title: '⭐ Nuova Recensione',
-              color: 0x00FFF7,
+              title: '⭐ NUOVA RECENSIONE',
+              description: '```⏳ IN ATTESA DI APPROVAZIONE```',
+              color: 0xFFBE0B,
               fields: [
-                { name: '👤 Utente', value: user.username, inline: true },
+                { name: '👤 Utente', value: user.username || 'Anonimo', inline: true },
                 { name: '📦 Servizio', value: service, inline: true },
-                { name: '⭐ Valutazione', value: '⭐'.repeat(rating), inline: true },
-                { name: '📝 Titolo', value: title },
-                { name: '💬 Contenuto', value: content.length > 500 ? content.substring(0, 497) + '...' : content }
+                { name: '⭐ Valutazione', value: '★'.repeat(ratingNum) + '☆'.repeat(5 - ratingNum), inline: true },
+                { name: '📝 Titolo', value: title, inline: false },
+                { name: '💬 Contenuto', value: content.length > 300 ? content.substring(0, 297) + '...' : content, inline: false },
+                { name: '📊 Stato', value: '⏳ **IN ATTESA**', inline: true }
               ],
-              footer: { text: 'LUXSAVE - Nuova recensione in attesa di approvazione' },
+              footer: { text: '💎 LUXSAVE - Vai al pannello admin per approvare' },
               timestamp: new Date().toISOString()
             }]
           })
         });
-      } catch (error) {
-        console.error('Discord notification failed:', error);
-        // Non bloccare la creazione della recensione se la notifica fallisce
+      } catch (e) {
+        console.error('Discord error:', e);
       }
     }
     
     return jsonResponse({
       success: true,
       message: 'Recensione inviata! Sarà visibile dopo l\'approvazione.',
-      review: review[0]
+      review: Array.isArray(review) ? review[0] : review
     });
     
   } catch (error) {
     console.error('Create review error:', error);
-    return jsonResponse({
-      success: false,
-      error: 'Errore durante la creazione della recensione',
-      details: error.message
-    }, 500);
+    return jsonResponse({ success: false, error: 'Errore creazione recensione', details: error.message }, 500);
   }
 }

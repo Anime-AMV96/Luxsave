@@ -624,8 +624,17 @@
 
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
-                    <h2>🎟️ Codici Sconto Attivi</h2>
-                    <button class="btn btn-small" onclick="loadDiscounts()">♻️ Aggiorna</button>
+                    <h2>🎟️ Codici Sconto</h2>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                        <input type="text" id="search-discounts" placeholder="🔍 Cerca codice..." onkeyup="filterDiscounts()" style="padding: 0.4rem 1rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; min-width: 150px;">
+                        <select id="filter-discounts" onchange="filterDiscounts()" style="padding: 0.4rem 1rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-family: 'DM Sans', sans-serif;">
+                            <option value="all">Tutti</option>
+                            <option value="active">✅ Attivi</option>
+                            <option value="inactive">❌ Disattivati</option>
+                            <option value="expired">⏰ Scaduti</option>
+                        </select>
+                        <button class="btn btn-small" onclick="loadDiscounts()">♻️ Aggiorna</button>
+                    </div>
                 </div>
                 <div class="table-container">
                     <div id="discounts-list" class="loading">Caricamento codici da Google Sheets</div>
@@ -638,11 +647,21 @@
             <div class="stat-card">
                 <h2 style="margin-bottom: 1.5rem;">💬 Gestione Recensioni</h2>
                 
-                <!-- Filtri -->
-                <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap;">
-                    <button class="btn" onclick="filterReviews('all')" style="background: var(--accent-cyan); color: #000;">Tutte</button>
-                    <button class="btn" onclick="filterReviews('pending')" style="background: var(--accent-yellow); color: #000;">In Attesa</button>
-                    <button class="btn" onclick="filterReviews('approved')" style="background: var(--accent-green); color: #000;">Approvate</button>
+                <!-- Ricerca e Filtri -->
+                <div style="display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; align-items: center;">
+                    <input type="text" id="search-reviews" placeholder="🔍 Cerca recensione..." onkeyup="filterReviewsSearch()" style="padding: 0.5rem 1rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; min-width: 200px;">
+                    <select id="filter-reviews-status" onchange="filterReviews(this.value)" style="padding: 0.5rem 1rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-family: 'DM Sans', sans-serif;">
+                        <option value="all">📋 Tutte</option>
+                        <option value="pending">⏳ In Attesa</option>
+                        <option value="approved">✅ Approvate</option>
+                    </select>
+                    <select id="filter-reviews-rating" onchange="filterReviews(document.getElementById('filter-reviews-status').value)" style="padding: 0.5rem 1rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-family: 'DM Sans', sans-serif;">
+                        <option value="all">⭐ Tutte le valutazioni</option>
+                        <option value="high">⭐⭐⭐⭐⭐ Alte (4-5)</option>
+                        <option value="medium">⭐⭐⭐ Medie (3)</option>
+                        <option value="low">⭐⭐ Basse (1-2)</option>
+                    </select>
+                    <button class="btn btn-small" onclick="loadAdminReviews()">♻️ Aggiorna</button>
                 </div>
                 
                 <!-- Lista Recensioni -->
@@ -711,7 +730,7 @@
                 })
                 .catch(err => {
                     console.error('Errore caricamento recensioni:', err);
-                    document.getElementById('pending-reviews').textContent = '❌';
+                    document.getElementById('pending-reviews').textContent = '-';
                 });
         }
 
@@ -1073,6 +1092,9 @@
         }
 
         // Load discounts
+        // Store all discounts for filtering
+        let allDiscountsData = [];
+
         function loadDiscounts() {
             const container = document.getElementById('discounts-list');
             container.innerHTML = '<div class="loading">Caricamento codici da Google Sheets</div>';
@@ -1080,61 +1102,8 @@
             fetch(GOOGLE_SHEETS_URL + '?type=get_all_discounts')
                 .then(response => response.json())
                 .then(data => {
-                    if (!data.discounts || data.discounts.length === 0) {
-                        container.innerHTML = `
-                            <div class="empty-state">
-                                <div class="empty-state-icon">🎟️</div>
-                                <h3>Nessun codice sconto trovato</h3>
-                                <p>Crea il tuo primo codice sconto usando il form qui sopra!</p>
-                            </div>
-                        `;
-                        return;
-                    }
-
-                    let html = '<table>';
-                    html += '<thead><tr>';
-                    html += '<th>Codice</th>';
-                    html += '<th>Sconto</th>';
-                    html += '<th>Inizio</th>';
-                    html += '<th>Scadenza</th>';
-                    html += '<th>Max Utilizzi</th>';
-                    html += '<th>Utilizzi Attuali</th>';
-                    html += '<th>Creato il</th>';
-                    html += '<th>Stato</th>';
-                    html += '<th>Azioni</th>';
-                    html += '</tr></thead><tbody>';
-
-                    data.discounts.forEach(discount => {
-                        const isActive = discount.active === 'SI';
-                        const badgeClass = isActive ? 'badge-completed' : 'badge-cancelled';
-                        const statusText = isActive ? 'Attivo' : 'Disattivato';
-
-                        html += '<tr>';
-                        html += `<td><strong>${discount.code}</strong></td>`;
-                        html += `<td>${discount.percentage}%</td>`;
-                        html += `<td>${discount.startDate || '-'}</td>`;
-                        html += `<td>${discount.expiry}</td>`;
-                        html += `<td>${discount.maxUses === 0 ? 'Illimitato' : discount.maxUses}</td>`;
-                        html += `<td>${discount.currentUses}</td>`;
-                        html += `<td>${discount.created}</td>`;
-                        html += `<td><span class="badge ${badgeClass}">${statusText}</span></td>`;
-                        html += `<td><div class="action-buttons">`;
-                        
-                        html += `<button class="btn btn-small" onclick="openEditDiscountModal('${discount.code}', ${discount.percentage}, '${discount.startDate || ''}', '${discount.expiry}', ${discount.maxUses})">✏️ Modifica</button>`;
-                        
-                        if (isActive) {
-                            html += `<button class="btn btn-small btn-danger" onclick="toggleDiscount('${discount.code}')">❌ Disattiva</button>`;
-                        } else {
-                            html += `<button class="btn btn-small btn-success" onclick="toggleDiscount('${discount.code}')">✅ Attiva</button>`;
-                        }
-                        
-                        html += `<button class="btn btn-small btn-danger" onclick="deleteDiscount('${discount.code}')">🗑️ Elimina</button>`;
-                        html += `</div></td>`;
-                        html += '</tr>';
-                    });
-
-                    html += '</tbody></table>';
-                    container.innerHTML = html;
+                    allDiscountsData = data.discounts || [];
+                    filterDiscounts();
                 })
                 .catch(err => {
                     console.error('Errore caricamento codici:', err);
@@ -1147,6 +1116,100 @@
                         </div>
                     `;
                 });
+        }
+
+        function filterDiscounts() {
+            const container = document.getElementById('discounts-list');
+            const searchTerm = (document.getElementById('search-discounts')?.value || '').toLowerCase();
+            const filterType = document.getElementById('filter-discounts')?.value || 'all';
+            const now = new Date();
+
+            let filtered = allDiscountsData.filter(discount => {
+                // Search filter
+                if (searchTerm && !discount.code.toLowerCase().includes(searchTerm)) {
+                    return false;
+                }
+
+                // Status filter
+                const isActive = discount.active === 'SI';
+                const expiryDate = new Date(discount.expiry);
+                const isExpired = expiryDate < now;
+
+                if (filterType === 'active' && (!isActive || isExpired)) return false;
+                if (filterType === 'inactive' && isActive) return false;
+                if (filterType === 'expired' && !isExpired) return false;
+
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">🎟️</div>
+                        <h3>Nessun codice sconto trovato</h3>
+                        <p>Nessun codice corrisponde ai criteri di ricerca.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const now2 = new Date();
+            let html = '<table>';
+            html += '<thead><tr>';
+            html += '<th>Codice</th>';
+            html += '<th>Sconto</th>';
+            html += '<th>Inizio</th>';
+            html += '<th>Scadenza</th>';
+            html += '<th>Max Utilizzi</th>';
+            html += '<th>Utilizzi Attuali</th>';
+            html += '<th>Creato il</th>';
+            html += '<th>Stato</th>';
+            html += '<th>Azioni</th>';
+            html += '</tr></thead><tbody>';
+
+            filtered.forEach(discount => {
+                const isActive = discount.active === 'SI';
+                const expiryDate = new Date(discount.expiry);
+                const isExpired = expiryDate < now2;
+                
+                let badgeClass, statusText;
+                if (isExpired) {
+                    badgeClass = 'badge-cancelled';
+                    statusText = '⏰ Scaduto';
+                } else if (isActive) {
+                    badgeClass = 'badge-completed';
+                    statusText = '✅ Attivo';
+                } else {
+                    badgeClass = 'badge-cancelled';
+                    statusText = '❌ Disattivato';
+                }
+
+                html += '<tr>';
+                html += `<td><strong>${discount.code}</strong></td>`;
+                html += `<td>${discount.percentage}%</td>`;
+                html += `<td>${discount.startDate || '-'}</td>`;
+                html += `<td>${discount.expiry}</td>`;
+                html += `<td>${discount.maxUses === 0 ? 'Illimitato' : discount.maxUses}</td>`;
+                html += `<td>${discount.currentUses}</td>`;
+                html += `<td>${discount.created}</td>`;
+                html += `<td><span class="badge ${badgeClass}">${statusText}</span></td>`;
+                html += `<td><div class="action-buttons">`;
+                
+                html += `<button class="btn btn-small" onclick="openEditDiscountModal('${discount.code}', ${discount.percentage}, '${discount.startDate || ''}', '${discount.expiry}', ${discount.maxUses})">✏️ Modifica</button>`;
+                
+                if (isActive) {
+                    html += `<button class="btn btn-small btn-danger" onclick="toggleDiscount('${discount.code}')">❌ Disattiva</button>`;
+                } else {
+                    html += `<button class="btn btn-small btn-success" onclick="toggleDiscount('${discount.code}')">✅ Attiva</button>`;
+                }
+                
+                html += `<button class="btn btn-small btn-danger" onclick="deleteDiscount('${discount.code}')">🗑️ Elimina</button>`;
+                html += `</div></td>`;
+                html += '</tr>';
+            });
+
+            html += '</tbody></table>';
+            container.innerHTML = html;
         }
 
         // Add discount
@@ -1661,27 +1724,41 @@
         function filterReviews(filter) {
             currentReviewFilter = filter;
             renderAdminReviews();
-            
-            // Update button styles
-            document.querySelectorAll('#reviews .btn').forEach(btn => {
-                btn.style.opacity = '0.6';
-            });
-            event.target.style.opacity = '1';
+        }
+
+        // Filter reviews by search
+        function filterReviewsSearch() {
+            renderAdminReviews();
         }
 
         // Render reviews in admin
         function renderAdminReviews() {
             const container = document.getElementById('reviewsList');
+            const searchTerm = (document.getElementById('search-reviews')?.value || '').toLowerCase();
+            const statusFilter = document.getElementById('filter-reviews-status')?.value || 'all';
+            const ratingFilter = document.getElementById('filter-reviews-rating')?.value || 'all';
             
-            let filtered = allReviews;
-            if (currentReviewFilter === 'pending') {
-                filtered = allReviews.filter(r => !r.approved);
-            } else if (currentReviewFilter === 'approved') {
-                filtered = allReviews.filter(r => r.approved);
-            }
+            let filtered = allReviews.filter(r => {
+                // Search filter
+                if (searchTerm) {
+                    const searchIn = `${r.user_name || ''} ${r.title || ''} ${r.content || ''} ${r.service || ''}`.toLowerCase();
+                    if (!searchIn.includes(searchTerm)) return false;
+                }
+                
+                // Status filter
+                if (statusFilter === 'pending' && r.approved) return false;
+                if (statusFilter === 'approved' && !r.approved) return false;
+                
+                // Rating filter
+                if (ratingFilter === 'high' && r.rating < 4) return false;
+                if (ratingFilter === 'medium' && r.rating !== 3) return false;
+                if (ratingFilter === 'low' && r.rating > 2) return false;
+                
+                return true;
+            });
 
             if (filtered.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Nessuna recensione trovata</p>';
+                container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Nessuna recensione trovata con questi filtri</p>';
                 return;
             }
 

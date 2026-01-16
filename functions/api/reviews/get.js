@@ -1,6 +1,4 @@
 // functions/api/reviews/get.js
-// Ottieni lista recensioni (pubbliche o tutte per admin)
-
 export async function onRequest(context) {
   const { request, env } = context;
   
@@ -10,7 +8,7 @@ export async function onRequest(context) {
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+        'Access-Control-Allow-Methods': 'GET, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type'
       }
     });
@@ -22,11 +20,7 @@ export async function onRequest(context) {
   
   try {
     if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
-      return jsonResponse({
-        success: true,
-        reviews: [],
-        message: 'Supabase not configured'
-      });
+      return jsonResponse({ success: true, reviews: [] });
     }
 
     const supabaseHeaders = {
@@ -35,14 +29,12 @@ export async function onRequest(context) {
       'Content-Type': 'application/json'
     };
     
-    // Check URL params
     const url = new URL(request.url);
     const isAdminRequest = url.searchParams.get('admin') === 'true';
     
-    // Build query URL - get all reviews or only approved
+    // Build query - admin sees all, public sees only approved
     let reviewsUrl = `${env.SUPABASE_URL}/rest/v1/reviews?select=*&order=created_at.desc`;
     
-    // Se non è richiesta admin, mostra solo approvate
     if (!isAdminRequest) {
       reviewsUrl += '&approved=eq.true';
     }
@@ -50,43 +42,37 @@ export async function onRequest(context) {
     const reviewsResponse = await fetch(reviewsUrl, { headers: supabaseHeaders });
     
     if (!reviewsResponse.ok) {
-      const errorText = await reviewsResponse.text();
-      console.error('Fetch reviews error:', errorText);
-      return jsonResponse({
-        success: false,
-        reviews: [],
-        error: 'Errore caricamento recensioni'
-      });
+      console.error('Reviews fetch error:', await reviewsResponse.text());
+      return jsonResponse({ success: false, reviews: [], error: 'Errore caricamento' });
     }
     
     const reviews = await reviewsResponse.json();
     
-    if (!Array.isArray(reviews)) {
-      return jsonResponse({
-        success: true,
-        reviews: []
-      });
+    if (!Array.isArray(reviews) || reviews.length === 0) {
+      return jsonResponse({ success: true, reviews: [] });
     }
     
-    // Get user info for each review
+    // Get user info for reviews
     const userIds = [...new Set(reviews.map(r => r.user_id).filter(Boolean))];
     let usersMap = {};
     
     if (userIds.length > 0) {
-      const usersUrl = `${env.SUPABASE_URL}/rest/v1/users?id=in.(${userIds.join(',')})&select=id,username,avatar`;
-      const usersResponse = await fetch(usersUrl, { headers: supabaseHeaders });
-      
-      if (usersResponse.ok) {
-        const users = await usersResponse.json();
-        if (Array.isArray(users)) {
-          users.forEach(u => {
-            usersMap[u.id] = u;
-          });
+      try {
+        const usersUrl = `${env.SUPABASE_URL}/rest/v1/users?id=in.(${userIds.join(',')})&select=id,username,avatar`;
+        const usersResponse = await fetch(usersUrl, { headers: supabaseHeaders });
+        
+        if (usersResponse.ok) {
+          const users = await usersResponse.json();
+          if (Array.isArray(users)) {
+            users.forEach(u => { usersMap[u.id] = u; });
+          }
         }
+      } catch (e) {
+        console.error('Users fetch error:', e);
       }
     }
     
-    // Format reviews with user info
+    // Format reviews
     const formattedReviews = reviews.map(r => {
       const user = usersMap[r.user_id] || {};
       return {
@@ -104,17 +90,10 @@ export async function onRequest(context) {
       };
     });
     
-    return jsonResponse({
-      success: true,
-      reviews: formattedReviews
-    });
+    return jsonResponse({ success: true, reviews: formattedReviews });
     
   } catch (error) {
     console.error('Get reviews error:', error);
-    return jsonResponse({
-      success: false,
-      reviews: [],
-      error: error.message
-    });
+    return jsonResponse({ success: false, reviews: [], error: error.message });
   }
 }
