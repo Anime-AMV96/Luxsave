@@ -92,7 +92,7 @@ export async function onRequest(context) {
           body: JSON.stringify({
             embeds: [{
               title: '✅ RECENSIONE APPROVATA E PUBBLICATA',
-              color: 0x00FF00, // Verde
+              color: 0x00FF00,
               fields: [
                 {
                   name: '👤 Utente',
@@ -134,7 +134,6 @@ export async function onRequest(context) {
         });
       } catch (webhookError) {
         console.error('Discord webhook error:', webhookError);
-        // Non blocchiamo per errore webhook
       }
     }
     

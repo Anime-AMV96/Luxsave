@@ -59,7 +59,7 @@ export async function onRequest(context) {
     
     if (userIds.length > 0) {
       try {
-        // Format user IDs for the IN query
+        // Format user IDs for the IN query - properly quote UUIDs
         const formattedIds = userIds.map(id => `"${id}"`).join(',');
         const usersUrl = `${env.SUPABASE_URL}/rest/v1/users?id=in.(${formattedIds})&select=id,username,avatar,discord_id`;
         const usersResponse = await fetch(usersUrl, { headers: supabaseHeaders });
@@ -78,6 +78,13 @@ export async function onRequest(context) {
     // Format reviews with nested "users" object (matching frontend expectations)
     const formattedReviews = reviews.map(r => {
       const user = usersMap[r.user_id] || {};
+      
+      // Build avatar URL
+      let avatarUrl = null;
+      if (user.discord_id && user.avatar) {
+        avatarUrl = `https://cdn.discordapp.com/avatars/${user.discord_id}/${user.avatar}.png`;
+      }
+      
       return {
         id: r.id,
         user_id: r.user_id,
@@ -85,11 +92,12 @@ export async function onRequest(context) {
         users: {
           username: user.username || 'Utente Anonimo',
           avatar: user.avatar || null,
-          discord_id: user.discord_id || null
+          discord_id: user.discord_id || null,
+          avatar_url: avatarUrl
         },
         // Also keep flat fields for admin panel
         user_name: user.username || 'Utente Anonimo',
-        user_avatar: user.avatar || null,
+        user_avatar: avatarUrl,
         service: r.service,
         rating: r.rating,
         title: r.title,

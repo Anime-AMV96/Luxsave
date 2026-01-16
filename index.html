@@ -702,10 +702,6 @@
             font-size: 2.5rem;
             margin-bottom: 0.5rem;
             color: var(--text-primary);
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         .reviews-section .subtitle {
@@ -770,29 +766,22 @@
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink));
-            background-size: cover;
-            background-position: center;
-            border: 2px solid transparent;
-            background-clip: padding-box;
-            position: relative;
+            object-fit: cover;
+            border: 3px solid transparent;
+            background: linear-gradient(var(--bg-secondary), var(--bg-secondary)) padding-box,
+                        linear-gradient(135deg, var(--accent-cyan), var(--accent-pink)) border-box;
             box-shadow: 0 4px 15px rgba(0, 255, 247, 0.3);
         }
 
-        .review-avatar::before {
-            content: '';
-            position: absolute;
-            inset: -3px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink));
-            z-index: -1;
+        .review-user-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
 
         .review-user-info strong {
-            display: block;
             color: var(--text-primary);
             font-size: 1rem;
-            margin-bottom: 2px;
         }
 
         .review-service-badge {
@@ -802,44 +791,30 @@
             font-size: 0.8rem;
             color: var(--accent-cyan);
             background: rgba(0, 255, 247, 0.1);
-            padding: 2px 8px;
+            padding: 2px 10px;
             border-radius: 20px;
             border: 1px solid rgba(0, 255, 247, 0.2);
+            width: fit-content;
         }
 
         .review-stars {
-            display: flex;
-            gap: 2px;
+            color: #FFD700;
             font-size: 1.2rem;
             filter: drop-shadow(0 2px 4px rgba(255, 215, 0, 0.4));
         }
 
         .review-title {
+
             font-weight: 700;
-            font-size: 1.15rem;
-            margin-bottom: 0.75rem;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
             color: var(--text-primary);
-            line-height: 1.3;
         }
 
         .review-content {
             color: var(--text-secondary);
-            line-height: 1.7;
+            line-height: 1.6;
             margin-bottom: 1rem;
-            font-size: 0.95rem;
-            position: relative;
-            padding-left: 1rem;
-        }
-
-        .review-content::before {
-            content: '"';
-            position: absolute;
-            left: -5px;
-            top: -10px;
-            font-size: 3rem;
-            color: var(--accent-cyan);
-            opacity: 0.3;
-            font-family: Georgia, serif;
         }
 
         .review-reply {
@@ -848,16 +823,6 @@
             padding: 1rem 1.25rem;
             margin-top: 1rem;
             border-radius: 0 12px 12px 0;
-            position: relative;
-        }
-
-        .review-reply::before {
-            content: '💬';
-            position: absolute;
-            top: -10px;
-            left: 10px;
-            background: var(--bg-secondary);
-            padding: 0 5px;
         }
 
         .review-reply strong {
@@ -865,7 +830,6 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            margin-bottom: 0.5rem;
         }
 
         .review-date {
@@ -883,60 +847,6 @@
         .review-date::before {
             content: '📅';
             font-size: 0.9rem;
-        }
-
-        /* Review Form Styles */
-        .review-form-container {
-            background: linear-gradient(145deg, var(--bg-secondary), rgba(30, 30, 46, 0.9));
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 2rem;
-            margin-top: 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .review-form-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--accent-pink), var(--accent-cyan));
-        }
-
-        .review-form-container h3 {
-            color: var(--text-primary);
-            margin-bottom: 1.5rem;
-            font-size: 1.3rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .star-rating {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 1rem;
-        }
-
-        .star-rating span {
-            font-size: 2rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            filter: grayscale(1) opacity(0.4);
-        }
-
-        .star-rating span:hover,
-        .star-rating span.active {
-            filter: grayscale(0) opacity(1);
-            transform: scale(1.2);
-        }
-
-        .star-rating span:hover ~ span {
-            filter: grayscale(1) opacity(0.4);
-            transform: scale(1);
         }
 
         .review-form {
@@ -1185,21 +1095,11 @@
 
             .review-content {
                 font-size: 0.9rem;
-                padding-left: 0.75rem;
             }
 
-            .review-content::before {
-                font-size: 2rem;
-                left: -8px;
-                top: -5px;
-            }
-
-            .review-form-container {
+            .review-form {
                 padding: 1.25rem;
-            }
-
-            .star-rating span {
-                font-size: 1.6rem;
+                margin: 1.5rem 1rem 0;
             }
 
             .review-reply {
@@ -3952,12 +3852,16 @@
             }
             
             container.innerHTML = reviews.map(review => {
-                // Handle avatar - use Discord CDN if available, otherwise default
                 const user = review.users || {};
-                const hasDiscordAvatar = user.discord_id && user.avatar;
-                const avatarUrl = hasDiscordAvatar 
-                    ? `https://cdn.discordapp.com/avatars/${user.discord_id}/${user.avatar}.png`
-                    : 'https://cdn.discordapp.com/embed/avatars/0.png';
+                // Use avatar_url if available, otherwise build it or use default
+                let avatarUrl = user.avatar_url;
+                if (!avatarUrl && user.discord_id && user.avatar) {
+                    avatarUrl = `https://cdn.discordapp.com/avatars/${user.discord_id}/${user.avatar}.png`;
+                }
+                if (!avatarUrl) {
+                    avatarUrl = 'https://cdn.discordapp.com/embed/avatars/0.png';
+                }
+                
                 const username = user.username || 'Utente';
                 const stars = '⭐'.repeat(review.rating);
                 const date = new Date(review.created_at).toLocaleDateString('it-IT', {
@@ -3970,7 +3874,7 @@
                 <div class="review-card">
                     <div class="review-header">
                         <div class="review-user">
-                            <div class="review-avatar" style="background-image: url('${avatarUrl}')"></div>
+                            <img class="review-avatar" src="${avatarUrl}" alt="${username}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
                             <div class="review-user-info">
                                 <strong>${username}</strong>
                                 <span class="review-service-badge">🎬 ${review.service}</span>
@@ -3983,7 +3887,7 @@
                     ${review.admin_reply ? `
                         <div class="review-reply">
                             <strong>📢 Risposta LUXSAVE</strong>
-                            <p style="margin: 0; color: var(--text-secondary);">${review.admin_reply}</p>
+                            <p style="margin: 0.5rem 0 0 0; color: var(--text-secondary);">${review.admin_reply}</p>
                         </div>
                     ` : ''}
                     <div class="review-date">${date}</div>
