@@ -83,15 +83,13 @@ export async function onRequest(context) {
       'Prefer': 'return=representation'
     };
     
-    const avatarUrl = discordUser.avatar 
-      ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`
-      : null;
-    
+    // IMPORTANT: Save only the avatar hash, not the full URL
+    // The frontend will build the URL using discord_id + avatar hash
     const userData = {
       discord_id: discordUser.id,
       username: discordUser.username,
       discriminator: discordUser.discriminator || '0',
-      avatar: avatarUrl,
+      avatar: discordUser.avatar || null,  // Just the hash like "6468641f5624162a15f673ce205cf62"
       email: discordUser.email
     };
     

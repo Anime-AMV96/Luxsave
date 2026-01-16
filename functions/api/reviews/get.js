@@ -14,90 +14,55 @@ export async function onRequest(context) {
     });
   };
   
-  if (request.method === 'OPTIONS') {
-    return jsonResponse({}, 200);
-  }
+  if (request.method === 'OPTIONS') return jsonResponse({}, 200);
   
   try {
     if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
       return jsonResponse({ success: true, reviews: [] });
     }
 
-    const supabaseHeaders = {
+    const headers = {
       'apikey': env.SUPABASE_ANON_KEY,
       'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
       'Content-Type': 'application/json'
     };
     
     const url = new URL(request.url);
-    const isAdminRequest = url.searchParams.get('admin') === 'true';
+    const isAdmin = url.searchParams.get('admin') === 'true';
     
     let reviewsUrl = `${env.SUPABASE_URL}/rest/v1/reviews?select=*&order=created_at.desc`;
+    if (!isAdmin) reviewsUrl += '&approved=eq.true';
     
-    if (!isAdminRequest) {
-      reviewsUrl += '&approved=eq.true';
-    }
+    const res = await fetch(reviewsUrl, { headers });
+    if (!res.ok) return jsonResponse({ success: false, reviews: [] });
     
-    const reviewsResponse = await fetch(reviewsUrl, { headers: supabaseHeaders });
+    const reviews = await res.json();
+    if (!Array.isArray(reviews) || !reviews.length) return jsonResponse({ success: true, reviews: [] });
     
-    if (!reviewsResponse.ok) {
-      return jsonResponse({ success: false, reviews: [], error: 'Errore caricamento recensioni' });
-    }
-    
-    const reviews = await reviewsResponse.json();
-    
-    if (!Array.isArray(reviews) || reviews.length === 0) {
-      return jsonResponse({ success: true, reviews: [] });
-    }
-    
-    // Get user info
+    // Get users
     const userIds = [...new Set(reviews.map(r => r.user_id).filter(Boolean))];
     let usersMap = {};
     
-    if (userIds.length > 0) {
-      try {
-        const formattedIds = userIds.map(id => `"${id}"`).join(',');
-        const usersUrl = `${env.SUPABASE_URL}/rest/v1/users?id=in.(${formattedIds})&select=id,username,avatar,discord_id`;
-        const usersResponse = await fetch(usersUrl, { headers: supabaseHeaders });
-        
-        if (usersResponse.ok) {
-          const users = await usersResponse.json();
-          if (Array.isArray(users)) {
-            users.forEach(u => { usersMap[u.id] = u; });
-          }
-        }
-      } catch (e) {
-        console.error('Users fetch error:', e);
+    if (userIds.length) {
+      const ids = userIds.map(id => `"${id}"`).join(',');
+      const usersRes = await fetch(`${env.SUPABASE_URL}/rest/v1/users?id=in.(${ids})&select=id,username,avatar,discord_id`, { headers });
+      if (usersRes.ok) {
+        const users = await usersRes.json();
+        users.forEach(u => usersMap[u.id] = u);
       }
     }
     
-    // Format reviews
-    const formattedReviews = reviews.map(r => {
-      const user = usersMap[r.user_id] || {};
-      
+    const formatted = reviews.map(r => {
+      const u = usersMap[r.user_id] || {};
       return {
-        id: r.id,
-        user_id: r.user_id,
-        users: {
-          username: user.username || 'Utente Anonimo',
-          avatar: user.avatar || null,
-          discord_id: user.discord_id || null
-        },
-        user_name: user.username || 'Utente Anonimo',
-        service: r.service,
-        rating: r.rating,
-        title: r.title,
-        content: r.content,
-        approved: r.approved,
-        admin_reply: r.admin_reply,
-        created_at: r.created_at
+        ...r,
+        users: { username: u.username || 'Utente', avatar: u.avatar, discord_id: u.discord_id },
+        user_name: u.username || 'Utente'
       };
     });
     
-    return jsonResponse({ success: true, reviews: formattedReviews });
-    
-  } catch (error) {
-    console.error('Get reviews error:', error);
-    return jsonResponse({ success: false, reviews: [], error: error.message });
+    return jsonResponse({ success: true, reviews: formatted });
+  } catch (e) {
+    return jsonResponse({ success: false, reviews: [], error: e.message });
   }
 }
