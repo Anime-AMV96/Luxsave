@@ -154,6 +154,30 @@
             box-shadow: 0 10px 30px rgba(88, 101, 242, 0.3);
         }
 
+        .admin-btn {
+            background: linear-gradient(135deg, #ff006e, #ffbe0b);
+            color: #000;
+            font-weight: 700;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-family: 'DM Sans', sans-serif;
+            text-decoration: none;
+        }
+
+        .admin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 0, 110, 0.4);
+        }
+
         /* Language Selector */
         .lang-selector {
             background: var(--bg-secondary);
@@ -1018,8 +1042,9 @@
                 <span id="authText" data-lang="auth_login">🔐 Accedi con Discord</span>
             </button>
             
-            <button id="adminBtn" class="admin-btn" style="display: none; background: linear-gradient(135deg, #ff006e, #ffbe0b); margin-left: 0.5rem;" onclick="window.location.href='/admin-x9k2m7p4.html'">
-                <span>⚙️ ADMIN</span>
+            <button id="adminBtn" class="admin-btn" style="display: none;" onclick="window.location.href='/admin-x9k2m7p4.html'">
+                <span>⚙️</span>
+                <span>ADMIN</span>
             </button>
 
             <a href="https://discord.gg/aabPMyv2g6" target="_blank" class="discord-btn">
