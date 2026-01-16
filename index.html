@@ -3726,13 +3726,22 @@
                 return;
             }
             
-            container.innerHTML = reviews.map(review => `
+            container.innerHTML = reviews.map(review => {
+                // Handle avatar - use Discord CDN if available, otherwise default
+                const user = review.users || {};
+                const hasDiscordAvatar = user.discord_id && user.avatar;
+                const avatarUrl = hasDiscordAvatar 
+                    ? `https://cdn.discordapp.com/avatars/${user.discord_id}/${user.avatar}.png`
+                    : 'https://cdn.discordapp.com/embed/avatars/0.png';
+                const username = user.username || 'Utente';
+                
+                return `
                 <div class="review-card">
                     <div class="review-header">
                         <div class="review-user">
-                            <div class="review-avatar" style="background-image: url('https://cdn.discordapp.com/avatars/${review.users.discord_id}/${review.users.avatar}.png')"></div>
+                            <div class="review-avatar" style="background-image: url('${avatarUrl}')"></div>
                             <div>
-                                <strong>${review.users.username}</strong>
+                                <strong>${username}</strong>
                                 <div style="font-size: 0.85rem; color: var(--text-secondary);">${review.service}</div>
                             </div>
                         </div>
@@ -3750,7 +3759,7 @@
                         ${new Date(review.created_at).toLocaleDateString('it-IT')}
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
         
         // Rating system

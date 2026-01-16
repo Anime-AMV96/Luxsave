@@ -42,8 +42,9 @@ export async function onRequest(context) {
     const reviewsResponse = await fetch(reviewsUrl, { headers: supabaseHeaders });
     
     if (!reviewsResponse.ok) {
-      console.error('Reviews fetch error:', await reviewsResponse.text());
-      return jsonResponse({ success: false, reviews: [], error: 'Errore caricamento' });
+      const errorText = await reviewsResponse.text();
+      console.error('Reviews fetch error:', errorText);
+      return jsonResponse({ success: false, reviews: [], error: 'Errore caricamento recensioni' });
     }
     
     const reviews = await reviewsResponse.json();
@@ -58,7 +59,9 @@ export async function onRequest(context) {
     
     if (userIds.length > 0) {
       try {
-        const usersUrl = `${env.SUPABASE_URL}/rest/v1/users?id=in.(${userIds.join(',')})&select=id,username,avatar`;
+        // Format user IDs for the IN query
+        const formattedIds = userIds.map(id => `"${id}"`).join(',');
+        const usersUrl = `${env.SUPABASE_URL}/rest/v1/users?id=in.(${formattedIds})&select=id,username,avatar,discord_id`;
         const usersResponse = await fetch(usersUrl, { headers: supabaseHeaders });
         
         if (usersResponse.ok) {
@@ -72,13 +75,20 @@ export async function onRequest(context) {
       }
     }
     
-    // Format reviews
+    // Format reviews with nested "users" object (matching frontend expectations)
     const formattedReviews = reviews.map(r => {
       const user = usersMap[r.user_id] || {};
       return {
         id: r.id,
         user_id: r.user_id,
-        user_name: user.username || 'Utente',
+        // Nested users object for frontend compatibility
+        users: {
+          username: user.username || 'Utente Anonimo',
+          avatar: user.avatar || null,
+          discord_id: user.discord_id || null
+        },
+        // Also keep flat fields for admin panel
+        user_name: user.username || 'Utente Anonimo',
         user_avatar: user.avatar || null,
         service: r.service,
         rating: r.rating,
