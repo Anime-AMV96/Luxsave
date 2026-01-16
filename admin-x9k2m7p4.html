@@ -345,12 +345,14 @@
                 overflow-x: auto;
                 gap: 0.3rem;
                 padding-bottom: 0.5rem;
+                -webkit-overflow-scrolling: touch;
             }
 
             .tab {
                 font-size: 0.75rem;
                 padding: 0.5rem 0.8rem;
                 white-space: nowrap;
+                flex-shrink: 0;
             }
 
             .stats-grid {
@@ -380,6 +382,7 @@
 
             .table-container {
                 overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
             }
 
             table {
@@ -415,6 +418,49 @@
                 min-width: 150px !important;
                 width: 100%;
             }
+
+            /* Reviews admin mobile */
+            .filter-row {
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+            }
+
+            .filter-row input,
+            .filter-row select {
+                width: 100% !important;
+                min-width: unset !important;
+            }
+
+            .review-admin-card {
+                padding: 1rem !important;
+            }
+
+            .review-admin-header {
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+            }
+
+            .review-admin-actions {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .review-admin-actions .btn-small {
+                flex: 1;
+                min-width: 80px;
+                text-align: center;
+            }
+
+            /* Discounts filter mobile */
+            .discount-filters {
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+            }
+
+            .discount-filters input,
+            .discount-filters select {
+                width: 100% !important;
+            }
         }
 
         @media (max-width: 480px) {
@@ -429,6 +475,14 @@
 
             table {
                 font-size: 0.7rem;
+            }
+
+            .review-admin-card {
+                padding: 0.75rem !important;
+            }
+
+            .review-admin-stars {
+                font-size: 1rem !important;
             }
         }
     </style>
