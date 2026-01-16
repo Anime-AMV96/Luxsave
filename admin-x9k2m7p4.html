@@ -1994,7 +1994,7 @@
 
                 const userData = await meResponse.json();
                 
-                if (!userData.success || !userData.user) {
+                if (!userData.authenticated || !userData.user) {
                     loadingScreen.style.display = 'none';
                     loginScreen.style.display = 'flex';
                     return false;
