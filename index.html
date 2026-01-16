@@ -1314,18 +1314,40 @@
                 <label>Servizio acquistato *</label>
                 <select id="reviewService" required>
                     <option value="">Seleziona servizio...</option>
-                    <option value="Netflix">Netflix</option>
-                    <option value="Spotify">Spotify</option>
-                    <option value="Disney+">Disney+</option>
-                    <option value="YouTube Premium">YouTube Premium</option>
-                    <option value="Crunchyroll">Crunchyroll</option>
-                    <option value="Apple Music">Apple Music</option>
-                    <option value="Canva Pro">Canva Pro</option>
-                    <option value="Avast">Avast Antivirus</option>
-                    <option value="IPTV">IPTV</option>
-                    <option value="Discord Nitro">Discord Nitro</option>
-                    <option value="Discord Boosts">Discord Boosts</option>
-                    <option value="Altro">Altro</option>
+                    <optgroup label="🎬 Streaming">
+                        <option value="Netflix">Netflix</option>
+                        <option value="Spotify">Spotify</option>
+                        <option value="Disney+">Disney+</option>
+                        <option value="YouTube Premium">YouTube Premium</option>
+                        <option value="Crunchyroll">Crunchyroll</option>
+                        <option value="HBO Max">HBO Max</option>
+                        <option value="Prime Video">Prime Video</option>
+                        <option value="IPTV">IPTV</option>
+                    </optgroup>
+                    <optgroup label="🎮 Discord">
+                        <option value="Discord Nitro">Discord Nitro</option>
+                        <option value="Discord Decorations">Discord Decorations</option>
+                        <option value="Discord Boosts">Discord Boosts</option>
+                    </optgroup>
+                    <optgroup label="🎮 Gaming">
+                        <option value="Xbox Game Pass">Xbox Game Pass</option>
+                        <option value="PlayStation Plus">PlayStation Plus</option>
+                        <option value="Fortnite Crew">Fortnite Crew</option>
+                        <option value="Fortnite V-Bucks">Fortnite V-Bucks</option>
+                    </optgroup>
+                    <optgroup label="🌍 Region Change">
+                        <option value="Steam Region">Steam Region</option>
+                        <option value="Epic Region">Epic Region</option>
+                        <option value="Riot Region">Riot Region</option>
+                        <option value="Play Store Turkey">Play Store Turkey</option>
+                    </optgroup>
+                    <optgroup label="🛡️ Software & Altro">
+                        <option value="Google One">Google One</option>
+                        <option value="Avast">Avast Antivirus</option>
+                        <option value="Kaspersky">Kaspersky</option>
+                        <option value="Duolingo">Duolingo</option>
+                        <option value="SMS Verification">SMS Verification</option>
+                    </optgroup>
                 </select>
             </div>
             <div class="form-group">
@@ -2087,6 +2109,10 @@
                             💬 ${translations[currentLang].contact_discord}
                         </div>
                         
+                        <div class="special-note" style="background: rgba(255, 0, 110, 0.1); border-color: var(--accent-pink); margin-top: 1rem;">
+                            <strong style="color: var(--accent-pink);">${translations[currentLang].payment_warning}</strong>
+                        </div>
+                        
                         <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
                             <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
                             <div id="order-summary-discord-boosts" style="color: var(--text-primary);"></div>
@@ -2490,30 +2516,40 @@
                             </div>
                             <div class="input-group">
                                 <label>Servizio da disdire: *</label>
-                                <select id="cancel-service">
+                                <select id="cancel-service" onchange="toggleCancelOther()">
                                     <option value="">Seleziona servizio...</option>
-                                    <option value="Spotify Premium">Spotify Premium</option>
-                                    <option value="Netflix">Netflix</option>
-                                    <option value="Disney+">Disney+</option>
-                                    <option value="YouTube Premium">YouTube Premium</option>
-                                    <option value="Crunchyroll">Crunchyroll</option>
-                                    <option value="IPTV">IPTV</option>
-                                    <option value="Discord Nitro">Discord Nitro</option>
-                                    <option value="Discord Server Boosts">Discord Server Boosts</option>
-                                    <option value="Discord Decorations">Discord Decorations</option>
-                                    <option value="Xbox Game Pass">Xbox Game Pass</option>
-                                    <option value="PlayStation Plus">PlayStation Plus</option>
-                                    <option value="HBO Max">HBO Max</option>
-                                    <option value="Prime Video">Prime Video</option>
-                                    <option value="Avast Premium">Avast Premium</option>
-                                    <option value="Kaspersky">Kaspersky</option>
-                                    <option value="Duolingo">Duolingo</option>
-                                    <option value="Fortnite Crew">Fortnite Crew</option>
-                                    <option value="Fortnite V-Bucks">Fortnite V-Bucks</option>
-                                    <option value="Google One">Google One</option>
-                                    <option value="Play Store Turkey">Play Store Turkey</option>
-                                    <option value="Altro">Altro</option>
+                                    <optgroup label="🎬 Streaming">
+                                        <option value="Spotify Premium">Spotify Premium</option>
+                                        <option value="Netflix">Netflix</option>
+                                        <option value="Disney+">Disney+</option>
+                                        <option value="YouTube Premium">YouTube Premium</option>
+                                        <option value="Crunchyroll">Crunchyroll</option>
+                                        <option value="HBO Max">HBO Max</option>
+                                        <option value="Prime Video">Prime Video</option>
+                                        <option value="IPTV">IPTV</option>
+                                    </optgroup>
+                                    <optgroup label="🎮 Discord">
+                                        <option value="Discord Nitro">Discord Nitro</option>
+                                        <option value="Discord Decorations">Discord Decorations</option>
+                                        <option value="Discord Server Boosts">Discord Server Boosts</option>
+                                    </optgroup>
+                                    <optgroup label="🎮 Gaming">
+                                        <option value="Xbox Game Pass">Xbox Game Pass</option>
+                                        <option value="PlayStation Plus">PlayStation Plus</option>
+                                        <option value="Fortnite Crew">Fortnite Crew</option>
+                                    </optgroup>
+                                    <optgroup label="🛡️ Software & Altro">
+                                        <option value="Google One">Google One</option>
+                                        <option value="Avast Premium">Avast Premium</option>
+                                        <option value="Kaspersky">Kaspersky</option>
+                                        <option value="Duolingo">Duolingo</option>
+                                    </optgroup>
+                                    <option value="Altro">📝 Altro (specifica sotto)</option>
                                 </select>
+                            </div>
+                            <div class="input-group" id="cancel-other-container" style="display: none;">
+                                <label>Specifica il servizio: *</label>
+                                <input type="text" id="cancel-other-service" placeholder="Scrivi il nome del servizio...">
                             </div>
                             <div class="input-group">
                                 <label>Motivo (opzionale):</label>
@@ -3162,10 +3198,31 @@
         }
 
         // Submit cancellation
+        // Toggle "Altro" field for cancellation
+        function toggleCancelOther() {
+            const select = document.getElementById('cancel-service');
+            const otherContainer = document.getElementById('cancel-other-container');
+            if (select.value === 'Altro') {
+                otherContainer.style.display = 'block';
+            } else {
+                otherContainer.style.display = 'none';
+            }
+        }
+
         function submitCancellation() {
             const discordId = document.getElementById('cancel-discord-id')?.value.trim();
-            const service = document.getElementById('cancel-service')?.value.trim();
+            let service = document.getElementById('cancel-service')?.value.trim();
             const reason = document.getElementById('cancel-reason')?.value.trim();
+            
+            // If "Altro" is selected, use the custom service name
+            if (service === 'Altro') {
+                const otherService = document.getElementById('cancel-other-service')?.value.trim();
+                if (!otherService) {
+                    alert('Specifica il nome del servizio');
+                    return;
+                }
+                service = 'Altro: ' + otherService;
+            }
             
             if (!discordId || !service) {
                 alert('Compila tutti i campi obbligatori');
