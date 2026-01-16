@@ -16,13 +16,11 @@ export async function onRequest(context) {
     });
   };
   
-  // CORS preflight
   if (request.method === 'OPTIONS') {
     return jsonResponse({}, 200);
   }
   
   try {
-    // Check if Supabase is configured
     if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
       return jsonResponse({
         success: true,
@@ -41,64 +39,80 @@ export async function onRequest(context) {
     const url = new URL(request.url);
     const isAdminRequest = url.searchParams.get('admin') === 'true';
     
-    // Get user auth
-    const cookieHeader = request.headers.get('Cookie') || '';
-    const sessionMatch = cookieHeader.match(/session=([^;]+)/);
-    let isAdmin = false;
-    
-    if (sessionMatch && isAdminRequest) {
-      const sessionToken = sessionMatch[1];
-      
-      // Check session
-      const sessionUrl = `${env.SUPABASE_URL}/rest/v1/sessions?session_token=eq.${sessionToken}&expires_at=gt.${new Date().toISOString()}&select=user_id`;
-      const sessionResponse = await fetch(sessionUrl, { headers: supabaseHeaders });
-      const sessions = await sessionResponse.json();
-      
-      if (sessions && sessions.length > 0) {
-        // Check if admin
-        const adminUrl = `${env.SUPABASE_URL}/rest/v1/admin_users?user_id=eq.${sessions[0].user_id}`;
-        const adminResponse = await fetch(adminUrl, { headers: supabaseHeaders });
-        const admins = await adminResponse.json();
-        isAdmin = admins && admins.length > 0;
-      }
-    }
-    
-    // Build query URL
+    // Build query URL - get all reviews or only approved
     let reviewsUrl = `${env.SUPABASE_URL}/rest/v1/reviews?select=*&order=created_at.desc`;
     
-    // Se non admin, solo recensioni approvate
-    if (!isAdmin && !isAdminRequest) {
+    // Se non è richiesta admin, mostra solo approvate
+    if (!isAdminRequest) {
       reviewsUrl += '&approved=eq.true';
     }
     
     const reviewsResponse = await fetch(reviewsUrl, { headers: supabaseHeaders });
+    
+    if (!reviewsResponse.ok) {
+      const errorText = await reviewsResponse.text();
+      console.error('Fetch reviews error:', errorText);
+      return jsonResponse({
+        success: false,
+        reviews: [],
+        error: 'Errore caricamento recensioni'
+      });
+    }
+    
     const reviews = await reviewsResponse.json();
     
+    if (!Array.isArray(reviews)) {
+      return jsonResponse({
+        success: true,
+        reviews: []
+      });
+    }
+    
+    // Get user info for each review
+    const userIds = [...new Set(reviews.map(r => r.user_id).filter(Boolean))];
+    let usersMap = {};
+    
+    if (userIds.length > 0) {
+      const usersUrl = `${env.SUPABASE_URL}/rest/v1/users?id=in.(${userIds.join(',')})&select=id,username,avatar`;
+      const usersResponse = await fetch(usersUrl, { headers: supabaseHeaders });
+      
+      if (usersResponse.ok) {
+        const users = await usersResponse.json();
+        if (Array.isArray(users)) {
+          users.forEach(u => {
+            usersMap[u.id] = u;
+          });
+        }
+      }
+    }
+    
     // Format reviews with user info
-    const formattedReviews = Array.isArray(reviews) ? reviews.map(r => ({
-      id: r.id,
-      user_id: r.user_id,
-      user_name: r.user_name || 'Utente',
-      user_avatar: r.user_avatar,
-      service: r.service,
-      rating: r.rating,
-      title: r.title,
-      content: r.content,
-      approved: r.approved,
-      admin_reply: r.admin_reply,
-      created_at: r.created_at
-    })) : [];
+    const formattedReviews = reviews.map(r => {
+      const user = usersMap[r.user_id] || {};
+      return {
+        id: r.id,
+        user_id: r.user_id,
+        user_name: user.username || 'Utente',
+        user_avatar: user.avatar || null,
+        service: r.service,
+        rating: r.rating,
+        title: r.title,
+        content: r.content,
+        approved: r.approved,
+        admin_reply: r.admin_reply,
+        created_at: r.created_at
+      };
+    });
     
     return jsonResponse({
       success: true,
-      reviews: formattedReviews,
-      isAdmin: isAdmin
+      reviews: formattedReviews
     });
     
   } catch (error) {
     console.error('Get reviews error:', error);
     return jsonResponse({
-      success: true,
+      success: false,
       reviews: [],
       error: error.message
     });

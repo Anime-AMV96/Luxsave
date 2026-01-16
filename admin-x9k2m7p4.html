@@ -472,6 +472,10 @@
                     <div class="stat-value" id="active-discounts">-</div>
                     <div class="stat-label">Codici Attivi</div>
                 </div>
+                <div class="stat-card" style="border-color: var(--accent-yellow);">
+                    <div class="stat-value" id="pending-reviews" style="color: var(--accent-yellow);">-</div>
+                    <div class="stat-label">⭐ Recensioni in Attesa</div>
+                </div>
             </div>
 
             <div class="card">
@@ -692,6 +696,22 @@
                     document.getElementById('completed-orders').textContent = '❌';
                     document.getElementById('total-revenue').textContent = '❌';
                     document.getElementById('active-discounts').textContent = '❌';
+                });
+            
+            // Load pending reviews count
+            fetch('/api/reviews/get?admin=true')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.reviews) {
+                        const pendingCount = data.reviews.filter(r => !r.approved).length;
+                        document.getElementById('pending-reviews').textContent = pendingCount;
+                    } else {
+                        document.getElementById('pending-reviews').textContent = '0';
+                    }
+                })
+                .catch(err => {
+                    console.error('Errore caricamento recensioni:', err);
+                    document.getElementById('pending-reviews').textContent = '❌';
                 });
         }
 
