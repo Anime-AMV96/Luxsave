@@ -1018,6 +1018,25 @@
                 font-size: 0.85rem;
             }
         }
+
+        /* Styled optgroup for select dropdowns */
+        select optgroup {
+            background: var(--bg-secondary);
+            color: var(--accent-cyan);
+            font-weight: 600;
+            font-style: normal;
+            padding: 8px 0;
+        }
+        
+        select option {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            padding: 8px 12px;
+        }
+        
+        select option:hover {
+            background: var(--bg-secondary);
+        }
     </style>
 </head>
 <body>
@@ -1312,7 +1331,7 @@
             <h3>✍️ Lascia una recensione</h3>
             <div class="form-group">
                 <label>Servizio acquistato *</label>
-                <select id="reviewService" required>
+                <select id="reviewService" required onchange="toggleReviewOther()">
                     <option value="">Seleziona servizio...</option>
                     <optgroup label="🎬 Streaming">
                         <option value="Netflix">Netflix</option>
@@ -1348,7 +1367,12 @@
                         <option value="Duolingo">Duolingo</option>
                         <option value="SMS Verification">SMS Verification</option>
                     </optgroup>
+                    <option value="Altro">📝 Altro (specifica sotto)</option>
                 </select>
+            </div>
+            <div class="form-group" id="review-other-container" style="display: none;">
+                <label>Specifica il servizio *</label>
+                <input type="text" id="reviewOtherService" placeholder="Scrivi il nome del servizio...">
             </div>
             <div class="form-group">
                 <label>Valutazione *</label>
@@ -1877,8 +1901,7 @@
                             • Va rinnovato manualmente ogni mese/anno quando scade<br>
                             • Abbonamento sul tuo account Google principale<br>
                             • Nessun abbonamento YouTube attivo prima di ordinare<br>
-                            • Login Google richiesto ad ogni rinnovo<br><br>
-                            <strong style="color: var(--accent-pink);">${translations[currentLang].payment_warning}</strong>
+                            • Login Google richiesto ad ogni rinnovo
                         </div>
                         
                         <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
@@ -1932,8 +1955,7 @@
                             • Va rinnovato manualmente ogni mese/anno quando scade<br>
                             • Abbonamento sul tuo account Google principale<br>
                             • Nessun abbonamento Google One attivo prima di ordinare<br>
-                            • Login Google richiesto ad ogni rinnovo<br><br>
-                            <strong style="color: var(--accent-pink);">${translations[currentLang].payment_warning}</strong>
+                            • Login Google richiesto ad ogni rinnovo
                         </div>
                         
                         <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
@@ -2226,10 +2248,6 @@
                             </div>
                         </div>
                         
-                        <div class="special-note" style="background: rgba(255, 0, 110, 0.1); border-color: var(--accent-pink); margin-top: 1rem;">
-                            <strong style="color: var(--accent-pink);">${translations[currentLang].payment_warning}</strong>
-                        </div>
-                        
                         <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
                             <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
                             <div id="order-summary-hbo" style="color: var(--text-primary);"></div>
@@ -2255,10 +2273,6 @@
                                 </div>
                                 <span class="option-price">€5.99</span>
                             </div>
-                        </div>
-                        
-                        <div class="special-note" style="background: rgba(255, 0, 110, 0.1); border-color: var(--accent-pink); margin-top: 1rem;">
-                            <strong style="color: var(--accent-pink);">${translations[currentLang].payment_warning}</strong>
                         </div>
                         
                         <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
@@ -2303,9 +2317,6 @@
                             </label>
                         </div>
                         
-                        <div class="special-note" style="background: rgba(255, 0, 110, 0.1); border-color: var(--accent-pink); margin-top: 1rem;">
-                            <strong style="color: var(--accent-pink);">${translations[currentLang].payment_warning}</strong>
-                        </div>
                         
                         <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
                             <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
@@ -2355,10 +2366,6 @@
                             <div id="order-summary-kaspersky" style="color: var(--text-primary);"></div>
                         </div>
                         
-                        <div class="special-note" style="background: rgba(255, 0, 110, 0.1); border-color: var(--accent-pink); margin-top: 1rem;">
-                            <strong style="color: var(--accent-pink);">${translations[currentLang].payment_warning}</strong>
-                        </div>
-                        
                         ${getOrderFormHTML('kaspersky')}
                     `;
                     break;
@@ -2395,10 +2402,6 @@
                                 </div>
                                 <span class="option-price">€12.99</span>
                             </div>
-                        </div>
-                        
-                        <div class="special-note" style="background: rgba(255, 0, 110, 0.1); border-color: var(--accent-pink); margin-top: 1rem;">
-                            <strong style="color: var(--accent-pink);">${translations[currentLang].payment_warning}</strong>
                         </div>
                         
                         <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
@@ -3197,7 +3200,6 @@
             `;
         }
 
-        // Submit cancellation
         // Toggle "Altro" field for cancellation
         function toggleCancelOther() {
             const select = document.getElementById('cancel-service');
@@ -3209,6 +3211,7 @@
             }
         }
 
+        // Submit cancellation
         function submitCancellation() {
             const discordId = document.getElementById('cancel-discord-id')?.value.trim();
             let service = document.getElementById('cancel-service')?.value.trim();
@@ -3218,7 +3221,7 @@
             if (service === 'Altro') {
                 const otherService = document.getElementById('cancel-other-service')?.value.trim();
                 if (!otherService) {
-                    alert('Specifica il nome del servizio');
+                    alert('⚠️ Specifica il nome del servizio');
                     return;
                 }
                 service = 'Altro: ' + otherService;
@@ -3858,6 +3861,17 @@
             });
         }
         
+        // Toggle "Altro" field for reviews
+        function toggleReviewOther() {
+            const select = document.getElementById('reviewService');
+            const otherContainer = document.getElementById('review-other-container');
+            if (select.value === 'Altro') {
+                otherContainer.style.display = 'block';
+            } else {
+                otherContainer.style.display = 'none';
+            }
+        }
+        
         // Invia nuova recensione
         async function submitReview() {
             if (!currentUser) {
@@ -3865,9 +3879,19 @@
                 return;
             }
             
-            const service = document.getElementById('reviewService').value;
+            let service = document.getElementById('reviewService').value;
             const title = document.getElementById('reviewTitle').value;
             const content = document.getElementById('reviewContent').value;
+            
+            // If "Altro" is selected, use the custom service name
+            if (service === 'Altro') {
+                const otherService = document.getElementById('reviewOtherService')?.value.trim();
+                if (!otherService) {
+                    alert('⚠️ Specifica il nome del servizio');
+                    return;
+                }
+                service = 'Altro: ' + otherService;
+            }
             
             if (!service || !selectedRating || !title || !content) {
                 alert('⚠️ Compila tutti i campi');
@@ -3896,6 +3920,8 @@
                     document.getElementById('reviewService').value = '';
                     document.getElementById('reviewTitle').value = '';
                     document.getElementById('reviewContent').value = '';
+                    document.getElementById('reviewOtherService').value = '';
+                    document.getElementById('review-other-container').style.display = 'none';
                     setRating(0);
                     loadReviews();
                 } else {

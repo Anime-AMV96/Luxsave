@@ -1805,10 +1805,8 @@
                 // Build avatar URL from users object
                 const user = review.users || {};
                 let avatarStyle = 'background: linear-gradient(135deg, var(--accent-cyan), var(--accent-pink));';
-                let avatarUrl = '';
                 if (user.discord_id && user.avatar) {
-                    avatarUrl = `https://cdn.discordapp.com/avatars/${user.discord_id}/${user.avatar}.png`;
-                    avatarStyle = '';
+                    avatarStyle = `background-image: url('https://cdn.discordapp.com/avatars/${user.discord_id}/${user.avatar}.png'); background-size: cover; background-position: center;`;
                 }
                 
                 return `
@@ -1816,7 +1814,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
                         <div>
                             <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                <div style="width: 40px; height: 40px; border-radius: 50%; ${avatarStyle} ${avatarUrl ? `background-image: url('${avatarUrl}'); background-size: cover; background-position: center;` : ''}"></div>
+                                <div style="width: 40px; height: 40px; border-radius: 50%; ${avatarStyle}"></div>
                                 <div>
                                     <strong>${user.username || review.user_name || 'Utente'}</strong>
                                     <div style="font-size: 0.85rem; color: var(--text-secondary);">${review.service || 'N/A'}</div>
@@ -1975,7 +1973,6 @@
             const adminContent = document.getElementById('admin-content');
 
             try {
-                // Check if user is logged in
                 const meResponse = await fetch('/api/user/me', { credentials: 'include' });
                 if (!meResponse.ok) {
                     loadingScreen.style.display = 'none';
@@ -1990,7 +1987,6 @@
                     return false;
                 }
 
-                // Check if user is admin
                 const adminResponse = await fetch('/api/user/is-admin', { credentials: 'include' });
                 const adminData = await adminResponse.json();
 
@@ -2000,11 +1996,9 @@
                     return false;
                 }
 
-                // User is admin - show admin panel
                 loadingScreen.style.display = 'none';
                 adminContent.style.display = 'block';
 
-                // Update user info display
                 const user = userData.user;
                 if (user.avatar && user.discord_id) {
                     const avatarEl = document.getElementById('admin-avatar');
