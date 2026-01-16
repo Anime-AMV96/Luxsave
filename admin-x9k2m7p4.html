@@ -608,8 +608,12 @@
                         <input type="date" id="discount-start" required>
                     </div>
                     <div class="form-group">
-                        <label>Data Scadenza *</label>
-                        <input type="date" id="discount-expiry" required>
+                        <label>Data Scadenza</label>
+                        <input type="date" id="discount-expiry">
+                        <label style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; cursor: pointer;">
+                            <input type="checkbox" id="discount-no-expiry" onchange="toggleDiscountExpiry(this)">
+                            <span style="color: var(--accent-cyan);">♾️ Senza scadenza</span>
+                        </label>
                     </div>
                     <div class="form-group">
                         <label>Utilizzi Massimi (0 = illimitato)</label>
@@ -646,8 +650,12 @@
                             <input type="date" id="edit-discount-start" required>
                         </div>
                         <div class="form-group">
-                            <label>Data Scadenza *</label>
-                            <input type="date" id="edit-discount-expiry" required>
+                            <label>Data Scadenza</label>
+                            <input type="date" id="edit-discount-expiry">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; cursor: pointer;">
+                                <input type="checkbox" id="edit-discount-no-expiry" onchange="toggleEditDiscountExpiry(this)">
+                                <span style="color: var(--accent-cyan);">♾️ Senza scadenza</span>
+                            </label>
                         </div>
                         <div class="form-group">
                             <label>Utilizzi Massimi (0 = illimitato)</label>
@@ -1171,8 +1179,9 @@
 
                 // Status filter
                 const isActive = discount.active === 'SI';
-                const expiryDate = new Date(discount.expiry);
-                const isExpired = expiryDate < now;
+                const hasNoExpiry = discount.expiry === '♾️ Mai' || discount.expiry === 'Mai' || !discount.expiry;
+                const expiryDate = hasNoExpiry ? new Date('2099-12-31') : new Date(discount.expiry);
+                const isExpired = !hasNoExpiry && expiryDate < now;
 
                 if (filterType === 'active' && (!isActive || isExpired)) return false;
                 if (filterType === 'inactive' && isActive) return false;
@@ -1208,8 +1217,9 @@
 
             filtered.forEach(discount => {
                 const isActive = discount.active === 'SI';
-                const expiryDate = new Date(discount.expiry);
-                const isExpired = expiryDate < now2;
+                const hasNoExpiry = discount.expiry === '♾️ Mai' || discount.expiry === 'Mai' || !discount.expiry;
+                const expiryDate = hasNoExpiry ? new Date('2099-12-31') : new Date(discount.expiry);
+                const isExpired = !hasNoExpiry && expiryDate < now2;
                 
                 let badgeClass, statusText;
                 if (isExpired) {
@@ -1223,11 +1233,13 @@
                     statusText = '❌ Disattivato';
                 }
 
+                const expiryDisplay = hasNoExpiry ? '<span style="color: var(--accent-cyan);">♾️ Mai</span>' : discount.expiry;
+
                 html += '<tr>';
                 html += `<td><strong>${discount.code}</strong></td>`;
                 html += `<td>${discount.percentage}%</td>`;
                 html += `<td>${discount.startDate || '-'}</td>`;
-                html += `<td>${discount.expiry}</td>`;
+                html += `<td>${expiryDisplay}</td>`;
                 html += `<td>${discount.maxUses === 0 ? 'Illimitato' : discount.maxUses}</td>`;
                 html += `<td>${discount.currentUses}</td>`;
                 html += `<td>${discount.created}</td>`;
@@ -1252,16 +1264,47 @@
         }
 
         // Add discount
+        // Toggle discount expiry field
+        function toggleDiscountExpiry(checkbox) {
+            const expiryInput = document.getElementById('discount-expiry');
+            if (checkbox.checked) {
+                expiryInput.value = '';
+                expiryInput.disabled = true;
+                expiryInput.style.opacity = '0.5';
+            } else {
+                expiryInput.disabled = false;
+                expiryInput.style.opacity = '1';
+            }
+        }
+
+        function toggleEditDiscountExpiry(checkbox) {
+            const expiryInput = document.getElementById('edit-discount-expiry');
+            if (checkbox.checked) {
+                expiryInput.value = '';
+                expiryInput.disabled = true;
+                expiryInput.style.opacity = '0.5';
+            } else {
+                expiryInput.disabled = false;
+                expiryInput.style.opacity = '1';
+            }
+        }
+
         function addDiscount() {
             const code = document.getElementById('discount-code').value.trim().toUpperCase();
             const percentage = parseInt(document.getElementById('discount-percentage').value);
             const startDate = document.getElementById('discount-start').value;
-            const expiry = document.getElementById('discount-expiry').value;
+            const noExpiry = document.getElementById('discount-no-expiry').checked;
+            const expiry = noExpiry ? '' : document.getElementById('discount-expiry').value;
             const maxUses = parseInt(document.getElementById('discount-max-uses').value);
             const services = document.getElementById('discount-services').value.trim().toUpperCase() || '-';
 
-            if (!code || !percentage || !startDate || !expiry) {
+            if (!code || !percentage || !startDate) {
                 alert('⚠️ Compila tutti i campi obbligatori');
+                return;
+            }
+
+            if (!noExpiry && !expiry) {
+                alert('⚠️ Inserisci una data di scadenza o seleziona "Senza scadenza"');
                 return;
             }
 
@@ -1270,7 +1313,7 @@
                 return;
             }
 
-            if (new Date(startDate) > new Date(expiry)) {
+            if (!noExpiry && new Date(startDate) > new Date(expiry)) {
                 alert('⚠️ La data di inizio deve essere prima della data di scadenza');
                 return;
             }
@@ -1278,8 +1321,7 @@
             // Converti le date in formato italiano
             const startDateObj = new Date(startDate);
             const startFormatted = startDateObj.toLocaleDateString('it-IT');
-            const dateObj = new Date(expiry);
-            const expiryFormatted = dateObj.toLocaleDateString('it-IT');
+            const expiryFormatted = noExpiry ? '♾️ Mai' : new Date(expiry).toLocaleDateString('it-IT');
 
             fetch(GOOGLE_SHEETS_URL, {
                 method: 'POST',
@@ -1302,6 +1344,9 @@
                 document.getElementById('discount-percentage').value = '';
                 document.getElementById('discount-start').value = '';
                 document.getElementById('discount-expiry').value = '';
+                document.getElementById('discount-expiry').disabled = false;
+                document.getElementById('discount-expiry').style.opacity = '1';
+                document.getElementById('discount-no-expiry').checked = false;
                 document.getElementById('discount-max-uses').value = '0';
                 // Reload discounts
                 loadDiscounts();
@@ -1379,10 +1424,25 @@
                 document.getElementById('edit-discount-start').value = '';
             }
             
-            if (expiry) {
-                const expiryParts = expiry.split('/');
-                if (expiryParts.length === 3) {
-                    document.getElementById('edit-discount-expiry').value = `${expiryParts[2]}-${expiryParts[1].padStart(2, '0')}-${expiryParts[0].padStart(2, '0')}`;
+            // Check if no expiry
+            const hasNoExpiry = expiry === '♾️ Mai' || expiry === 'Mai' || !expiry;
+            const noExpiryCheckbox = document.getElementById('edit-discount-no-expiry');
+            const expiryInput = document.getElementById('edit-discount-expiry');
+            
+            if (hasNoExpiry) {
+                noExpiryCheckbox.checked = true;
+                expiryInput.value = '';
+                expiryInput.disabled = true;
+                expiryInput.style.opacity = '0.5';
+            } else {
+                noExpiryCheckbox.checked = false;
+                expiryInput.disabled = false;
+                expiryInput.style.opacity = '1';
+                if (expiry) {
+                    const expiryParts = expiry.split('/');
+                    if (expiryParts.length === 3) {
+                        expiryInput.value = `${expiryParts[2]}-${expiryParts[1].padStart(2, '0')}-${expiryParts[0].padStart(2, '0')}`;
+                    }
                 }
             }
             
@@ -1399,11 +1459,17 @@
             const code = document.getElementById('edit-discount-code-hidden').value;
             const percentage = parseInt(document.getElementById('edit-discount-percentage').value);
             const startDate = document.getElementById('edit-discount-start').value;
-            const expiry = document.getElementById('edit-discount-expiry').value;
+            const noExpiry = document.getElementById('edit-discount-no-expiry').checked;
+            const expiry = noExpiry ? '' : document.getElementById('edit-discount-expiry').value;
             const maxUses = parseInt(document.getElementById('edit-discount-max-uses').value);
 
-            if (!percentage || !startDate || !expiry) {
+            if (!percentage || !startDate) {
                 alert('⚠️ Compila tutti i campi obbligatori');
+                return;
+            }
+
+            if (!noExpiry && !expiry) {
+                alert('⚠️ Inserisci una data di scadenza o seleziona "Senza scadenza"');
                 return;
             }
 
@@ -1412,7 +1478,7 @@
                 return;
             }
 
-            if (new Date(startDate) > new Date(expiry)) {
+            if (!noExpiry && new Date(startDate) > new Date(expiry)) {
                 alert('⚠️ La data di inizio deve essere prima della data di scadenza');
                 return;
             }
@@ -1420,8 +1486,7 @@
             // Converti le date in formato italiano
             const startDateObj = new Date(startDate);
             const startFormatted = startDateObj.toLocaleDateString('it-IT');
-            const dateObj = new Date(expiry);
-            const expiryFormatted = dateObj.toLocaleDateString('it-IT');
+            const expiryFormatted = noExpiry ? '♾️ Mai' : new Date(expiry).toLocaleDateString('it-IT');
 
             fetch(GOOGLE_SHEETS_URL, {
                 method: 'POST',
