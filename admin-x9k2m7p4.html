@@ -688,29 +688,63 @@
                 </div>
             </div>
 
-            <!-- Sezione Restrizioni Codici -->
+            <!-- Sezione Utilizzi Codici -->
             <div class="card" style="margin-top: 2rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-                    <h2>🔒 Restrizioni Codici</h2>
-                    <button class="btn" onclick="openRestrictionModal()" style="background: linear-gradient(135deg, #f72585, #7209b7);">
-                        ➕ Aggiungi Restrizione
-                    </button>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                    <h2>📈 Utilizzi Codici</h2>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                        <input type="text" id="search-usage-discord" placeholder="🔍 Discord ID..." onkeyup="filterUsage()" style="padding: 0.4rem 0.75rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; width: 140px;">
+                        <input type="text" id="search-usage-code" placeholder="🔍 Codice..." onkeyup="filterUsage()" style="padding: 0.4rem 0.75rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; width: 100px;">
+                        <select id="filter-usage-limit" onchange="filterUsage()" style="padding: 0.4rem 0.75rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-family: 'DM Sans', sans-serif;">
+                            <option value="50">Ultimi 50</option>
+                            <option value="100">Ultimi 100</option>
+                            <option value="all">Tutti</option>
+                        </select>
+                        <button class="btn btn-small" onclick="loadUsage()">♻️</button>
+                    </div>
                 </div>
-                <p style="color: var(--text-secondary); margin-bottom: 1.5rem; font-size: 0.9rem;">
-                    Configura chi può usare specifici codici sconto e quante volte.
+                <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.85rem;">
+                    🕵️ Visualizza chi ha usato quali codici. <strong style="color: var(--accent-pink);">Utile per identificare abusi!</strong>
                 </p>
-                <div id="restrictions-list">
-                    <p style="text-align: center; color: var(--text-secondary);">Caricamento restrizioni...</p>
+                <div class="table-container" style="max-height: 350px; overflow-y: auto;">
+                    <div id="usage-list">
+                        <p style="text-align: center; color: var(--text-secondary);">Clicca ♻️ per caricare gli utilizzi</p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Modal Restrizioni -->
-            <div id="restriction-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 9999; align-items: center; justify-content: center;">
-                <div style="background: var(--bg-secondary); padding: 2rem; border-radius: 16px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; border: 1px solid var(--border-color);">
+            <!-- Sezione Restrizioni Codici -->
+            <div class="card" style="margin-top: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                    <h2>🔒 Restrizioni Codici</h2>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center;">
+                        <input type="text" id="search-restrictions" placeholder="🔍 Cerca codice..." onkeyup="filterRestrictions()" style="padding: 0.4rem 0.75rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-family: 'DM Sans', sans-serif; width: 130px;">
+                        <button class="btn" onclick="openRestrictionModal('add')" style="background: linear-gradient(135deg, #f72585, #7209b7); padding: 0.4rem 1rem;">
+                            ➕ Aggiungi
+                        </button>
+                        <button class="btn btn-small" onclick="loadRestrictions()">♻️</button>
+                    </div>
+                </div>
+                <p style="color: var(--text-secondary); margin-bottom: 1rem; font-size: 0.85rem;">
+                    Configura chi può usare specifici codici: <strong style="color: var(--accent-green);">Whitelist</strong> (solo questi), 
+                    <strong style="color: var(--accent-pink);">Blacklist</strong> (escludi), 
+                    <strong style="color: var(--accent-yellow);">Limite</strong> (max N utilizzi per utente).
+                </p>
+                <div id="restrictions-list">
+                    <p style="text-align: center; color: var(--text-secondary);">Clicca ♻️ per caricare le restrizioni</p>
+                </div>
+            </div>
+
+            <!-- Modal Restrizioni (Aggiungi/Modifica) -->
+            <div id="restriction-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center;">
+                <div style="background: var(--bg-secondary); padding: 2rem; border-radius: 16px; max-width: 500px; width: 90%; max-height: 85vh; overflow-y: auto; border: 1px solid var(--accent-cyan);">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                        <h2 style="margin: 0;">🔒 Configura Restrizione</h2>
+                        <h2 id="restriction-modal-title" style="margin: 0;">🔒 Aggiungi Restrizione</h2>
                         <button onclick="closeRestrictionModal()" style="background: none; border: none; color: var(--text-primary); font-size: 1.5rem; cursor: pointer;">&times;</button>
                     </div>
+                    
+                    <input type="hidden" id="restriction-edit-mode" value="add">
+                    <input type="hidden" id="restriction-original-code" value="">
                     
                     <div class="form-group" style="margin-bottom: 1rem;">
                         <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary);">Codice Sconto *</label>
@@ -721,26 +755,31 @@
                         <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary);">Tipo Restrizione</label>
                         <select id="restriction-type" onchange="toggleRestrictionFields()" style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 1rem;">
                             <option value="limit">📊 Limite Utilizzi (max N volte per utente)</option>
-                            <option value="whitelist">✅ Whitelist (solo questi utenti)</option>
-                            <option value="blacklist">❌ Blacklist (escludi questi utenti)</option>
+                            <option value="whitelist">✅ Whitelist (solo questi utenti possono usare)</option>
+                            <option value="blacklist">❌ Blacklist (questi utenti NON possono usare)</option>
                         </select>
                     </div>
                     
                     <div class="form-group" id="restriction-ids-field" style="margin-bottom: 1rem; display: none;">
                         <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary);">Discord IDs (uno per riga)</label>
                         <textarea id="restriction-discord-ids" placeholder="264786119109902338&#10;123456789012345678&#10;987654321098765432" rows="4" style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 0.9rem; resize: vertical;"></textarea>
-                        <small style="color: var(--text-secondary); margin-top: 0.5rem; display: block;">Inserisci un Discord ID per riga</small>
+                        <small style="color: var(--text-secondary); margin-top: 0.5rem; display: block;">💡 Puoi copiare i Discord ID dalla sezione "Utilizzi Codici" sopra</small>
                     </div>
                     
                     <div class="form-group" id="restriction-max-field" style="margin-bottom: 1.5rem;">
                         <label style="display: block; margin-bottom: 0.5rem; color: var(--text-secondary);">Utilizzi Massimi per Utente</label>
                         <input type="number" id="restriction-max-uses" min="1" value="1" style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 1rem;">
-                        <small style="color: var(--text-secondary); margin-top: 0.5rem; display: block;">Quante volte ogni utente può usare questo codice (default: 1)</small>
+                        <small style="color: var(--text-secondary); margin-top: 0.5rem; display: block;">Default: 1 (ogni utente può usare il codice 1 sola volta)</small>
                     </div>
                     
-                    <button onclick="saveRestriction()" style="width: 100%; padding: 1rem; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green)); color: #000; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;">
-                        💾 Salva Restrizione
-                    </button>
+                    <div style="display: flex; gap: 1rem;">
+                        <button onclick="saveRestriction()" style="flex: 1; padding: 1rem; background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green)); color: #000; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;">
+                            💾 Salva
+                        </button>
+                        <button onclick="closeRestrictionModal()" style="padding: 1rem 1.5rem; background: var(--bg-primary); color: var(--text-primary); border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem; cursor: pointer;">
+                            Annulla
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -796,7 +835,7 @@
             if (tabName === 'orders') loadOrders();
             if (tabName === 'expiring') loadExpiringOrders();
             if (tabName === 'cancellations') loadCancellations();
-            if (tabName === 'discounts') { loadDiscounts(); loadRestrictions(); }
+            if (tabName === 'discounts') loadDiscounts();
             if (tabName === 'reviews') loadAdminReviews();
         }
 
@@ -1571,102 +1610,208 @@
             });
         }
 
-        // ==================== RESTRIZIONI CODICI ====================
-
-        function openRestrictionModal() {
-            document.getElementById('restriction-modal').style.display = 'flex';
-            document.getElementById('restriction-code').value = '';
-            document.getElementById('restriction-type').value = 'limit';
-            document.getElementById('restriction-discord-ids').value = '';
-            document.getElementById('restriction-max-uses').value = '1';
-            toggleRestrictionFields();
-        }
-
-        function closeRestrictionModal() {
-            document.getElementById('restriction-modal').style.display = 'none';
-        }
-
-        function toggleRestrictionFields() {
-            const type = document.getElementById('restriction-type').value;
-            const idsField = document.getElementById('restriction-ids-field');
-            const maxField = document.getElementById('restriction-max-field');
+        // ==================== UTILIZZI CODICI ====================
+        
+        let allUsageData = [];
+        
+        function loadUsage() {
+            const container = document.getElementById('usage-list');
+            container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">⏳ Caricamento...</p>';
             
-            if (type === 'limit') {
-                idsField.style.display = 'none';
-                maxField.style.display = 'block';
-            } else {
-                idsField.style.display = 'block';
-                maxField.style.display = 'block';
+            fetch(`${GOOGLE_SHEETS_URL}?type=get_usage`)
+                .then(r => r.json())
+                .then(data => {
+                    allUsageData = data.usages || [];
+                    filterUsage();
+                })
+                .catch(err => {
+                    console.error('Errore:', err);
+                    container.innerHTML = '<p style="text-align: center; color: var(--accent-pink);">❌ Errore nel caricamento. Il foglio "Utilizzi_Codici" potrebbe non esistere ancora.</p>';
+                });
+        }
+        
+        function filterUsage() {
+            const container = document.getElementById('usage-list');
+            const searchDiscord = document.getElementById('search-usage-discord').value.trim().toLowerCase();
+            const searchCode = document.getElementById('search-usage-code').value.trim().toUpperCase();
+            const limitSelect = document.getElementById('filter-usage-limit').value;
+            
+            let filtered = allUsageData.filter(u => {
+                const matchDiscord = !searchDiscord || (u.discordId && u.discordId.toLowerCase().includes(searchDiscord));
+                const matchCode = !searchCode || (u.code && u.code.toUpperCase().includes(searchCode));
+                return matchDiscord && matchCode;
+            });
+            
+            // Ordina per data (più recente prima)
+            filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            // Limita risultati
+            if (limitSelect !== 'all') {
+                filtered = filtered.slice(0, parseInt(limitSelect));
             }
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📭</div>
+                        <p>Nessun utilizzo trovato</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Conta utilizzi per utente (per evidenziare potenziali abusi)
+            const usageCountByUser = {};
+            allUsageData.forEach(u => {
+                usageCountByUser[u.discordId] = (usageCountByUser[u.discordId] || 0) + 1;
+            });
+            
+            let html = '<table style="width: 100%; font-size: 0.85rem;"><thead><tr>';
+            html += '<th>Discord ID</th><th>Codice</th><th>Data</th><th>Servizio</th><th>Tot. Utilizzi</th></tr></thead><tbody>';
+            
+            filtered.forEach(u => {
+                const userTotal = usageCountByUser[u.discordId] || 1;
+                const isAbuser = userTotal >= 5; // 5+ utilizzi = potenziale abuso
+                const rowStyle = isAbuser ? 'background: rgba(255, 0, 110, 0.15);' : '';
+                const dateStr = u.date ? new Date(u.date).toLocaleString('it-IT', {day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit'}) : '-';
+                
+                html += `<tr style="${rowStyle}">`;
+                html += `<td style="font-family: monospace; font-size: 0.75rem;">${u.discordId || '-'}</td>`;
+                html += `<td><strong>${u.code || '-'}</strong></td>`;
+                html += `<td>${dateStr}</td>`;
+                html += `<td>${u.service || '-'}</td>`;
+                html += `<td style="text-align: center; ${isAbuser ? 'color: var(--accent-pink); font-weight: bold;' : ''}">${userTotal}${isAbuser ? ' ⚠️' : ''}</td>`;
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table>';
+            html += `<p style="margin-top: 0.75rem; color: var(--text-secondary); font-size: 0.8rem;">Totale: ${filtered.length} utilizzi mostrati. Le righe in rosa indicano utenti con 5+ utilizzi totali.</p>`;
+            
+            container.innerHTML = html;
         }
 
+        // ==================== RESTRIZIONI CODICI ====================
+        
+        let allRestrictionsData = [];
+        
         function loadRestrictions() {
             const container = document.getElementById('restrictions-list');
-            container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Caricamento...</p>';
+            container.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">⏳ Caricamento...</p>';
             
             fetch(`${GOOGLE_SHEETS_URL}?type=get_restrictions`)
                 .then(r => r.json())
                 .then(data => {
-                    const restrictions = data.restrictions || [];
-                    
-                    if (restrictions.length === 0) {
-                        container.innerHTML = `
-                            <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
-                                <div style="font-size: 3rem; margin-bottom: 1rem;">🔓</div>
-                                <p>Nessuna restrizione configurata</p>
-                                <p style="font-size: 0.85rem; margin-top: 0.5rem;">Clicca "Aggiungi Restrizione" per limitare chi può usare specifici codici</p>
-                            </div>
-                        `;
-                        return;
-                    }
-                    
-                    let html = '<div style="display: grid; gap: 1rem;">';
-                    
-                    restrictions.forEach(r => {
-                        const typeLabel = r.type === 'whitelist' ? '✅ Whitelist' : 
-                                         r.type === 'blacklist' ? '❌ Blacklist' : 
-                                         '📊 Limite';
-                        
-                        const typeColor = r.type === 'whitelist' ? 'var(--accent-green)' : 
-                                         r.type === 'blacklist' ? 'var(--accent-pink)' : 
-                                         'var(--accent-yellow)';
-                        
-                        const discordIdsList = (r.discordIds || []).slice(0, 3).join(', ');
-                        const moreCount = (r.discordIds || []).length > 3 ? ` +${r.discordIds.length - 3} altri` : '';
-                        
-                        html += `
-                            <div style="background: var(--bg-primary); padding: 1.25rem; border-radius: 12px; border-left: 4px solid ${typeColor}; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
-                                <div>
-                                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
-                                        <strong style="font-size: 1.1rem; color: var(--text-primary);">${r.code}</strong>
-                                        <span style="background: ${typeColor}; color: #000; padding: 0.25rem 0.75rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">${typeLabel}</span>
-                                    </div>
-                                    ${r.type !== 'limit' ? `
-                                        <div style="color: var(--text-secondary); font-size: 0.85rem;">
-                                            <strong>Utenti (${(r.discordIds || []).length}):</strong> ${discordIdsList}${moreCount}
-                                        </div>
-                                    ` : ''}
-                                    <div style="color: var(--text-secondary); font-size: 0.85rem;">
-                                        <strong>Max utilizzi/utente:</strong> ${r.maxUsesPerUser || 1}
-                                    </div>
-                                </div>
-                                <button onclick="deleteRestriction('${r.code}')" style="background: var(--accent-pink); border: none; color: white; padding: 0.5rem 1rem; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 500;">
-                                    🗑️ Elimina
-                                </button>
-                            </div>
-                        `;
-                    });
-                    
-                    html += '</div>';
-                    container.innerHTML = html;
+                    allRestrictionsData = data.restrictions || [];
+                    filterRestrictions();
                 })
                 .catch(err => {
-                    console.error('Errore caricamento restrizioni:', err);
-                    container.innerHTML = '<p style="text-align: center; color: var(--accent-pink);">Errore nel caricamento</p>';
+                    console.error('Errore:', err);
+                    container.innerHTML = '<p style="text-align: center; color: var(--accent-pink);">❌ Errore nel caricamento.</p>';
                 });
         }
-
+        
+        function filterRestrictions() {
+            const container = document.getElementById('restrictions-list');
+            const searchCode = document.getElementById('search-restrictions').value.trim().toUpperCase();
+            
+            let filtered = allRestrictionsData.filter(r => {
+                return !searchCode || (r.code && r.code.toUpperCase().includes(searchCode));
+            });
+            
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔓</div>
+                        <p>Nessuna restrizione configurata</p>
+                        <p style="font-size: 0.85rem; margin-top: 0.5rem;">Clicca "➕ Aggiungi" per limitare chi può usare specifici codici</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = '<div style="display: grid; gap: 1rem;">';
+            
+            filtered.forEach(r => {
+                const typeLabel = r.type === 'whitelist' ? '✅ Whitelist' : 
+                                 r.type === 'blacklist' ? '❌ Blacklist' : 
+                                 '📊 Limite';
+                
+                const typeColor = r.type === 'whitelist' ? 'var(--accent-green)' : 
+                                 r.type === 'blacklist' ? 'var(--accent-pink)' : 
+                                 'var(--accent-yellow)';
+                
+                const discordIds = r.discordIds || [];
+                const discordIdsList = discordIds.slice(0, 3).join(', ');
+                const moreCount = discordIds.length > 3 ? ` +${discordIds.length - 3} altri` : '';
+                
+                html += `
+                    <div style="background: var(--bg-primary); padding: 1rem; border-radius: 12px; border-left: 4px solid ${typeColor};">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.75rem;">
+                            <div style="flex: 1; min-width: 200px;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                                    <strong style="font-size: 1.1rem; color: var(--text-primary);">${r.code}</strong>
+                                    <span style="background: ${typeColor}; color: #000; padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.75rem; font-weight: 600;">${typeLabel}</span>
+                                </div>
+                                ${r.type !== 'limit' && discordIds.length > 0 ? `
+                                    <div style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 0.25rem;">
+                                        <strong>Utenti (${discordIds.length}):</strong> ${discordIdsList}${moreCount}
+                                    </div>
+                                ` : ''}
+                                <div style="color: var(--text-secondary); font-size: 0.8rem;">
+                                    <strong>Max utilizzi/utente:</strong> ${r.maxUsesPerUser || 1}
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button onclick="openRestrictionModal('edit', '${r.code}', '${r.type}', '${(discordIds).join('\\n')}', ${r.maxUsesPerUser || 1})" style="background: var(--accent-cyan); border: none; color: #000; padding: 0.4rem 0.75rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 500;">
+                                    ✏️ Modifica
+                                </button>
+                                <button onclick="deleteRestriction('${r.code}')" style="background: var(--accent-pink); border: none; color: white; padding: 0.4rem 0.75rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 500;">
+                                    🗑️
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            html += '</div>';
+            container.innerHTML = html;
+        }
+        
+        function openRestrictionModal(mode, code = '', type = 'limit', discordIds = '', maxUses = 1) {
+            document.getElementById('restriction-edit-mode').value = mode;
+            document.getElementById('restriction-original-code').value = code;
+            document.getElementById('restriction-modal-title').textContent = mode === 'edit' ? '✏️ Modifica Restrizione' : '🔒 Aggiungi Restrizione';
+            
+            document.getElementById('restriction-code').value = code;
+            document.getElementById('restriction-code').disabled = (mode === 'edit');
+            document.getElementById('restriction-type').value = type;
+            document.getElementById('restriction-discord-ids').value = discordIds.replace(/\\n/g, '\n');
+            document.getElementById('restriction-max-uses').value = maxUses;
+            
+            toggleRestrictionFields();
+            document.getElementById('restriction-modal').style.display = 'flex';
+        }
+        
+        function closeRestrictionModal() {
+            document.getElementById('restriction-modal').style.display = 'none';
+            document.getElementById('restriction-code').disabled = false;
+        }
+        
+        function toggleRestrictionFields() {
+            const type = document.getElementById('restriction-type').value;
+            const idsField = document.getElementById('restriction-ids-field');
+            
+            if (type === 'limit') {
+                idsField.style.display = 'none';
+            } else {
+                idsField.style.display = 'block';
+            }
+        }
+        
         function saveRestriction() {
+            const mode = document.getElementById('restriction-edit-mode').value;
+            const originalCode = document.getElementById('restriction-original-code').value;
             const code = document.getElementById('restriction-code').value.trim().toUpperCase();
             const type = document.getElementById('restriction-type').value;
             const maxUses = parseInt(document.getElementById('restriction-max-uses').value) || 1;
@@ -1682,52 +1827,58 @@
                 discordIds = idsText.split('\n').map(id => id.trim()).filter(id => id && /^\d+$/.test(id));
                 
                 if (discordIds.length === 0) {
-                    alert('⚠️ Inserisci almeno un Discord ID valido');
+                    alert('⚠️ Inserisci almeno un Discord ID valido (solo numeri)');
                     return;
                 }
             }
             
-            fetch(GOOGLE_SHEETS_URL, {
-                method: 'POST',
-                body: JSON.stringify({
-                    type: 'add_restriction',
-                    code: code,
-                    restrictionType: type,
-                    discordIds: discordIds,
-                    maxUsesPerUser: maxUses
+            // Se è edit, prima elimina la vecchia
+            const deleteFirst = mode === 'edit' && originalCode;
+            
+            const doSave = () => {
+                fetch(GOOGLE_SHEETS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        type: 'add_restriction',
+                        code: code,
+                        restrictionType: type,
+                        discordIds: discordIds,
+                        maxUsesPerUser: maxUses
+                    })
                 })
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
+                .then(r => r.json())
+                .then(data => {
                     alert('✅ Restrizione salvata!');
                     closeRestrictionModal();
                     loadRestrictions();
-                } else {
-                    alert('❌ Errore: ' + (data.error || 'Impossibile salvare'));
-                }
-            })
-            .catch(err => {
-                console.error('Errore:', err);
-                alert('✅ Restrizione salvata! (Ricarica per confermare)');
-                closeRestrictionModal();
-                loadRestrictions();
-            });
+                })
+                .catch(err => {
+                    console.error('Errore:', err);
+                    alert('✅ Restrizione salvata! (Ricarica per confermare)');
+                    closeRestrictionModal();
+                    loadRestrictions();
+                });
+            };
+            
+            if (deleteFirst) {
+                fetch(GOOGLE_SHEETS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ type: 'delete_restriction', code: originalCode })
+                }).then(() => doSave()).catch(() => doSave());
+            } else {
+                doSave();
+            }
         }
-
+        
         function deleteRestriction(code) {
             if (!confirm(`Sei sicuro di voler eliminare la restrizione per "${code}"?`)) return;
             
             fetch(GOOGLE_SHEETS_URL, {
                 method: 'POST',
-                body: JSON.stringify({
-                    type: 'delete_restriction',
-                    code: code
-                })
+                body: JSON.stringify({ type: 'delete_restriction', code: code })
             })
-            .then(r => r.json())
-            .then(data => {
-                alert('✅ Restrizione eliminata');
+            .then(() => {
+                alert('✅ Restrizione eliminata!');
                 loadRestrictions();
             })
             .catch(err => {

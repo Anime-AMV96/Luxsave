@@ -1,128 +1,152 @@
 /**
  * LUXSAVE - Google Apps Script
  * 
- * ISTRUZIONI PER AGGIORNAMENTO (se hai già il foglio):
- * 1. Vai su Estensioni > Apps Script
- * 2. Cancella tutto il codice VECCHIO
- * 3. Incolla questo codice NUOVO
+ * ISTRUZIONI:
+ * 1. Crea un nuovo Google Sheets
+ * 2. Vai su Estensioni > Apps Script
+ * 3. Cancella tutto e incolla questo codice
  * 4. Salva (Ctrl+S)
- * 5. Distribuisci > Gestisci distribuzioni > Modifica (matita) > Nuova versione > Distribuisci
- * 
- * NON eseguire setupSpreadsheet() se hai già dati!
- * I nuovi fogli (Utilizzi_Codici, Restrizioni_Codici) verranno creati automaticamente quando servono.
+ * 5. Seleziona "setupSpreadsheet" dal menu e clicca Esegui
+ * 6. Autorizza quando richiesto
+ * 7. Distribuisci > Nuova distribuzione > App web > Chiunque
+ * 8. Copia l'URL nei file HTML
  */
 
 const DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1460653071880159334/gvLic40YxD1BfM9Tp40jjr3-wU6lbVwaxmxvEkxOJVMCeHEpDblsONg63akvM_NFNiY6';
 
-// ==================== SETUP (SOLO PER NUOVI FOGLI) ====================
+// ==================== SETUP ====================
 
 function setupSpreadsheet() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   
-  // NOTA: Questo setup NON cancella i fogli esistenti!
-  // Crea solo i fogli che non esistono
+  // Elimina tutti i fogli esistenti tranne uno
+  const sheets = ss.getSheets();
+  
+  // Crea i fogli nell'ordine giusto
   
   // 1. ORDINI
   let ordiniSheet = ss.getSheetByName('Ordini');
   if (!ordiniSheet) {
     ordiniSheet = ss.insertSheet('Ordini');
-    ordiniSheet.getRange(1, 1, 1, 11).setValues([[
-      'ID', 'Data', 'Servizio', 'Piano', 'Durata', 'Prezzo', 'Sconto', 'Totale', 'Discord ID', 'Note', 'Stato'
-    ]]);
-    ordiniSheet.getRange(1, 1, 1, 11).setFontWeight('bold').setBackground('#00fff7').setFontColor('#000000');
-    ordiniSheet.setFrozenRows(1);
   }
+  ordiniSheet.clear();
+  ordiniSheet.getRange(1, 1, 1, 11).setValues([[
+    'ID', 'Data', 'Servizio', 'Piano', 'Durata', 'Prezzo', 'Sconto', 'Totale', 'Discord ID', 'Note', 'Stato'
+  ]]);
+  ordiniSheet.getRange(1, 1, 1, 11).setFontWeight('bold').setBackground('#00fff7').setFontColor('#000000');
+  ordiniSheet.setFrozenRows(1);
   
   // 2. DISDETTE
   let disdetteSheet = ss.getSheetByName('Disdette');
   if (!disdetteSheet) {
     disdetteSheet = ss.insertSheet('Disdette');
-    disdetteSheet.getRange(1, 1, 1, 6).setValues([[
-      'ID', 'Data', 'Discord ID', 'Servizio', 'Motivo', 'Stato'
-    ]]);
-    disdetteSheet.getRange(1, 1, 1, 6).setFontWeight('bold').setBackground('#ff006e').setFontColor('#ffffff');
-    disdetteSheet.setFrozenRows(1);
   }
+  disdetteSheet.clear();
+  disdetteSheet.getRange(1, 1, 1, 6).setValues([[
+    'ID', 'Data', 'Discord ID', 'Servizio', 'Motivo', 'Stato'
+  ]]);
+  disdetteSheet.getRange(1, 1, 1, 6).setFontWeight('bold').setBackground('#ff006e').setFontColor('#ffffff');
+  disdetteSheet.setFrozenRows(1);
   
   // 3. CODICI_SCONTO
   let codiciSheet = ss.getSheetByName('Codici_Sconto');
   if (!codiciSheet) {
     codiciSheet = ss.insertSheet('Codici_Sconto');
-    codiciSheet.getRange(1, 1, 1, 9).setValues([[
-      'Codice', 'Percentuale', 'Data Inizio', 'Data Scadenza', 'Max Utilizzi', 'Utilizzi Attuali', 'Servizi', 'Creato il', 'Attivo'
-    ]]);
-    codiciSheet.getRange(1, 1, 1, 9).setFontWeight('bold').setBackground('#ffbe0b').setFontColor('#000000');
-    codiciSheet.setFrozenRows(1);
   }
+  codiciSheet.clear();
+  codiciSheet.getRange(1, 1, 1, 9).setValues([[
+    'Codice', 'Percentuale', 'Data Inizio', 'Data Scadenza', 'Max Utilizzi', 'Utilizzi Attuali', 'Servizi', 'Creato il', 'Attivo'
+  ]]);
+  codiciSheet.getRange(1, 1, 1, 9).setFontWeight('bold').setBackground('#ffbe0b').setFontColor('#000000');
+  codiciSheet.setFrozenRows(1);
   
-  // 4. STATISTICHE
+  // 4. STATISTICHE (ultimo perché usa riferimenti agli altri fogli)
   let statsSheet = ss.getSheetByName('Statistiche');
   if (!statsSheet) {
     statsSheet = ss.insertSheet('Statistiche');
-    statsSheet.getRange('A1').setValue('📊 STATISTICHE LUXSAVE');
-    statsSheet.getRange('A3').setValue('📦 ORDINI');
-    statsSheet.getRange('A4').setValue('Totale Ordini');
-    statsSheet.getRange('A5').setValue('Ordini In Attesa');
-    statsSheet.getRange('A6').setValue('Ordini Completati');
-    statsSheet.getRange('A7').setValue('Ordini Annullati');
-    statsSheet.getRange('A9').setValue('💰 RICAVI');
-    statsSheet.getRange('A10').setValue('Ricavi Totali');
-    statsSheet.getRange('A11').setValue('Ricavi In Attesa');
-    statsSheet.getRange('A13').setValue('🎟️ CODICI SCONTO');
-    statsSheet.getRange('A14').setValue('Codici Attivi');
-    statsSheet.getRange('A15').setValue('Codici Disattivati');
-    statsSheet.getRange('A16').setValue('Totale Utilizzi');
-    statsSheet.getRange('A18').setValue('❌ DISDETTE');
-    statsSheet.getRange('A19').setValue('Totale Disdette');
-    statsSheet.getRange('A20').setValue('Disdette In Attesa');
-    statsSheet.getRange('A21').setValue('Disdette Elaborate');
-    
-    // Valori iniziali a 0
-    statsSheet.getRange('B4').setValue(0);
-    statsSheet.getRange('B5').setValue(0);
-    statsSheet.getRange('B6').setValue(0);
-    statsSheet.getRange('B7').setValue(0);
-    statsSheet.getRange('B10').setValue(0);
-    statsSheet.getRange('B11').setValue(0);
-    statsSheet.getRange('B14').setValue(0);
-    statsSheet.getRange('B15').setValue(0);
-    statsSheet.getRange('B16').setValue(0);
-    statsSheet.getRange('B19').setValue(0);
-    statsSheet.getRange('B20').setValue(0);
-    statsSheet.getRange('B21').setValue(0);
-    
-    // Formattazione
-    statsSheet.getRange('A1:B1').merge().setFontSize(18).setFontWeight('bold').setBackground('#00fff7').setFontColor('#000000').setHorizontalAlignment('center');
-    statsSheet.getRange('A3:B3').merge().setFontWeight('bold').setBackground('#4285f4').setFontColor('#ffffff');
-    statsSheet.getRange('A9:B9').merge().setFontWeight('bold').setBackground('#3bff85').setFontColor('#000000');
-    statsSheet.getRange('A13:B13').merge().setFontWeight('bold').setBackground('#ffbe0b').setFontColor('#000000');
-    statsSheet.getRange('A18:B18').merge().setFontWeight('bold').setBackground('#ff006e').setFontColor('#ffffff');
-    
-    statsSheet.setColumnWidth(1, 200);
-    statsSheet.setColumnWidth(2, 150);
   }
+  statsSheet.clear();
   
-  // 5. UTILIZZI_CODICI (traccia chi usa quale codice) - NUOVO
+  // Etichette
+  statsSheet.getRange('A1').setValue('📊 STATISTICHE LUXSAVE');
+  statsSheet.getRange('A3').setValue('📦 ORDINI');
+  statsSheet.getRange('A4').setValue('Totale Ordini');
+  statsSheet.getRange('A5').setValue('Ordini In Attesa');
+  statsSheet.getRange('A6').setValue('Ordini Completati');
+  statsSheet.getRange('A7').setValue('Ordini Annullati');
+  statsSheet.getRange('A9').setValue('💰 RICAVI');
+  statsSheet.getRange('A10').setValue('Ricavi Totali');
+  statsSheet.getRange('A11').setValue('Ricavi In Attesa');
+  statsSheet.getRange('A13').setValue('🎟️ CODICI SCONTO');
+  statsSheet.getRange('A14').setValue('Codici Attivi');
+  statsSheet.getRange('A15').setValue('Codici Disattivati');
+  statsSheet.getRange('A16').setValue('Totale Utilizzi');
+  statsSheet.getRange('A18').setValue('❌ DISDETTE');
+  statsSheet.getRange('A19').setValue('Totale Disdette');
+  statsSheet.getRange('A20').setValue('Disdette In Attesa');
+  statsSheet.getRange('A21').setValue('Disdette Elaborate');
+  
+  // Valori iniziali a 0 (senza formule per evitare errori)
+  statsSheet.getRange('B4').setValue(0);
+  statsSheet.getRange('B5').setValue(0);
+  statsSheet.getRange('B6').setValue(0);
+  statsSheet.getRange('B7').setValue(0);
+  statsSheet.getRange('B10').setValue(0);
+  statsSheet.getRange('B11').setValue(0);
+  statsSheet.getRange('B14').setValue(0);
+  statsSheet.getRange('B15').setValue(0);
+  statsSheet.getRange('B16').setValue(0);
+  statsSheet.getRange('B19').setValue(0);
+  statsSheet.getRange('B20').setValue(0);
+  statsSheet.getRange('B21').setValue(0);
+  
+  // Formattazione
+  statsSheet.getRange('A1:B1').merge().setFontSize(18).setFontWeight('bold').setBackground('#00fff7').setFontColor('#000000').setHorizontalAlignment('center');
+  statsSheet.getRange('A3:B3').merge().setFontWeight('bold').setBackground('#4285f4').setFontColor('#ffffff');
+  statsSheet.getRange('A9:B9').merge().setFontWeight('bold').setBackground('#3bff85').setFontColor('#000000');
+  statsSheet.getRange('A13:B13').merge().setFontWeight('bold').setBackground('#ffbe0b').setFontColor('#000000');
+  statsSheet.getRange('A18:B18').merge().setFontWeight('bold').setBackground('#ff006e').setFontColor('#ffffff');
+  
+  statsSheet.setColumnWidth(1, 200);
+  statsSheet.setColumnWidth(2, 150);
+  
+  // 5. UTILIZZI_CODICI (traccia chi usa quale codice)
   let utilizziSheet = ss.getSheetByName('Utilizzi_Codici');
   if (!utilizziSheet) {
     utilizziSheet = ss.insertSheet('Utilizzi_Codici');
-    utilizziSheet.getRange(1, 1, 1, 5).setValues([[
-      'Discord ID', 'Codice', 'Data Utilizzo', 'Ordine ID', 'Servizio'
-    ]]);
-    utilizziSheet.getRange(1, 1, 1, 5).setFontWeight('bold').setBackground('#9b5de5').setFontColor('#ffffff');
-    utilizziSheet.setFrozenRows(1);
   }
+  utilizziSheet.clear();
+  utilizziSheet.getRange(1, 1, 1, 5).setValues([[
+    'Discord ID', 'Codice', 'Data Utilizzo', 'Ordine ID', 'Servizio'
+  ]]);
+  utilizziSheet.getRange(1, 1, 1, 5).setFontWeight('bold').setBackground('#9b5de5').setFontColor('#ffffff');
+  utilizziSheet.setFrozenRows(1);
   
-  // 6. RESTRIZIONI_CODICI (whitelist/blacklist/limiti per codice) - NUOVO
+  // 6. RESTRIZIONI_CODICI (whitelist/blacklist/limiti per codice)
   let restrizioniSheet = ss.getSheetByName('Restrizioni_Codici');
   if (!restrizioniSheet) {
     restrizioniSheet = ss.insertSheet('Restrizioni_Codici');
-    restrizioniSheet.getRange(1, 1, 1, 5).setValues([[
-      'Codice', 'Tipo Restrizione', 'Discord IDs (separati da virgola)', 'Max Utilizzi Per Utente', 'Data Creazione'
-    ]]);
-    restrizioniSheet.getRange(1, 1, 1, 5).setFontWeight('bold').setBackground('#f72585').setFontColor('#ffffff');
-    restrizioniSheet.setFrozenRows(1);
   }
+  restrizioniSheet.clear();
+  restrizioniSheet.getRange(1, 1, 1, 5).setValues([[
+    'Codice', 'Tipo Restrizione', 'Discord IDs (separati da virgola)', 'Max Utilizzi Per Utente', 'Data Creazione'
+  ]]);
+  restrizioniSheet.getRange(1, 1, 1, 5).setFontWeight('bold').setBackground('#f72585').setFontColor('#ffffff');
+  restrizioniSheet.setFrozenRows(1);
+  
+  // Riordina i fogli: Statistiche, Ordini, Disdette, Codici_Sconto, Utilizzi_Codici, Restrizioni_Codici
+  statsSheet.activate();
+  ss.moveActiveSheet(1);
+  ordiniSheet.activate();
+  ss.moveActiveSheet(2);
+  disdetteSheet.activate();
+  ss.moveActiveSheet(3);
+  codiciSheet.activate();
+  ss.moveActiveSheet(4);
+  utilizziSheet.activate();
+  ss.moveActiveSheet(5);
+  restrizioniSheet.activate();
+  ss.moveActiveSheet(6);
   
   // Elimina Foglio1 se esiste
   const foglio1 = ss.getSheetByName('Foglio1');
@@ -130,7 +154,10 @@ function setupSpreadsheet() {
     try { ss.deleteSheet(foglio1); } catch(e) {}
   }
   
-  return { success: true, message: 'Setup completato! I fogli esistenti NON sono stati modificati.' };
+  // Torna a Statistiche
+  statsSheet.activate();
+  
+  return { success: true, message: 'Setup completato!' };
 }
 
 // ==================== API ====================
@@ -145,6 +172,7 @@ function doGet(e) {
       case 'get_all_discounts': return jsonResponse(getDiscounts());
       case 'get_cancellations': return jsonResponse(getCancellations());
       case 'get_restrictions': return jsonResponse(getRestrictions());
+      case 'get_usage': return jsonResponse(getAllUsage());
       case 'get_code_usage': return jsonResponse(getCodeUsage(e.parameter.code, e.parameter.discord_id));
       default: return jsonResponse({ error: 'Invalid type' });
     }
@@ -595,6 +623,29 @@ function deleteRestriction(code) {
   }
   
   return { success: false, error: 'Restrizione non trovata' };
+}
+
+function getAllUsage() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Utilizzi_Codici');
+  if (!sheet) return { usages: [] };
+  
+  const data = sheet.getDataRange().getValues();
+  const usages = [];
+  
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][0]) { // Skip empty rows
+      usages.push({
+        discordId: data[i][0] ? data[i][0].toString() : '',
+        code: data[i][1] || '',
+        date: data[i][2] || '',
+        orderId: data[i][3] || '',
+        service: data[i][4] || ''
+      });
+    }
+  }
+  
+  return { usages };
 }
 
 function getCodeUsage(code, discordId) {
