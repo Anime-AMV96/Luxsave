@@ -204,6 +204,7 @@ function doPost(e) {
       case 'add_restriction': result = addRestriction(data); break;
       case 'delete_restriction': result = deleteRestriction(data.code); break;
       case 'get_code_usage': result = getCodeUsage(data.code, data.discord_id); break;
+      case 'delete_usage': result = deleteUsage(data.discord_id, data.code, data.date); break;
       default: result = { error: 'Invalid type' };
     }
     
@@ -697,6 +698,48 @@ function getCodeUsage(code, discordId) {
   }
   
   return { count: usages.length, usages };
+}
+
+// Elimina un utilizzo specifico
+function deleteUsage(discordId, code, date) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Utilizzi_Codici');
+  if (!sheet) return { success: false, error: 'Foglio Utilizzi_Codici non trovato' };
+  
+  const data = sheet.getDataRange().getValues();
+  
+  for (let i = 1; i < data.length; i++) {
+    // Confronta Discord ID e Codice (la data potrebbe avere problemi di formato)
+    if (data[i][0] === discordId && data[i][1] === code) {
+      // Se è specificata una data, verifica anche quella
+      if (date) {
+        const rowDate = data[i][2] ? new Date(data[i][2]).toISOString() : '';
+        const searchDate = new Date(date).toISOString();
+        if (rowDate !== searchDate) continue;
+      }
+      
+      sheet.deleteRow(i + 1);
+      
+      // Decrementa anche il contatore utilizzi nel codice sconto
+      const codiciSheet = ss.getSheetByName('Codici_Sconto');
+      if (codiciSheet) {
+        const codiciData = codiciSheet.getDataRange().getValues();
+        for (let j = 1; j < codiciData.length; j++) {
+          if (codiciData[j][0] === code) {
+            const currentUses = codiciData[j][5] || 0;
+            if (currentUses > 0) {
+              codiciSheet.getRange(j + 1, 6).setValue(currentUses - 1);
+            }
+            break;
+          }
+        }
+      }
+      
+      return { success: true, message: 'Utilizzo eliminato!' };
+    }
+  }
+  
+  return { success: false, error: 'Utilizzo non trovato' };
 }
 
 // ==================== DISDETTE ====================

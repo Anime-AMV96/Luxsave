@@ -943,9 +943,11 @@
                     filteredOrders.forEach(order => {
                         const status = order.status || 'Pending';
                         const badgeClass = status === 'Completato' ? 'badge-completed' : 
-                                         status === 'Cancellato' ? 'badge-cancelled' : 'badge-pending';
+                                         status === 'Cancellato' ? 'badge-cancelled' : 
+                                         status === 'Pagato' ? 'badge-completed' : 'badge-pending';
                         
-                        const isPaid = order.paid === 'SI';
+                        // isPaid è true se lo status è "Pagato" o "Completato"
+                        const isPaid = status === 'Pagato' || status === 'Completato';
                         const paidBadgeClass = isPaid ? 'badge-completed' : 'badge-pending';
                         const paidText = isPaid ? '✅ SI' : '❌ NO';
                         
@@ -993,8 +995,14 @@
                             html += `<button class="btn btn-small btn-success" onclick="markAsPaid('${order.id}')">💰 Pagato</button>`;
                         }
                         
-                        if (status === 'Pending' && isPaid) {
+                        // Mostra "Completa" se è pagato ma non ancora completato
+                        if (status === 'Pagato') {
                             html += `<button class="btn btn-small btn-success" onclick="updateOrderStatus('${order.id}', 'Completato')">✅ Completa</button>`;
+                        }
+                        
+                        // Mostra "Annulla" se non è completato
+                        if (status !== 'Completato' && status !== 'Cancellato') {
+                            html += `<button class="btn btn-small btn-warning" onclick="updateOrderStatus('${order.id}', 'Cancellato')">❌ Annulla</button>`;
                         }
                         
                         html += `<button class="btn btn-small btn-danger" onclick="deleteOrder('${order.id}')">🗑️ Elimina</button>`;
@@ -1671,9 +1679,9 @@
             });
             
             let html = '<table style="width: 100%; font-size: 0.85rem;"><thead><tr>';
-            html += '<th>Discord ID</th><th>Codice</th><th>Data</th><th>Servizio</th><th>Tot. Utilizzi</th></tr></thead><tbody>';
+            html += '<th>Discord ID</th><th>Codice</th><th>Data</th><th>Servizio</th><th>Tot. Utilizzi</th><th>Azioni</th></tr></thead><tbody>';
             
-            filtered.forEach(u => {
+            filtered.forEach((u, index) => {
                 const userTotal = usageCountByUser[u.discordId] || 1;
                 const isAbuser = userTotal >= 5; // 5+ utilizzi = potenziale abuso
                 const rowStyle = isAbuser ? 'background: rgba(255, 0, 110, 0.15);' : '';
@@ -1685,6 +1693,7 @@
                 html += `<td>${dateStr}</td>`;
                 html += `<td>${u.service || '-'}</td>`;
                 html += `<td style="text-align: center; ${isAbuser ? 'color: var(--accent-pink); font-weight: bold;' : ''}">${userTotal}${isAbuser ? ' ⚠️' : ''}</td>`;
+                html += `<td><button class="btn btn-small btn-danger" onclick="deleteUsage('${u.discordId}', '${u.code}', '${u.date}')" title="Elimina questo utilizzo">🗑️</button></td>`;
                 html += '</tr>';
             });
             
@@ -1692,6 +1701,34 @@
             html += `<p style="margin-top: 0.75rem; color: var(--text-secondary); font-size: 0.8rem;">Totale: ${filtered.length} utilizzi mostrati. Le righe in rosa indicano utenti con 5+ utilizzi totali.</p>`;
             
             container.innerHTML = html;
+        }
+        
+        // Elimina un utilizzo specifico
+        function deleteUsage(discordId, code, date) {
+            if (!confirm(`Eliminare l'utilizzo del codice "${code}" da parte di ${discordId}?\n\nQuesto permetterà all'utente di riutilizzare il codice.`)) return;
+            
+            fetch(GOOGLE_SHEETS_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    type: 'delete_usage',
+                    discord_id: discordId,
+                    code: code,
+                    date: date
+                })
+            })
+            .then(r => r.json())
+            .then(result => {
+                if (result.success) {
+                    alert('✅ Utilizzo eliminato!');
+                    loadUsage();
+                } else {
+                    alert('❌ Errore: ' + (result.error || 'Impossibile eliminare'));
+                }
+            })
+            .catch(err => {
+                console.error('Errore:', err);
+                alert('❌ Errore di connessione');
+            });
         }
 
         // ==================== RESTRIZIONI CODICI ====================
