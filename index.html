@@ -3515,6 +3515,28 @@
                 console.log('Google Sheets (atteso):', err);
             });
 
+            // ===== REGISTRA UTILIZZO CODICE SCONTO =====
+            if (discountApplied && discountApplied.code && discordId) {
+                fetch(GOOGLE_SHEETS_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        type: 'use_discount',
+                        code: discountApplied.code,
+                        discord_id: discordId,
+                        service: modalTitle || serviceType
+                    })
+                }).then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        console.log('Utilizzo codice registrato:', discountApplied.code);
+                    } else {
+                        console.log('Registrazione utilizzo:', result.error);
+                    }
+                }).catch(err => {
+                    console.log('Errore registrazione utilizzo:', err);
+                });
+            }
+
             // Invia ordine a Discord
             fetch('https://discord.com/api/webhooks/1460653071880159334/gvLic40YxD1BfM9Tp40jjr3-wU6lbVwaxmxvEkxOJVMCeHEpDblsONg63akvM_NFNiY6', {
                 method: 'POST',
@@ -3774,7 +3796,66 @@
                         return;
                     }
 
-                    // ========== CHECK SERVIZIO SPECIFICO ==========
+                    // ===== VERIFICA SERVER-SIDE SE L'UTENTE HA GIÀ USATO IL CODICE =====
+                    const discordId = currentUser.discord_id;
+                    fetch(GOOGLE_SHEETS_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            type: 'get_code_usage',
+                            code: code,
+                            discord_id: discordId
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(usageResult => {
+                        // Controlla se l'utente ha già usato il codice
+                        const userUsageCount = usageResult.count || 0;
+                        
+                        // Verifica restrizioni per questo codice
+                        return fetch(GOOGLE_SHEETS_URL + '?type=get_restrictions')
+                            .then(r => r.json())
+                            .then(restrictionsData => {
+                                const restrictions = restrictionsData.restrictions || [];
+                                const codeRestriction = restrictions.find(r => r.code === code);
+                                
+                                // Determina il limite di utilizzi per questo utente
+                                let maxUsesForUser = 1; // Default
+                                let canUseCode = true;
+                                
+                                if (codeRestriction) {
+                                    maxUsesForUser = codeRestriction.maxUsesPerUser || 1;
+                                    
+                                    // Verifica whitelist
+                                    if (codeRestriction.type === 'whitelist') {
+                                        const whitelistedIds = (codeRestriction.discordIds || '').split(',').map(id => id.trim()).filter(id => id !== '');
+                                        if (whitelistedIds.length > 0 && !whitelistedIds.includes(discordId)) {
+                                            messageDiv.innerHTML = '<div style="color: var(--accent-pink); margin-top: 1rem; font-weight: 600;">❌ Questo codice non è disponibile per il tuo account</div>';
+                                            canUseCode = false;
+                                            return;
+                                        }
+                                    }
+                                    
+                                    // Verifica blacklist
+                                    if (codeRestriction.type === 'blacklist') {
+                                        const blacklistedIds = (codeRestriction.discordIds || '').split(',').map(id => id.trim());
+                                        if (blacklistedIds.includes(discordId)) {
+                                            messageDiv.innerHTML = '<div style="color: var(--accent-pink); margin-top: 1rem; font-weight: 600;">❌ Questo codice non è disponibile per il tuo account</div>';
+                                            canUseCode = false;
+                                            return;
+                                        }
+                                    }
+                                }
+                                
+                                // Verifica se ha già usato il codice troppe volte
+                                if (userUsageCount >= maxUsesForUser) {
+                                    messageDiv.innerHTML = `<div style="color: var(--accent-pink); margin-top: 1rem; font-weight: 600;">❌ Hai già utilizzato questo codice ${maxUsesForUser} volta/e</div>`;
+                                    canUseCode = false;
+                                    return;
+                                }
+                                
+                                if (!canUseCode) return;
+                                
+                                // ========== CODICE VALIDO - PROCEDI ==========
                     // Se il codice ha un campo "services" (lista di servizi ammessi), verifica
                     if (discount.services && discount.services.trim() !== '' && discount.services !== '-') {
                         // Ottieni il servizio corrente dal titolo del modal
@@ -3849,7 +3930,9 @@
                     updateOrderSummaryForCurrentService();
                     updateBoostSummary();
                     updateDecorationSummary();
-                })
+                            }); // Fine then restrictionsData
+                    }); // Fine then usageResult
+                }) // Fine then data
                 .catch(err => {
                     console.error('Errore Google Sheets:', err);
                     messageDiv.innerHTML = '<div style="color: var(--accent-pink); margin-top: 1rem; font-weight: 600;">❌ Errore di connessione. Riprova.</div>';
