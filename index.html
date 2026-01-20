@@ -1081,6 +1081,32 @@
         <p data-lang="hero_subtitle">Ottieni tutto a prezzi imbattibili e risparmia molto di più con i nostri servizi premium.</p>
     </section>
 
+    <!-- Promotional Banners -->
+    <section style="max-width: 1400px; margin: 2rem auto; padding: 0 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 300px; background: linear-gradient(135deg, #00fff7, #0080ff); padding: 1.5rem; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,255,247,0.3); animation: fadeInUp 0.6s ease;">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <span style="font-size: 3rem;">🎁</span>
+                <div>
+                    <h3 style="color: #000; font-size: 1.3rem; margin-bottom: 0.5rem; font-weight: 700;" data-lang="banner_welcome_title">PRIMO ACQUISTO? -10%!</h3>
+                    <p style="color: #000; margin: 0; font-size: 0.95rem;">
+                        <span data-lang="banner_welcome_desc">Usa il codice</span> 
+                        <strong style="background: #000; color: #00fff7; padding: 0.25rem 0.5rem; border-radius: 4px; font-family: 'Courier New', monospace;">WELCOME10</strong> 
+                        <span data-lang="banner_welcome_desc2">per il tuo primo ordine!</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div style="flex: 1; min-width: 300px; background: linear-gradient(135deg, #5865F2, #7289DA); padding: 1.5rem; border-radius: 16px; box-shadow: 0 8px 32px rgba(88,101,242,0.3); animation: fadeInUp 0.6s ease 0.1s; animation-fill-mode: both;">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <span style="font-size: 3rem;">💬</span>
+                <div>
+                    <h3 style="color: #fff; font-size: 1.3rem; margin-bottom: 0.5rem; font-weight: 700;" data-lang="banner_discord_title">CODICI MENSILI SU DISCORD!</h3>
+                    <p style="color: #fff; margin: 0; font-size: 0.95rem;"><span data-lang="banner_discord_desc">Unisciti al nostro</span> <a href="https://discord.gg/aabPMyv2g6" target="_blank" style="color: #00fff7; text-decoration: underline; font-weight: 600;">server Discord</a> <span data-lang="banner_discord_desc2">per nuovi codici sconto ogni mese!</span></p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Services Section -->
     <section id="services" class="services-container">
         <h2 class="section-title" data-lang="section_streaming">🎬 STREAMING & ABBONAMENTI</h2>
@@ -1102,7 +1128,6 @@
             </div>
 
             <div class="service-card" onclick="openModal('disney')">
-                <span class="card-badge coming-soon" data-lang="coming_soon">In arrivo</span>
                 <div class="service-card-content">
                     <div class="service-icon">✨</div>
                     <h3>Disney+</h3>
@@ -1156,6 +1181,14 @@
                     <div class="service-icon">📦</div>
                     <h3>Prime Video</h3>
                     <p>Streaming Amazon Prime</p>
+                </div>
+            </div>
+
+            <div class="service-card" onclick="openModal('dazn')">
+                <div class="service-card-content">
+                    <div class="service-icon">⚽</div>
+                    <h3>DAZN</h3>
+                    <p>Sport in streaming: Serie A, Champions, UFC</p>
                 </div>
             </div>
         </div>
@@ -1250,6 +1283,14 @@
                 </div>
             </div>
 
+            <div class="service-card" onclick="openModal('twitch')">
+                <div class="service-card-content">
+                    <div class="service-icon">💜</div>
+                    <h3>Twitch</h3>
+                    <p>Bits, Abbonamenti e Gift Subs</p>
+                </div>
+            </div>
+
             <div class="service-card" onclick="openModal('playstore-turkey')">
                 <span class="card-badge una-tantum">Una tantum</span>
                 <div class="service-card-content">
@@ -1282,6 +1323,20 @@
                     <div class="service-icon">🦉</div>
                     <h3>Duolingo</h3>
                     <p>Impara le lingue</p>
+                </div>
+            </div>
+            <div class="service-card" onclick="openModal('tinder')">
+                <div class="service-card-content">
+                    <div class="service-icon">💖</div>
+                    <h3>Tinder</h3>
+                    <p>Plus, Gold e Platinum</p>
+                </div>
+            </div>
+            <div class="service-card" onclick="openModal('chatgpt')">
+                <div class="service-card-content">
+                    <div class="service-icon">🤖</div>
+                    <h3>ChatGPT</h3>
+                    <p>Plus e Team - AI avanzata</p>
                 </div>
             </div>
         </div>
@@ -1337,18 +1392,18 @@
                         <option value="Netflix">Netflix</option>
                         <option value="Spotify">Spotify</option>
                         <option value="Disney+">Disney+</option>
+                        <option value="DAZN">DAZN</option>
                         <option value="YouTube Premium">YouTube Premium</option>
                         <option value="Crunchyroll">Crunchyroll</option>
                         <option value="HBO Max">HBO Max</option>
                         <option value="Prime Video">Prime Video</option>
                         <option value="IPTV">IPTV</option>
                     </optgroup>
-                    <optgroup label="🎮 Discord">
+                    <optgroup label="🎮 Discord & Gaming">
                         <option value="Discord Nitro">Discord Nitro</option>
                         <option value="Discord Decorations">Discord Decorations</option>
                         <option value="Discord Boosts">Discord Boosts</option>
-                    </optgroup>
-                    <optgroup label="🎮 Gaming">
+                        <option value="Twitch">Twitch</option>
                         <option value="Xbox Game Pass">Xbox Game Pass</option>
                         <option value="PlayStation Plus">PlayStation Plus</option>
                         <option value="Fortnite Crew">Fortnite Crew</option>
@@ -1362,6 +1417,8 @@
                     </optgroup>
                     <optgroup label="🛡️ Software & Altro">
                         <option value="Google One">Google One</option>
+                        <option value="ChatGPT">ChatGPT</option>
+                        <option value="Tinder">Tinder</option>
                         <option value="Avast">Avast Antivirus</option>
                         <option value="Kaspersky">Kaspersky</option>
                         <option value="Duolingo">Duolingo</option>
@@ -1501,6 +1558,12 @@
                 xbox_desc: "Game Pass Ultimate e Core",
                 ps_desc: "PS Plus Essential, Extra e Premium",
                 payment_warning: "⚠️ Gli abbonamenti mensili e annuali vanno pagati almeno 3 giorni prima della scadenza, altrimenti verranno annullati",
+                banner_welcome_title: "PRIMO ACQUISTO? -10%!",
+                banner_welcome_desc: "Usa il codice",
+                banner_welcome_desc2: "per il tuo primo ordine!",
+                banner_discord_title: "CODICI MENSILI SU DISCORD!",
+                banner_discord_desc: "Unisciti al nostro",
+                banner_discord_desc2: "per nuovi codici sconto ogni mese!",
                 discount_code: "Codice sconto (opzionale):",
                 apply_discount: "Applica",
                 original_price: "Prezzo normale:",
@@ -1572,6 +1635,12 @@
                 xbox_desc: "Game Pass Ultimate and Core",
                 ps_desc: "PS Plus Essential, Extra and Premium",
                 payment_warning: "⚠️ Monthly and yearly subscriptions must be paid at least 3 days before expiration, otherwise they will be cancelled",
+                banner_welcome_title: "FIRST PURCHASE? -10%!",
+                banner_welcome_desc: "Use code",
+                banner_welcome_desc2: "for your first order!",
+                banner_discord_title: "MONTHLY CODES ON DISCORD!",
+                banner_discord_desc: "Join our",
+                banner_discord_desc2: "for new discount codes every month!",
                 discount_code: "Discount code (optional):",
                 apply_discount: "Apply",
                 original_price: "Normal price:",
@@ -1850,21 +1919,39 @@
 
                 case 'disney':
                     content = `
-                        <h2 class="modal-title">Disney+</h2>
+                        <h2 class="modal-title">✨ Disney+</h2>
                         <div class="duration-selector">
                             <button class="duration-btn active" data-duration="monthly" onclick="toggleDuration(this, 'disney')">${translations[currentLang].monthly}</button>
                             <button class="duration-btn" data-duration="yearly" onclick="toggleDuration(this, 'disney')">${translations[currentLang].yearly}</button>
                         </div>
                         <div class="option-list" id="disney-prices">
                             <div class="option-item">
-                                <span class="option-name">Disney+ Standard</span>
-                                <span class="option-price">${translations[currentLang].coming_soon}</span>
+                                <div>
+                                    <div class="option-name">Disney+ Standard (con pubblicità)</div>
+                                    <div class="family-note">Accesso completo Disney, Pixar, Marvel, Star Wars, National Geographic</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €8.99 | ${translations[currentLang].you_save} €4.00 (45%)</div>
+                                </div>
+                                <span class="option-price">€4.99</span>
                             </div>
                             <div class="option-item">
-                                <span class="option-name">Disney+ Premium</span>
-                                <span class="option-price">${translations[currentLang].coming_soon}</span>
+                                <div>
+                                    <div class="option-name">Disney+ Premium (senza pubblicità, 4K)</div>
+                                    <div class="family-note">Qualità 4K UHD, audio Dolby Atmos, fino a 4 dispositivi simultanei</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €11.99 | ${translations[currentLang].you_save} €5.00 (42%)</div>
+                                </div>
+                                <span class="option-price">€6.99</span>
                             </div>
                         </div>
+                        <div class="special-note" style="background: rgba(255, 0, 110, 0.1); border-color: var(--accent-pink); color: var(--text-primary);">
+                            ${translations[currentLang].payment_warning}
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-disney" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('disney')}
                     `;
                     break;
 
@@ -2413,6 +2500,191 @@
                     `;
                     break;
 
+                case 'dazn':
+                    content = `
+                        <h2 class="modal-title">📺 DAZN</h2>
+                        <div class="duration-selector">
+                            <button class="duration-btn active" data-duration="monthly" onclick="toggleDuration(this, 'dazn')">${translations[currentLang].monthly}</button>
+                            <button class="duration-btn" data-duration="yearly" onclick="toggleDuration(this, 'dazn')">${translations[currentLang].yearly}</button>
+                        </div>
+                        <div class="option-list" id="dazn-prices">
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">DAZN Start</div>
+                                    <div class="family-note">Highlights e contenuti on-demand selezionati</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €14.99 | ${translations[currentLang].you_save} €6.00 (40%)</div>
+                                </div>
+                                <span class="option-price">€8.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">DAZN Standard</div>
+                                    <div class="family-note">Serie A, UEFA Champions League, Europa League, NBA</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €34.99 | ${translations[currentLang].you_save} €15.00 (43%)</div>
+                                </div>
+                                <span class="option-price">€19.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">DAZN Plus</div>
+                                    <div class="family-note">Tutto DAZN + UFC, NFL, tennis - 2 dispositivi simultanei</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €59.99 | ${translations[currentLang].you_save} €25.00 (42%)</div>
+                                </div>
+                                <span class="option-price">€34.99</span>
+                            </div>
+                        </div>
+                        <div class="special-note" style="background: rgba(255, 0, 110, 0.1); border-color: var(--accent-pink); color: var(--text-primary);">
+                            ${translations[currentLang].payment_warning}
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-dazn" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('dazn')}
+                    `;
+                    break;
+
+                case 'twitch':
+                    content = `
+                        <h2 class="modal-title">💜 Twitch</h2>
+                        <div class="duration-selector">
+                            <button class="duration-btn active" data-duration="1month" onclick="toggleDuration(this, 'twitch')">1 Mese</button>
+                            <button class="duration-btn" data-duration="3months" onclick="toggleDuration(this, 'twitch')">3 Mesi</button>
+                            <button class="duration-btn" data-duration="6months" onclick="toggleDuration(this, 'twitch')">6 Mesi</button>
+                        </div>
+                        <div class="option-list" id="twitch-prices">
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Tier 1 Subscription</div>
+                                    <div class="family-note">Badge, emote esclusive, nessuna pubblicità</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €4.99 | ${translations[currentLang].you_save} €2.00 (40%)</div>
+                                </div>
+                                <span class="option-price">€2.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Tier 2 Subscription</div>
+                                    <div class="family-note">Tutto Tier 1 + badge migliorato</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €9.99 | ${translations[currentLang].you_save} €4.00 (40%)</div>
+                                </div>
+                                <span class="option-price">€5.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Tier 3 Subscription</div>
+                                    <div class="family-note">Tutto Tier 2 + badge premium, più emote</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €24.99 | ${translations[currentLang].you_save} €10.00 (40%)</div>
+                                </div>
+                                <span class="option-price">€14.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Twitch Turbo</div>
+                                    <div class="family-note">Nessuna pubblicità su tutto Twitch, badge esclusivo</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €8.99 | ${translations[currentLang].you_save} €3.00 (33%)</div>
+                                </div>
+                                <span class="option-price">€5.99</span>
+                            </div>
+                        </div>
+                        <div class="special-note" style="background: rgba(255, 0, 110, 0.1); border-color: var(--accent-pink); color: var(--text-primary);">
+                            ${translations[currentLang].payment_warning}
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-twitch" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('twitch')}
+                    `;
+                    break;
+
+                case 'tinder':
+                    content = `
+                        <h2 class="modal-title">💖 Tinder</h2>
+                        <div class="duration-selector">
+                            <button class="duration-btn active" data-duration="monthly" onclick="toggleDuration(this, 'tinder')">${translations[currentLang].monthly}</button>
+                            <button class="duration-btn" data-duration="yearly" onclick="toggleDuration(this, 'tinder')">${translations[currentLang].yearly}</button>
+                        </div>
+                        <div class="option-list" id="tinder-prices">
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Tinder Plus</div>
+                                    <div class="family-note">Swipe illimitati, Rewind, Passport</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €10.99 | ${translations[currentLang].you_save} €5.00 (45%)</div>
+                                </div>
+                                <span class="option-price">€5.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Tinder Gold</div>
+                                    <div class="family-note">Tutto Plus + vedi chi ti ha messo Like</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €15.99 | ${translations[currentLang].you_save} €7.00 (44%)</div>
+                                </div>
+                                <span class="option-price">€8.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">Tinder Platinum</div>
+                                    <div class="family-note">Tutto Gold + priorità nei Like, messaggio prima del match</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €19.99 | ${translations[currentLang].you_save} €8.00 (40%)</div>
+                                </div>
+                                <span class="option-price">€11.99</span>
+                            </div>
+                        </div>
+                        <div class="special-note" style="background: rgba(255, 0, 110, 0.1); border-color: var(--accent-pink); color: var(--text-primary);">
+                            ${translations[currentLang].payment_warning}
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-tinder" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('tinder')}
+                    `;
+                    break;
+
+                case 'chatgpt':
+                    content = `
+                        <h2 class="modal-title">🤖 ChatGPT</h2>
+                        <div class="duration-selector">
+                            <button class="duration-btn active" data-duration="monthly" onclick="toggleDuration(this, 'chatgpt')">${translations[currentLang].monthly}</button>
+                            <button class="duration-btn" data-duration="yearly" onclick="toggleDuration(this, 'chatgpt')">${translations[currentLang].yearly}</button>
+                        </div>
+                        <div class="option-list" id="chatgpt-prices">
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">ChatGPT Plus</div>
+                                    <div class="family-note">GPT-4, risposte più veloci, DALL-E 3, navigazione web</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €20 | ${translations[currentLang].you_save} €8.01 (40%)</div>
+                                </div>
+                                <span class="option-price">€11.99</span>
+                            </div>
+                            <div class="option-item">
+                                <div>
+                                    <div class="option-name">ChatGPT Team (per utente)</div>
+                                    <div class="family-note">Tutto Plus + workspace collaborativo, min. 2 utenti</div>
+                                    <div class="family-note">${translations[currentLang].original_price} €60 | ${translations[currentLang].you_save} €25 (42%)</div>
+                                </div>
+                                <span class="option-price">€35</span>
+                            </div>
+                        </div>
+                        <div class="special-note" style="background: rgba(255, 0, 110, 0.1); border-color: var(--accent-pink); color: var(--text-primary);">
+                            ${translations[currentLang].payment_warning}
+                        </div>
+                        
+                        <div class="order-summary-box" style="margin: 1.5rem 0; padding: 1rem; background: rgba(0, 255, 255, 0.1); border: 2px solid var(--accent-cyan); border-radius: 12px;">
+                            <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--accent-cyan);">💰 Riepilogo Ordine</div>
+                            <div id="order-summary-chatgpt" style="color: var(--text-primary);"></div>
+                        </div>
+                        
+                        ${getOrderFormHTML('chatgpt')}
+                    `;
+                    break;
+
                 
                 
                 case 'fortnite-vbucks':
@@ -2525,24 +2797,26 @@
                                         <option value="Spotify Premium">Spotify Premium</option>
                                         <option value="Netflix">Netflix</option>
                                         <option value="Disney+">Disney+</option>
+                                        <option value="DAZN">DAZN</option>
                                         <option value="YouTube Premium">YouTube Premium</option>
                                         <option value="Crunchyroll">Crunchyroll</option>
                                         <option value="HBO Max">HBO Max</option>
                                         <option value="Prime Video">Prime Video</option>
                                         <option value="IPTV">IPTV</option>
                                     </optgroup>
-                                    <optgroup label="🎮 Discord">
+                                    <optgroup label="🎮 Discord & Gaming">
                                         <option value="Discord Nitro">Discord Nitro</option>
                                         <option value="Discord Decorations">Discord Decorations</option>
                                         <option value="Discord Server Boosts">Discord Server Boosts</option>
-                                    </optgroup>
-                                    <optgroup label="🎮 Gaming">
+                                        <option value="Twitch">Twitch</option>
                                         <option value="Xbox Game Pass">Xbox Game Pass</option>
                                         <option value="PlayStation Plus">PlayStation Plus</option>
                                         <option value="Fortnite Crew">Fortnite Crew</option>
                                     </optgroup>
                                     <optgroup label="🛡️ Software & Altro">
                                         <option value="Google One">Google One</option>
+                                        <option value="ChatGPT Plus">ChatGPT Plus</option>
+                                        <option value="Tinder">Tinder</option>
                                         <option value="Avast Premium">Avast Premium</option>
                                         <option value="Kaspersky">Kaspersky</option>
                                         <option value="Duolingo">Duolingo</option>
@@ -2718,14 +2992,14 @@
                 },
                 'disney': {
                     'monthly': {
-                        prices: [translations[currentLang].coming_soon, translations[currentLang].coming_soon],
-                        originals: ['', ''],
-                        savings: ['', '']
+                        prices: ['€4.99', '€6.99'],
+                        originals: ['€8.99', '€11.99'],
+                        savings: ['€4.00 (45%)', '€5.00 (42%)']
                     },
                     'yearly': {
-                        prices: [translations[currentLang].coming_soon, translations[currentLang].coming_soon],
-                        originals: ['', ''],
-                        savings: ['', '']
+                        prices: ['€49.99/anno', '€69.99/anno'],
+                        originals: ['€89.90', '€119.90'],
+                        savings: ['€39.91 (44%)', '€49.91 (42%)']
                     }
                 },
                 'youtube': {
@@ -2859,6 +3133,59 @@
                         originals: ['€83.88', '€167.88', '€239.88'],
                         savings: ['€43.89 (52%)', '€77.89 (46%)', '€109.89 (46%)']
                     }
+                },
+                'dazn': {
+                    'monthly': {
+                        prices: ['€8.99', '€19.99', '€34.99'],
+                        originals: ['€14.99', '€34.99', '€59.99'],
+                        savings: ['€6.00 (40%)', '€15.00 (43%)', '€25.00 (42%)']
+                    },
+                    'yearly': {
+                        prices: ['', '€199/anno', '€349/anno'],
+                        originals: ['', '€359', '€599'],
+                        savings: ['', '€160 (45%)', '€250 (42%)']
+                    }
+                },
+                'twitch': {
+                    '1month': {
+                        prices: ['€2.99', '€5.99', '€14.99', '€5.99'],
+                        originals: ['€4.99', '€9.99', '€24.99', '€8.99'],
+                        savings: ['€2.00 (40%)', '€4.00 (40%)', '€10.00 (40%)', '€3.00 (33%)']
+                    },
+                    '3months': {
+                        prices: ['€8.49', '€17.49', '€43.49', '€16.99'],
+                        originals: ['€14.97', '€29.97', '€74.97', '€26.97'],
+                        savings: ['€6.48 (43%)', '€12.48 (42%)', '€31.48 (42%)', '€9.98 (37%)']
+                    },
+                    '6months': {
+                        prices: ['€15.99', '€32.99', '€81.99', '€31.99'],
+                        originals: ['€29.94', '€59.94', '€149.94', '€53.94'],
+                        savings: ['€13.95 (47%)', '€26.95 (45%)', '€67.95 (45%)', '€21.95 (41%)']
+                    }
+                },
+                'tinder': {
+                    'monthly': {
+                        prices: ['€5.99', '€8.99', '€11.99'],
+                        originals: ['€10.99', '€15.99', '€19.99'],
+                        savings: ['€5.00 (45%)', '€7.00 (44%)', '€8.00 (40%)']
+                    },
+                    'yearly': {
+                        prices: ['€35.88/anno', '€53.88/anno', '€71.88/anno'],
+                        originals: ['€55.08', '€79.92', '€99.96'],
+                        savings: ['€19.20 (35%)', '€26.04 (33%)', '€28.08 (28%)']
+                    }
+                },
+                'chatgpt': {
+                    'monthly': {
+                        prices: ['€11.99', '€35'],
+                        originals: ['€20', '€60'],
+                        savings: ['€8.01 (40%)', '€25 (42%)']
+                    },
+                    'yearly': {
+                        prices: ['€69.99/anno', '€179/anno'],
+                        originals: ['€120', '€300'],
+                        savings: ['€50.01 (42%)', '€121 (40%)']
+                    }
                 }
             };
             
@@ -2870,15 +3197,22 @@
                     const priceEl = item.querySelector('.option-price');
                     const savingsNotes = item.querySelectorAll('.family-note');
                     
-                    // Update price
-                    if (priceEl && serviceData.prices[index]) {
-                        priceEl.textContent = serviceData.prices[index];
-                    }
-                    
-                    // Update savings info (last family-note is usually the savings one)
-                    if (savingsNotes.length > 0 && serviceData.originals[index] && serviceData.savings[index]) {
-                        const lastNote = savingsNotes[savingsNotes.length - 1];
-                        lastNote.textContent = `${translations[currentLang].original_price} ${serviceData.originals[index]} | ${translations[currentLang].you_save} ${serviceData.savings[index]}`;
+                    // Nascondi opzione se il prezzo è vuoto
+                    if (!serviceData.prices[index] || serviceData.prices[index] === '') {
+                        item.style.display = 'none';
+                    } else {
+                        item.style.display = 'flex';
+                        
+                        // Update price
+                        if (priceEl) {
+                            priceEl.textContent = serviceData.prices[index];
+                        }
+                        
+                        // Update savings info (last family-note is usually the savings one)
+                        if (savingsNotes.length > 0 && serviceData.originals[index] && serviceData.savings[index]) {
+                            const lastNote = savingsNotes[savingsNotes.length - 1];
+                            lastNote.textContent = `${translations[currentLang].original_price} ${serviceData.originals[index]} | ${translations[currentLang].you_save} ${serviceData.savings[index]}`;
+                        }
                     }
                 });
                 
@@ -2941,6 +3275,16 @@
             const serviceMap = {
                 'Spotify Premium': 'spotify',
                 'Netflix': 'netflix',
+                '✨ Disney+': 'disney',
+                'Disney+': 'disney',
+                '📺 DAZN': 'dazn',
+                'DAZN': 'dazn',
+                '💜 Twitch': 'twitch',
+                'Twitch': 'twitch',
+                '💖 Tinder': 'tinder',
+                'Tinder': 'tinder',
+                '🤖 ChatGPT': 'chatgpt',
+                'ChatGPT': 'chatgpt',
                 'Discord Nitro': 'discord-nitro',
                 '🎭 HBO MAX': 'hbo',
                 '📦 PRIME VIDEO': 'prime',
@@ -2995,6 +3339,21 @@
             if (isOneTime) {
                 durationLabel = 'Una tantum';
                 priceLabel = '';
+            } else if (serviceType === 'twitch') {
+                // Twitch usa durate speciali
+                if (currentServiceDuration === '1month') {
+                    durationLabel = '1 Mese';
+                    priceLabel = '/mese';
+                } else if (currentServiceDuration === '3months') {
+                    durationLabel = '3 Mesi';
+                    priceLabel = ' (totale 3 mesi)';
+                } else if (currentServiceDuration === '6months') {
+                    durationLabel = '6 Mesi';
+                    priceLabel = ' (totale 6 mesi)';
+                } else {
+                    durationLabel = '1 Mese';
+                    priceLabel = '/mese';
+                }
             } else {
                 durationLabel = currentServiceDuration === 'yearly' ? 'Annuale' : 'Mensile';
                 priceLabel = currentServiceDuration === 'yearly' ? '/anno' : '/mese';

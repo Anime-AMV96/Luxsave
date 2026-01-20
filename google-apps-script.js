@@ -110,7 +110,31 @@ function setupSpreadsheet() {
   statsSheet.setColumnWidth(1, 200);
   statsSheet.setColumnWidth(2, 150);
   
-  // Riordina i fogli: Statistiche, Ordini, Disdette, Codici_Sconto
+  // 5. UTILIZZI_CODICI (traccia chi usa quale codice)
+  let utilizziSheet = ss.getSheetByName('Utilizzi_Codici');
+  if (!utilizziSheet) {
+    utilizziSheet = ss.insertSheet('Utilizzi_Codici');
+  }
+  utilizziSheet.clear();
+  utilizziSheet.getRange(1, 1, 1, 5).setValues([[
+    'Discord ID', 'Codice', 'Data Utilizzo', 'Ordine ID', 'Servizio'
+  ]]);
+  utilizziSheet.getRange(1, 1, 1, 5).setFontWeight('bold').setBackground('#9b5de5').setFontColor('#ffffff');
+  utilizziSheet.setFrozenRows(1);
+  
+  // 6. RESTRIZIONI_CODICI (whitelist/blacklist/limiti per codice)
+  let restrizioniSheet = ss.getSheetByName('Restrizioni_Codici');
+  if (!restrizioniSheet) {
+    restrizioniSheet = ss.insertSheet('Restrizioni_Codici');
+  }
+  restrizioniSheet.clear();
+  restrizioniSheet.getRange(1, 1, 1, 5).setValues([[
+    'Codice', 'Tipo Restrizione', 'Discord IDs (separati da virgola)', 'Max Utilizzi Per Utente', 'Data Creazione'
+  ]]);
+  restrizioniSheet.getRange(1, 1, 1, 5).setFontWeight('bold').setBackground('#f72585').setFontColor('#ffffff');
+  restrizioniSheet.setFrozenRows(1);
+  
+  // Riordina i fogli: Statistiche, Ordini, Disdette, Codici_Sconto, Utilizzi_Codici, Restrizioni_Codici
   statsSheet.activate();
   ss.moveActiveSheet(1);
   ordiniSheet.activate();
@@ -119,6 +143,10 @@ function setupSpreadsheet() {
   ss.moveActiveSheet(3);
   codiciSheet.activate();
   ss.moveActiveSheet(4);
+  utilizziSheet.activate();
+  ss.moveActiveSheet(5);
+  restrizioniSheet.activate();
+  ss.moveActiveSheet(6);
   
   // Elimina Foglio1 se esiste
   const foglio1 = ss.getSheetByName('Foglio1');
@@ -143,6 +171,8 @@ function doGet(e) {
       case 'get_discounts': return jsonResponse(getDiscounts());
       case 'get_all_discounts': return jsonResponse(getDiscounts());
       case 'get_cancellations': return jsonResponse(getCancellations());
+      case 'get_restrictions': return jsonResponse(getRestrictions());
+      case 'get_code_usage': return jsonResponse(getCodeUsage(e.parameter.code, e.parameter.discord_id));
       default: return jsonResponse({ error: 'Invalid type' });
     }
   } catch (error) {
@@ -166,7 +196,12 @@ function doPost(e) {
       case 'new_cancellation': result = addCancellation(data); break;
       case 'update_cancellation_status': result = updateCancellationStatus(data.id, data.status); break;
       case 'delete_cancellation': result = deleteCancellation(data.id); break;
-      case 'use_discount': result = useDiscount(data.code); break;
+      // Use discount con controllo utilizzi
+      case 'use_discount': result = useDiscount(data.code, data.discord_id, data.service); break;
+      // Gestione restrizioni codici
+      case 'add_restriction': result = addRestriction(data); break;
+      case 'delete_restriction': result = deleteRestriction(data.code); break;
+      case 'get_code_usage': result = getCodeUsage(data.code, data.discord_id); break;
       default: result = { error: 'Invalid type' };
     }
     
@@ -379,19 +414,240 @@ function toggleDiscount(code) {
   return { success: false };
 }
 
-function useDiscount(code) {
+function useDiscount(code, discordId, service) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
-  const sheet = ss.getSheetByName('Codici_Sconto');
-  if (!sheet) return { success: false };
+  const codiciSheet = ss.getSheetByName('Codici_Sconto');
+  if (!codiciSheet) return { success: false, error: 'Foglio codici non trovato' };
+  
+  // Trova il codice
+  const codiciData = codiciSheet.getDataRange().getValues();
+  let codiceRow = -1;
+  let percentuale = 0;
+  let maxUtilizzi = 0;
+  let utilizziAttuali = 0;
+  
+  for (let i = 1; i < codiciData.length; i++) {
+    if (codiciData[i][0] === code) {
+      codiceRow = i + 1;
+      percentuale = codiciData[i][1];
+      maxUtilizzi = codiciData[i][4] || 0;
+      utilizziAttuali = codiciData[i][5] || 0;
+      
+      // Verifica se attivo
+      if (codiciData[i][8] !== 'SI') {
+        return { success: false, error: 'Codice non attivo' };
+      }
+      
+      // Verifica max utilizzi globali
+      if (maxUtilizzi > 0 && utilizziAttuali >= maxUtilizzi) {
+        return { success: false, error: 'Codice esaurito (raggiunto limite utilizzi)' };
+      }
+      break;
+    }
+  }
+  
+  if (codiceRow === -1) {
+    return { success: false, error: 'Codice non trovato' };
+  }
+  
+  // ===== VERIFICA RESTRIZIONI PER UTENTE =====
+  const restrizioniSheet = ss.getSheetByName('Restrizioni_Codici');
+  if (restrizioniSheet) {
+    const restrizioniData = restrizioniSheet.getDataRange().getValues();
+    
+    for (let i = 1; i < restrizioniData.length; i++) {
+      if (restrizioniData[i][0] === code) {
+        const tipoRestrizione = restrizioniData[i][1];
+        const discordIds = (restrizioniData[i][2] || '').toString().split(',').map(id => id.trim());
+        const maxUtilizziPerUtente = restrizioniData[i][3] || 1;
+        
+        // Whitelist: solo questi utenti possono usare il codice
+        if (tipoRestrizione === 'whitelist') {
+          if (!discordIds.includes(discordId)) {
+            return { success: false, error: 'Questo codice non è disponibile per il tuo account' };
+          }
+        }
+        
+        // Blacklist: questi utenti NON possono usare il codice
+        if (tipoRestrizione === 'blacklist') {
+          if (discordIds.includes(discordId)) {
+            return { success: false, error: 'Questo codice non è disponibile per il tuo account' };
+          }
+        }
+        
+        // Limite: verifica quante volte l'utente ha già usato questo codice
+        if (tipoRestrizione === 'limit' || tipoRestrizione === 'whitelist' || tipoRestrizione === 'blacklist') {
+          const utilizziSheet = ss.getSheetByName('Utilizzi_Codici');
+          if (utilizziSheet) {
+            const utilizziData = utilizziSheet.getDataRange().getValues();
+            let countUtilizziUtente = 0;
+            
+            for (let j = 1; j < utilizziData.length; j++) {
+              if (utilizziData[j][0] === discordId && utilizziData[j][1] === code) {
+                countUtilizziUtente++;
+              }
+            }
+            
+            if (countUtilizziUtente >= maxUtilizziPerUtente) {
+              return { success: false, error: `Hai già utilizzato questo codice ${maxUtilizziPerUtente} volta/e` };
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  // ===== VERIFICA UTILIZZO PRECEDENTE (default: 1 utilizzo per utente per codice) =====
+  let utilizziSheet = ss.getSheetByName('Utilizzi_Codici');
+  if (!utilizziSheet) {
+    // Crea il foglio se non esiste
+    utilizziSheet = ss.insertSheet('Utilizzi_Codici');
+    utilizziSheet.getRange(1, 1, 1, 5).setValues([['Discord ID', 'Codice', 'Data Utilizzo', 'Ordine ID', 'Servizio']]);
+    utilizziSheet.getRange(1, 1, 1, 5).setFontWeight('bold').setBackground('#9b5de5').setFontColor('#ffffff');
+  }
+  
+  const utilizziData = utilizziSheet.getDataRange().getValues();
+  let utilizziUtente = 0;
+  
+  for (let i = 1; i < utilizziData.length; i++) {
+    if (utilizziData[i][0] === discordId && utilizziData[i][1] === code) {
+      utilizziUtente++;
+    }
+  }
+  
+  // Default: 1 utilizzo per utente per codice (se non ci sono restrizioni specifiche)
+  const LIMITE_DEFAULT = 1;
+  if (utilizziUtente >= LIMITE_DEFAULT) {
+    return { success: false, error: 'Hai già utilizzato questo codice!' };
+  }
+  
+  // ===== REGISTRA UTILIZZO =====
+  const orderId = 'ORDER-' + Date.now();
+  const now = new Date();
+  
+  utilizziSheet.appendRow([
+    discordId,
+    code,
+    now.toISOString(),
+    orderId,
+    service || 'N/A'
+  ]);
+  
+  // Incrementa utilizzi nel codice
+  codiciSheet.getRange(codiceRow, 6).setValue(utilizziAttuali + 1);
+  
+  return { 
+    success: true, 
+    percentage: percentuale,
+    orderId: orderId,
+    message: 'Codice applicato con successo!'
+  };
+}
+
+// ==================== RESTRIZIONI CODICI ====================
+
+function getRestrictions() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName('Restrizioni_Codici');
+  
+  if (!sheet) {
+    // Crea il foglio se non esiste
+    sheet = ss.insertSheet('Restrizioni_Codici');
+    sheet.getRange(1, 1, 1, 5).setValues([['Codice', 'Tipo Restrizione', 'Discord IDs (separati da virgola)', 'Max Utilizzi Per Utente', 'Data Creazione']]);
+    sheet.getRange(1, 1, 1, 5).setFontWeight('bold').setBackground('#f72585').setFontColor('#ffffff');
+    return { restrictions: [] };
+  }
+  
+  const data = sheet.getDataRange().getValues().slice(1);
+  const restrictions = data.map(r => ({
+    code: r[0],
+    type: r[1],
+    discordIds: r[2] ? r[2].toString().split(',').map(id => id.trim()) : [],
+    maxUsesPerUser: r[3] || 1,
+    createdAt: r[4]
+  }));
+  
+  return { restrictions };
+}
+
+function addRestriction(data) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName('Restrizioni_Codici');
+  
+  if (!sheet) {
+    sheet = ss.insertSheet('Restrizioni_Codici');
+    sheet.getRange(1, 1, 1, 5).setValues([['Codice', 'Tipo Restrizione', 'Discord IDs (separati da virgola)', 'Max Utilizzi Per Utente', 'Data Creazione']]);
+    sheet.getRange(1, 1, 1, 5).setFontWeight('bold').setBackground('#f72585').setFontColor('#ffffff');
+  }
+  
+  // Verifica se esiste già una restrizione per questo codice
+  const existingData = sheet.getDataRange().getValues();
+  for (let i = 1; i < existingData.length; i++) {
+    if (existingData[i][0] === data.code) {
+      // Aggiorna la riga esistente
+      sheet.getRange(i + 1, 1, 1, 5).setValues([[
+        data.code,
+        data.restrictionType || data.type || 'limit',
+        (data.discordIds || []).join(','),
+        data.maxUsesPerUser || 1,
+        existingData[i][4] // mantieni data creazione originale
+      ]]);
+      return { success: true, message: 'Restrizione aggiornata!' };
+    }
+  }
+  
+  // Aggiungi nuova riga
+  sheet.appendRow([
+    data.code,
+    data.restrictionType || data.type || 'limit',
+    (data.discordIds || []).join(','),
+    data.maxUsesPerUser || 1,
+    new Date().toISOString()
+  ]);
+  
+  return { success: true, message: 'Restrizione aggiunta!' };
+}
+
+function deleteRestriction(code) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Restrizioni_Codici');
+  if (!sheet) return { success: false, error: 'Foglio restrizioni non trovato' };
   
   const data = sheet.getDataRange().getValues();
   for (let i = 1; i < data.length; i++) {
     if (data[i][0] === code) {
-      sheet.getRange(i + 1, 6).setValue((data[i][5] || 0) + 1);
-      return { success: true };
+      sheet.deleteRow(i + 1);
+      return { success: true, message: 'Restrizione eliminata!' };
     }
   }
-  return { success: false };
+  
+  return { success: false, error: 'Restrizione non trovata' };
+}
+
+function getCodeUsage(code, discordId) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheetByName('Utilizzi_Codici');
+  if (!sheet) return { count: 0, usages: [] };
+  
+  const data = sheet.getDataRange().getValues();
+  const usages = [];
+  
+  for (let i = 1; i < data.length; i++) {
+    const matchCode = !code || data[i][1] === code;
+    const matchUser = !discordId || data[i][0] === discordId;
+    
+    if (matchCode && matchUser) {
+      usages.push({
+        discordId: data[i][0],
+        code: data[i][1],
+        date: data[i][2],
+        orderId: data[i][3],
+        service: data[i][4]
+      });
+    }
+  }
+  
+  return { count: usages.length, usages };
 }
 
 // ==================== DISDETTE ====================
