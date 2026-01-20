@@ -835,7 +835,11 @@
             if (tabName === 'orders') loadOrders();
             if (tabName === 'expiring') loadExpiringOrders();
             if (tabName === 'cancellations') loadCancellations();
-            if (tabName === 'discounts') loadDiscounts();
+            if (tabName === 'discounts') {
+                loadDiscounts();
+                loadUsage();
+                loadRestrictions();
+            }
             if (tabName === 'reviews') loadAdminReviews();
         }
 
@@ -986,14 +990,14 @@
                         html += `<td><div class="action-buttons">`;
                         
                         if (!isPaid) {
-                            html += `<button class="btn btn-small btn-success" onclick="markAsPaid(${order.id})">💰 Pagato</button>`;
+                            html += `<button class="btn btn-small btn-success" onclick="markAsPaid('${order.id}')">💰 Pagato</button>`;
                         }
                         
                         if (status === 'Pending' && isPaid) {
-                            html += `<button class="btn btn-small btn-success" onclick="updateOrderStatus(${order.id}, 'Completato')">✅ Completa</button>`;
+                            html += `<button class="btn btn-small btn-success" onclick="updateOrderStatus('${order.id}', 'Completato')">✅ Completa</button>`;
                         }
                         
-                        html += `<button class="btn btn-small btn-danger" onclick="deleteOrder(${order.id})">🗑️ Elimina</button>`;
+                        html += `<button class="btn btn-small btn-danger" onclick="deleteOrder('${order.id}')">🗑️ Elimina</button>`;
                         html += `</div></td>`;
                         html += '</tr>';
                     });

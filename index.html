@@ -3499,8 +3499,8 @@
                 service: order.service || '',
                 plan: order.plan || '',
                 duration: order.duration || '',
-                price: totalPrice || 0,
-                total: totalPrice || 0,
+                price: parseFloat(totalPrice.toFixed(2)) || 0,
+                total: parseFloat(totalPrice.toFixed(2)) || 0,
                 discount: order.discountApplied || '-',
                 discordId: order.discordId || '',
                 notes: order.notes || ''
@@ -3516,13 +3516,15 @@
             });
 
             // ===== REGISTRA UTILIZZO CODICE SCONTO =====
-            if (discountApplied && discountApplied.code && discordId) {
+            // Usa il Discord ID dell'utente loggato se disponibile, altrimenti quello inserito
+            const userDiscordId = currentUser?.discord_id || discordId;
+            if (discountApplied && discountApplied.code && userDiscordId) {
                 fetch(GOOGLE_SHEETS_URL, {
                     method: 'POST',
                     body: JSON.stringify({
                         type: 'use_discount',
                         code: discountApplied.code,
-                        discord_id: discordId,
+                        discord_id: userDiscordId,
                         service: modalTitle || serviceType
                     })
                 }).then(response => response.json())
@@ -3798,6 +3800,8 @@
 
                     // ===== VERIFICA SERVER-SIDE SE L'UTENTE HA GIÀ USATO IL CODICE =====
                     const discordId = currentUser.discord_id;
+                    console.log('Verifica utilizzo codice per Discord ID:', discordId);
+                    
                     fetch(GOOGLE_SHEETS_URL, {
                         method: 'POST',
                         body: JSON.stringify({
@@ -3808,22 +3812,28 @@
                     })
                     .then(r => r.json())
                     .then(usageResult => {
+                        console.log('Risultato verifica utilizzo:', usageResult);
+                        
                         // Controlla se l'utente ha già usato il codice
                         const userUsageCount = usageResult.count || 0;
+                        console.log('Utilizzi trovati per questo utente:', userUsageCount);
                         
                         // Verifica restrizioni per questo codice
                         return fetch(GOOGLE_SHEETS_URL + '?type=get_restrictions')
                             .then(r => r.json())
                             .then(restrictionsData => {
+                                console.log('Restrizioni caricate:', restrictionsData);
                                 const restrictions = restrictionsData.restrictions || [];
                                 const codeRestriction = restrictions.find(r => r.code === code);
+                                console.log('Restrizione per questo codice:', codeRestriction);
                                 
                                 // Determina il limite di utilizzi per questo utente
                                 let maxUsesForUser = 1; // Default
                                 let canUseCode = true;
                                 
                                 if (codeRestriction) {
-                                    maxUsesForUser = codeRestriction.maxUsesPerUser || 1;
+                                    maxUsesForUser = parseInt(codeRestriction.maxUsesPerUser) || 1;
+                                    console.log('Limite utilizzi per utente:', maxUsesForUser);
                                     
                                     // Verifica whitelist
                                     if (codeRestriction.type === 'whitelist') {
@@ -3847,6 +3857,7 @@
                                 }
                                 
                                 // Verifica se ha già usato il codice troppe volte
+                                console.log(`Confronto: ${userUsageCount} >= ${maxUsesForUser} = ${userUsageCount >= maxUsesForUser}`);
                                 if (userUsageCount >= maxUsesForUser) {
                                     messageDiv.innerHTML = `<div style="color: var(--accent-pink); margin-top: 1rem; font-weight: 600;">❌ Hai già utilizzato questo codice ${maxUsesForUser} volta/e</div>`;
                                     canUseCode = false;
