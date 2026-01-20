@@ -1210,8 +1210,9 @@
                     html += '</tr></thead><tbody>';
 
                     data.cancellations.forEach(cancel => {
-                        const status = cancel.status || 'Pending';
-                        const badgeClass = status === 'Completato' ? 'badge-completed' : 'badge-pending';
+                        const status = cancel.status || 'In attesa';
+                        const isCompleted = status === 'Completato' || status === 'Elaborata';
+                        const badgeClass = isCompleted ? 'badge-completed' : 'badge-pending';
                         
                         const date = new Date(cancel.date);
                         const dateStr = date.toLocaleDateString('it-IT') + ' ' + date.toLocaleTimeString('it-IT');
@@ -1224,6 +1225,9 @@
                         html += `<td>${cancel.reason || '-'}</td>`;
                         html += `<td><span class="badge ${badgeClass}">${status}</span></td>`;
                         html += `<td><div class="action-buttons">`;
+                        if (!isCompleted) {
+                            html += `<button class="btn btn-small btn-success" onclick="completeCancellation(${cancel.id})">✅ Completata</button>`;
+                        }
                         html += `<button class="btn btn-small btn-danger" onclick="deleteCancellation(${cancel.id})">🗑️ Elimina</button>`;
                         html += `</div></td>`;
                         html += '</tr>';
@@ -1951,22 +1955,39 @@
                     const discordId = orderRow.cells[2].textContent;
                     const service = orderRow.cells[3].textContent;
                     const plan = orderRow.cells[4].textContent;
+                    const price = orderRow.cells[6]?.textContent || 'N/A';
+                    
+                    // Determina titolo, colore e emoji in base allo stato
+                    let title, color, emoji;
+                    if (status === 'Completato') {
+                        title = '✅ ORDINE COMPLETATO!';
+                        color = 3066993; // Verde
+                        emoji = '✅';
+                    } else if (status === 'Cancellato') {
+                        title = '❌ ORDINE ANNULLATO!';
+                        color = 15158332; // Rosso
+                        emoji = '❌';
+                    } else {
+                        title = '📋 STATO ORDINE AGGIORNATO';
+                        color = 3447003; // Blu
+                        emoji = '📋';
+                    }
                     
                     fetch('https://discord.com/api/webhooks/1460653071880159334/gvLic40YxD1BfM9Tp40jjr3-wU6lbVwaxmxvEkxOJVMCeHEpDblsONg63akvM_NFNiY6', {
                         method: 'POST',
-                        
+                        headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             embeds: [{
-                                title: '✅ ORDINE COMPLETATO!',
-                                color: 4059648, // Verde
-                                description: '**Un ordine è stato segnato come completato.**',
+                                title: title,
+                                color: color,
                                 fields: [
                                     { name: '🆔 Order ID', value: String(orderId), inline: true },
                                     { name: '👤 Discord ID', value: discordId, inline: true },
                                     { name: '📝 Servizio', value: service, inline: false },
-                                    { name: '📦 Piano', value: plan, inline: false },
-                                    { name: '📊 Stato', value: '✅ Completato', inline: true },
-                                    { name: '📅 Data Completamento', value: new Date().toLocaleString('it-IT'), inline: true }
+                                    { name: '📦 Piano', value: plan, inline: true },
+                                    { name: '💵 Prezzo', value: price, inline: true },
+                                    { name: '📊 Nuovo Stato', value: `${emoji} ${status}`, inline: false },
+                                    { name: '📅 Data', value: new Date().toLocaleString('it-IT'), inline: true }
                                 ],
                                 timestamp: new Date().toISOString(),
                                 footer: { text: '💎 LUXSAVE Admin System' }
@@ -2088,16 +2109,47 @@
         function markAsPaid(orderId) {
             if (!confirm('Confermi che questo ordine è stato pagato?')) return;
 
+            // Trova i dati dell'ordine dalla tabella
+            const orderRow = Array.from(document.querySelectorAll('#orders-list table tbody tr')).find(row => {
+                return row.cells[0].textContent == orderId;
+            });
+            
+            const orderData = orderRow ? {
+                discordId: orderRow.cells[2]?.textContent || 'N/A',
+                service: orderRow.cells[3]?.textContent || 'N/A',
+                plan: orderRow.cells[4]?.textContent || 'N/A',
+                price: orderRow.cells[6]?.textContent || 'N/A'
+            } : {};
+
             fetch(GOOGLE_SHEETS_URL, {
                 method: 'POST',
-                
-                
                 body: JSON.stringify({
                     type: 'mark_as_paid',
                     id: orderId
                 })
             })
             .then(() => {
+                // Invia notifica Discord
+                fetch('https://discord.com/api/webhooks/1460653071880159334/gvLic40YxD1BfM9Tp40jjr3-wU6lbVwaxmxvEkxOJVMCeHEpDblsONg63akvM_NFNiY6', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        embeds: [{
+                            title: '💰 ORDINE PAGATO!',
+                            color: 3066993, // Verde
+                            fields: [
+                                { name: '🆔 Order ID', value: String(orderId), inline: true },
+                                { name: '👤 Discord ID', value: orderData.discordId, inline: true },
+                                { name: '📝 Servizio', value: orderData.service, inline: false },
+                                { name: '📦 Piano', value: orderData.plan, inline: true },
+                                { name: '💵 Prezzo', value: orderData.price, inline: true }
+                            ],
+                            timestamp: new Date().toISOString(),
+                            footer: { text: '💎 LUXSAVE Admin' }
+                        }]
+                    })
+                }).catch(err => console.log('Discord notification error:', err));
+                
                 alert('✅ Ordine segnato come pagato!');
                 loadOrders();
                 loadDashboard();
@@ -2214,6 +2266,62 @@
             });
         }
 
+        // Completa una disdetta
+        function completeCancellation(cancelId) {
+            if (!confirm('Segnare questa disdetta come completata?')) return;
+            
+            // Ottieni i dettagli della disdetta
+            const cancelRow = Array.from(document.querySelectorAll('#cancellations-list table tbody tr')).find(row => {
+                return row.cells[0].textContent == cancelId;
+            });
+            
+            const cancelData = cancelRow ? {
+                discordId: cancelRow.cells[2]?.textContent || 'N/A',
+                service: cancelRow.cells[3]?.textContent || 'N/A',
+                reason: cancelRow.cells[4]?.textContent || 'N/A'
+            } : {};
+            
+            fetch(GOOGLE_SHEETS_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    type: 'update_cancellation_status',
+                    id: cancelId,
+                    status: 'Elaborata'
+                })
+            })
+            .then(() => {
+                // Invia notifica Discord
+                fetch('https://discord.com/api/webhooks/1460653071880159334/gvLic40YxD1BfM9Tp40jjr3-wU6lbVwaxmxvEkxOJVMCeHEpDblsONg63akvM_NFNiY6', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        embeds: [{
+                            title: '✅ DISDETTA COMPLETATA',
+                            color: 3066993, // Verde
+                            fields: [
+                                { name: '🆔 Request ID', value: String(cancelId), inline: true },
+                                { name: '👤 Discord ID', value: cancelData.discordId, inline: true },
+                                { name: '📝 Servizio', value: cancelData.service, inline: false },
+                                { name: '💬 Motivo', value: cancelData.reason, inline: false },
+                                { name: '📊 Stato', value: '✅ Elaborata', inline: true },
+                                { name: '📅 Data', value: new Date().toLocaleString('it-IT'), inline: true }
+                            ],
+                            timestamp: new Date().toISOString(),
+                            footer: { text: '💎 LUXSAVE Admin System' }
+                        }]
+                    })
+                }).catch(err => console.log('Discord notification error:', err));
+                
+                alert('✅ Disdetta segnata come completata!');
+                loadCancellations();
+                loadDashboard();
+            })
+            .catch(err => {
+                console.error('Errore:', err);
+                alert('❌ Errore nell\'aggiornamento');
+            });
+        }
+
         // ==================== REVIEWS MANAGEMENT ====================
         let allReviews = [];
         let currentReviewFilter = 'all';
@@ -2326,6 +2434,9 @@
                             <button class="btn" onclick="approveReview('${review.id}')" style="background: var(--accent-green); color: #000; font-size: 0.85rem; padding: 0.5rem 1rem;">
                                 ✅ Approva
                             </button>
+                            <button class="btn" onclick="rejectReview('${review.id}')" style="background: var(--accent-yellow); color: #000; font-size: 0.85rem; padding: 0.5rem 1rem;">
+                                ❌ Rifiuta
+                            </button>
                         ` : ''}
                         <button class="btn" onclick="showReplyModal('${review.id}')" style="background: var(--accent-cyan); color: #000; font-size: 0.85rem; padding: 0.5rem 1rem;">
                             💬 ${review.admin_reply ? 'Modifica Risposta' : 'Rispondi'}
@@ -2365,6 +2476,9 @@
         async function deleteReview(reviewId) {
             if (!confirm('Sei sicuro di voler eliminare questa recensione?')) return;
             
+            // Trova i dati della recensione
+            const review = allReviews.find(r => r.id === reviewId);
+            
             try {
                 const response = await fetch('/api/reviews/delete', {
                     method: 'POST',
@@ -2374,6 +2488,29 @@
                 
                 const data = await response.json();
                 if (data.success) {
+                    // Invia notifica Discord
+                    fetch('https://discord.com/api/webhooks/1460653071880159334/gvLic40YxD1BfM9Tp40jjr3-wU6lbVwaxmxvEkxOJVMCeHEpDblsONg63akvM_NFNiY6', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            embeds: [{
+                                title: '🗑️ RECENSIONE ELIMINATA',
+                                color: 15158332, // Rosso
+                                fields: [
+                                    { name: '👤 Utente', value: review?.user_name || 'N/A', inline: true },
+                                    { name: '📝 Servizio', value: review?.service || 'N/A', inline: true },
+                                    { name: '⭐ Valutazione', value: review?.rating ? '⭐'.repeat(review.rating) : 'N/A', inline: true },
+                                    { name: '📌 Titolo', value: review?.title || 'N/A', inline: false },
+                                    { name: '💬 Contenuto', value: (review?.content || 'N/A').substring(0, 200), inline: false },
+                                    { name: '📊 Azione', value: '🗑️ Eliminata', inline: true },
+                                    { name: '📅 Data', value: new Date().toLocaleString('it-IT'), inline: true }
+                                ],
+                                timestamp: new Date().toISOString(),
+                                footer: { text: '💎 LUXSAVE Admin System' }
+                            }]
+                        })
+                    }).catch(err => console.log('Discord notification error:', err));
+                    
                     alert('✅ Recensione eliminata!');
                     loadAdminReviews();
                 } else {
@@ -2382,6 +2519,57 @@
                 }
             } catch (error) {
                 console.error('Delete error:', error);
+                alert('❌ Errore di connessione: ' + error.message);
+            }
+        }
+
+        // Rifiuta recensione (elimina con notifica specifica)
+        async function rejectReview(reviewId) {
+            if (!confirm('Sei sicuro di voler RIFIUTARE questa recensione? Verrà eliminata.')) return;
+            
+            // Trova i dati della recensione
+            const review = allReviews.find(r => r.id === reviewId);
+            
+            try {
+                const response = await fetch('/api/reviews/delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reviewId })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    // Invia notifica Discord
+                    fetch('https://discord.com/api/webhooks/1460653071880159334/gvLic40YxD1BfM9Tp40jjr3-wU6lbVwaxmxvEkxOJVMCeHEpDblsONg63akvM_NFNiY6', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            embeds: [{
+                                title: '❌ RECENSIONE RIFIUTATA',
+                                color: 16776960, // Giallo
+                                description: '**Una recensione è stata rifiutata e non verrà pubblicata.**',
+                                fields: [
+                                    { name: '👤 Utente', value: review?.user_name || 'N/A', inline: true },
+                                    { name: '📝 Servizio', value: review?.service || 'N/A', inline: true },
+                                    { name: '⭐ Valutazione', value: review?.rating ? '⭐'.repeat(review.rating) : 'N/A', inline: true },
+                                    { name: '📌 Titolo', value: review?.title || 'N/A', inline: false },
+                                    { name: '💬 Contenuto', value: (review?.content || 'N/A').substring(0, 200), inline: false },
+                                    { name: '📊 Azione', value: '❌ Rifiutata', inline: true },
+                                    { name: '📅 Data', value: new Date().toLocaleString('it-IT'), inline: true }
+                                ],
+                                timestamp: new Date().toISOString(),
+                                footer: { text: '💎 LUXSAVE Admin System' }
+                            }]
+                        })
+                    }).catch(err => console.log('Discord notification error:', err));
+                    
+                    alert('✅ Recensione rifiutata!');
+                    loadAdminReviews();
+                } else {
+                    alert('❌ Errore: ' + (data.error || 'Impossibile rifiutare'));
+                }
+            } catch (error) {
+                console.error('Reject error:', error);
                 alert('❌ Errore di connessione: ' + error.message);
             }
         }
