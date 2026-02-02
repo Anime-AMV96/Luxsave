@@ -1,0 +1,86 @@
+name: Keep Supabase Alive
+
+# ⏰ Esegue automaticamente ogni 5 giorni alle 3 AM UTC
+on:
+  schedule:
+    - cron: '0 3 */5 * *'
+  workflow_dispatch: # Permette di eseguirlo manualmente da GitHub Actions
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🔄 Ping Supabase Database
+        run: |
+          echo "🚀 Pinging LUXSAVE Supabase..."
+          
+          # Query semplice: conta gli utenti (non modifica nulla)
+          curl -X GET "${{ secrets.SUPABASE_URL }}/rest/v1/users?select=count" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -w "\n📊 Response code: %{http_code}\n" \
+            --fail-with-body
+          
+          echo "✅ Ping completato con successo!"
+      
+      - name: 📢 Notifica su Discord
+        if: success()
+        run: |
+          curl -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "embeds": [{
+                "title": "✅ LUXSAVE - Supabase Attivo",
+                "description": "Il ping automatico ha mantenuto il database attivo con successo!",
+                "color": 65535,
+                "fields": [
+                  {
+                    "name": "📅 Data",
+                    "value": "'"$(date -u '+%d/%m/%Y %H:%M:%S UTC')"'",
+                    "inline": true
+                  },
+                  {
+                    "name": "⏱️ Prossimo ping",
+                    "value": "Tra 5 giorni",
+                    "inline": true
+                  }
+                ],
+                "footer": {
+                  "text": "LUXSAVE Auto-Ping System"
+                },
+                "timestamp": "'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"
+              }]
+            }'
+          
+          echo "📨 Notifica Discord inviata!"
+      
+      - name: ⚠️ Notifica errore su Discord
+        if: failure()
+        run: |
+          curl -X POST "${{ secrets.DISCORD_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "embeds": [{
+                "title": "❌ LUXSAVE - Errore Ping Supabase",
+                "description": "⚠️ Il ping automatico a Supabase è fallito! Controlla il progetto.",
+                "color": 16711680,
+                "fields": [
+                  {
+                    "name": "📅 Data errore",
+                    "value": "'"$(date -u '+%d/%m/%Y %H:%M:%S UTC')"'",
+                    "inline": true
+                  },
+                  {
+                    "name": "🔧 Azione richiesta",
+                    "value": "Verifica che il progetto Supabase sia attivo",
+                    "inline": false
+                  }
+                ],
+                "footer": {
+                  "text": "LUXSAVE Auto-Ping System"
+                },
+                "timestamp": "'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"
+              }]
+            }'
+          
+          echo "⚠️ Notifica errore Discord inviata!"
