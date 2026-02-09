@@ -1560,12 +1560,32 @@
                     multiple 
                     onchange="handleScreenshotUpload(event)"
                     style="display: none;">
+                <!-- ✅ FIX: Bottone più grande e carino per upload screenshot -->
                 <button 
                     type="button" 
                     class="btn" 
                     onclick="document.getElementById('reviewScreenshots').click()" 
-                    style="width: 100%; background: var(--bg-secondary); border: 2px dashed var(--border-color);">
-                    📷 Scegli Screenshot
+                    style="
+                        width: 100%; 
+                        padding: 2rem 1.5rem;
+                        background: linear-gradient(135deg, rgba(0, 255, 247, 0.05), rgba(255, 0, 110, 0.05));
+                        border: 2px dashed var(--accent-cyan);
+                        border-radius: 16px;
+                        font-size: 1.1rem;
+                        font-weight: 600;
+                        color: var(--accent-cyan);
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        gap: 0.75rem;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                    "
+                    onmouseover="this.style.borderColor='var(--accent-pink)'; this.style.color='var(--accent-pink)'; this.style.background='linear-gradient(135deg, rgba(255, 0, 110, 0.1), rgba(0, 255, 247, 0.1))';"
+                    onmouseout="this.style.borderColor='var(--accent-cyan)'; this.style.color='var(--accent-cyan)'; this.style.background='linear-gradient(135deg, rgba(0, 255, 247, 0.05), rgba(255, 0, 110, 0.05))';">
+                    <span style="font-size: 2.5rem;">📷</span>
+                    <span style="font-size: 1.1rem; font-weight: 700;">Carica Screenshot</span>
+                    <span style="font-size: 0.9rem; color: var(--text-secondary); font-weight: 400;">Clicca qui o trascina fino a 3 immagini (max 5MB)</span>
                 </button>
                 
                 <!-- Preview delle immagini caricate -->
@@ -3962,8 +3982,7 @@
                                         const whitelistedIds = (codeRestriction.discordIds || '').split(',').map(id => id.trim()).filter(id => id !== '');
                                         if (whitelistedIds.length > 0 && !whitelistedIds.includes(discordId)) {
                                             messageDiv.innerHTML = '<div style="color: var(--accent-pink); margin-top: 1rem; font-weight: 600;">❌ Questo codice non è disponibile per il tuo account</div>';
-                                            canUseCode = false;
-                                            return;
+                                            return Promise.reject('WHITELIST_ERROR'); // ✅ FIX: Interrompi la catena
                                         }
                                     }
                                     
@@ -3972,8 +3991,7 @@
                                         const blacklistedIds = (codeRestriction.discordIds || '').split(',').map(id => id.trim());
                                         if (blacklistedIds.includes(discordId)) {
                                             messageDiv.innerHTML = '<div style="color: var(--accent-pink); margin-top: 1rem; font-weight: 600;">❌ Questo codice non è disponibile per il tuo account</div>';
-                                            canUseCode = false;
-                                            return;
+                                            return Promise.reject('BLACKLIST_ERROR'); // ✅ FIX: Interrompi la catena
                                         }
                                     }
                                 }
@@ -3982,11 +4000,8 @@
                                 console.log(`Confronto: ${userUsageCount} >= ${maxUsesForUser} = ${userUsageCount >= maxUsesForUser}`);
                                 if (userUsageCount >= maxUsesForUser) {
                                     messageDiv.innerHTML = `<div style="color: var(--accent-pink); margin-top: 1rem; font-weight: 600;">❌ Hai già utilizzato questo codice ${maxUsesForUser} volta/e</div>`;
-                                    canUseCode = false;
-                                    return;
+                                    return Promise.reject('MAX_USES_ERROR'); // ✅ FIX: Interrompi la catena
                                 }
-                                
-                                if (!canUseCode) return;
                                 
                                 // ========== CODICE VALIDO - PROCEDI ==========
                     // Se il codice ha un campo "services" (lista di servizi ammessi), verifica
@@ -4064,7 +4079,18 @@
                     updateBoostSummary();
                     updateDecorationSummary();
                             }); // Fine then restrictionsData
-                    }); // Fine then usageResult
+                    }) // Fine then usageResult
+                    .catch(err => {
+                        // ✅ FIX: Gestisci gli errori di whitelist/blacklist/max uses senza mostrare errori aggiuntivi
+                        if (err === 'WHITELIST_ERROR' || err === 'BLACKLIST_ERROR' || err === 'MAX_USES_ERROR') {
+                            console.log('Verifica fallita:', err);
+                            // Il messaggio di errore è già stato mostrato sopra
+                            return;
+                        }
+                        // Altri errori vengono gestiti normalmente
+                        console.error('Errore verifica utilizzo:', err);
+                        messageDiv.innerHTML = '<div style="color: var(--accent-pink); margin-top: 1rem; font-weight: 600;">❌ Errore durante la verifica. Riprova.</div>';
+                    });
                 }) // Fine then data
                 .catch(err => {
                     console.error('Errore Google Sheets:', err);
