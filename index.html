@@ -3979,19 +3979,33 @@
                                     
                                     // Verifica whitelist
                                     if (codeRestriction.type === 'whitelist') {
-                                        const whitelistedIds = (codeRestriction.discordIds || '').split(',').map(id => id.trim()).filter(id => id !== '');
+                                        // ✅ FIX DEFINITIVO: discordIds può essere array o stringa
+                                        let whitelistedIds = [];
+                                        if (Array.isArray(codeRestriction.discordIds)) {
+                                            whitelistedIds = codeRestriction.discordIds.map(id => String(id).trim()).filter(id => id !== '');
+                                        } else if (typeof codeRestriction.discordIds === 'string') {
+                                            whitelistedIds = codeRestriction.discordIds.split(',').map(id => id.trim()).filter(id => id !== '');
+                                        }
+                                        
                                         if (whitelistedIds.length > 0 && !whitelistedIds.includes(discordId)) {
                                             messageDiv.innerHTML = '<div style="color: var(--accent-pink); margin-top: 1rem; font-weight: 600;">❌ Questo codice non è disponibile per il tuo account</div>';
-                                            return Promise.reject('WHITELIST_ERROR'); // ✅ FIX: Interrompi la catena
+                                            return Promise.reject('WHITELIST_ERROR');
                                         }
                                     }
                                     
                                     // Verifica blacklist
                                     if (codeRestriction.type === 'blacklist') {
-                                        const blacklistedIds = (codeRestriction.discordIds || '').split(',').map(id => id.trim());
+                                        // ✅ FIX DEFINITIVO: discordIds può essere array o stringa
+                                        let blacklistedIds = [];
+                                        if (Array.isArray(codeRestriction.discordIds)) {
+                                            blacklistedIds = codeRestriction.discordIds.map(id => String(id).trim());
+                                        } else if (typeof codeRestriction.discordIds === 'string') {
+                                            blacklistedIds = codeRestriction.discordIds.split(',').map(id => id.trim());
+                                        }
+                                        
                                         if (blacklistedIds.includes(discordId)) {
                                             messageDiv.innerHTML = '<div style="color: var(--accent-pink); margin-top: 1rem; font-weight: 600;">❌ Questo codice non è disponibile per il tuo account</div>';
-                                            return Promise.reject('BLACKLIST_ERROR'); // ✅ FIX: Interrompi la catena
+                                            return Promise.reject('BLACKLIST_ERROR');
                                         }
                                     }
                                 }
