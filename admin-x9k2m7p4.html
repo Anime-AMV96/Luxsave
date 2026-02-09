@@ -1877,11 +1877,18 @@
                 }
             }
             
-            // Se è edit, prima elimina la vecchia
+            // Mostra loading nel bottone
+            const saveBtn = document.querySelector('#restriction-modal button[onclick="saveRestriction()"]');
+            const originalBtnText = saveBtn ? saveBtn.innerHTML : '💾 Salva';
+            if (saveBtn) {
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = '⏳ Salvataggio...';
+            }
+            
             const deleteFirst = mode === 'edit' && originalCode;
             
             const doSave = () => {
-                fetch(GOOGLE_SHEETS_URL, {
+                return fetch(GOOGLE_SHEETS_URL, {
                     method: 'POST',
                     body: JSON.stringify({
                         type: 'add_restriction',
@@ -1891,17 +1898,47 @@
                         maxUsesPerUser: maxUses
                     })
                 })
-                .then(r => r.json())
+                .then(r => {
+                    if (!r.ok) throw new Error('Network response was not ok');
+                    return r.json();
+                })
                 .then(data => {
-                    alert('✅ Restrizione salvata!');
-                    closeRestrictionModal();
-                    loadRestrictions();
+                    if (saveBtn) {
+                        saveBtn.disabled = false;
+                        saveBtn.innerHTML = originalBtnText;
+                    }
+                    
+                    if (data.success !== false) {
+                        alert('✅ Restrizione salvata con successo!');
+                        closeRestrictionModal();
+                        loadRestrictions();
+                    } else {
+                        throw new Error(data.error || 'Errore sconosciuto');
+                    }
                 })
                 .catch(err => {
-                    console.error('Errore:', err);
-                    alert('✅ Restrizione salvata! (Ricarica per confermare)');
-                    closeRestrictionModal();
-                    loadRestrictions();
+                    console.error('Errore salvataggio:', err);
+                    if (saveBtn) {
+                        saveBtn.disabled = false;
+                        saveBtn.innerHTML = originalBtnText;
+                    }
+                    
+                    // Prova a ricaricare le restrizioni per vedere se è stata salvata comunque
+                    fetch(GOOGLE_SHEETS_URL + '?type=get_restrictions')
+                        .then(r => r.json())
+                        .then(data => {
+                            const exists = data.restrictions && data.restrictions.some(r => r.code === code);
+                            if (exists) {
+                                alert('✅ Restrizione salvata! (Verificata)');
+                                closeRestrictionModal();
+                                loadRestrictions();
+                            } else {
+                                alert('❌ Errore durante il salvataggio. Riprova.');
+                            }
+                        })
+                        .catch(() => {
+                            alert('❌ Errore di connessione. Ricarica la pagina per verificare se è stata salvata.');
+                        });
                 });
             };
             
@@ -1909,7 +1946,15 @@
                 fetch(GOOGLE_SHEETS_URL, {
                     method: 'POST',
                     body: JSON.stringify({ type: 'delete_restriction', code: originalCode })
-                }).then(() => doSave()).catch(() => doSave());
+                })
+                .then(() => doSave())
+                .catch(() => {
+                    if (saveBtn) {
+                        saveBtn.disabled = false;
+                        saveBtn.innerHTML = originalBtnText;
+                    }
+                    alert('❌ Errore durante l\'eliminazione della vecchia restrizione');
+                });
             } else {
                 doSave();
             }
